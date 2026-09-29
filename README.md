@@ -17,7 +17,7 @@
 
 ## Jev lands the plane!
 
-<a href="https://github.com/AlperKartkaya/FlightBench/releases/download/v0.1.0/FlightBench-Jev.mp4">
+<a href="https://alperkartkaya.github.io/FlightBench/jev-flight/">
   <img
     src="https://github.com/AlperKartkaya/FlightBench/releases/download/v0.1.0/jev-preview.gif"
     alt="Jev flight recording preview"
@@ -25,12 +25,12 @@
   >
 </a>
 
-[Jev](https://docs.typesafe.ai/introduction) is [TypeSafe](https://www.typesafe.ai)'s System One decision model. Given a state and typed questions, it returns structured choices and probabilities. Here, the right panel shows the state sent to Jev and the four actuator commands that Jev chose. **[Watch the full flight!](https://github.com/AlperKartkaya/FlightBench/releases/download/v0.1.0/FlightBench-Jev.mp4)**
+[Jev](https://docs.typesafe.ai/introduction) is [TypeSafe](https://www.typesafe.ai)'s System One decision model. Given a state and typed questions, it returns structured choices and probabilities. Here, the right panel shows the state sent to Jev and the four actuator commands that Jev chose. **[Watch the full flight!](https://alperkartkaya.github.io/FlightBench/jev-flight/)**
 
 
 ## Can you beat my landing?
 
-<a href="https://github.com/AlperKartkaya/FlightBench/releases/download/v0.1.0/FlightBench-HumanPilot.mp4">
+<a href="https://alperkartkaya.github.io/FlightBench/human-flight/">
   <img
     src="https://github.com/AlperKartkaya/FlightBench/releases/download/v0.1.0/snap-pilot.png"
     alt="Human-pilot flight recording preview"
@@ -38,7 +38,7 @@
   >
 </a>
 
-**[Watch my flight!](https://github.com/AlperKartkaya/FlightBench/releases/download/v0.1.0/FlightBench-HumanPilot.mp4)** My record is **70.1/100**. Try the same setup and beat my score, then [send me your run or recording](mailto:alperkartkaya@gmail.com)! You can also [watch the baseline controller](https://github.com/AlperKartkaya/FlightBench/releases/download/v0.1.0/FlightBench-Baseline.mp4).
+**[Watch my flight!](https://alperkartkaya.github.io/FlightBench/human-flight/)** My record is **70.1/100**. Try the same setup and beat my score, then [send me your run or recording](mailto:alperkartkaya@gmail.com)! You can also [watch the baseline controller](https://alperkartkaya.github.io/FlightBench/baseline-flight/).
 
 ## Quick take-off
 
@@ -63,7 +63,7 @@ Human-pilot and baseline modes require neither an API key nor a Codex account. F
 
 ## Benchmark results and estimated API cost
 
-Where Jev landed successfully in realtime at an effective rate of about 2.4 calls per second, no Codex model managed to land successfully even with 2 Hz lockstep. Jev's performance is **not a 5-star one**, it performed with a 14% successful landing, 74% runway excursion, 9% nose-first contact (crash), and 2% timeout rate. The baseline controller landed with a score of **69.9/100**, a little below [my personal best](https://github.com/AlperKartkaya/FlightBench/releases/download/v0.1.0/FlightBench-HumanPilot.mp4)!
+Where Jev landed successfully in realtime at an effective rate of about 2.4 calls per second, no Codex model managed to land successfully even with 2 Hz lockstep. Jev's performance is **not a 5-star one**, it performed with a 14% successful landing, 74% runway excursion, 9% nose-first contact (crash), and 2% timeout rate. The baseline controller landed with a score of **69.9/100**, a little below [my personal best](https://alperkartkaya.github.io/FlightBench/human-flight/)!
 
 | Controller | Score and result | Sim time and wall time (s) | Calls | Mean latency per call (s) | Latency vs Jev | Input / output tokens | Est. API cost | Cost vs Jev |
 | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
