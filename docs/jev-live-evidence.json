@@ -1,0 +1,2467 @@
+{
+  "date": "2026-09-23",
+  "note": "Actual TypeSafe requests driving JSBSim. Before is historical baseline-assisted policy, not pure Jev evidence. Easy seeds share identical initial physics; repeated runs test provider variability, not environment diversity. Full records are in local ignored runs/. No physical aircraft flights.",
+  "runs": [
+    {
+      "experiment": "before",
+      "run_id": "37d0ce16-8d30-422d-bad7-4370a398af90",
+      "record_sha256": "c9ebdc3e73abf27cefe66c0c5bbf5f01898d02671af2ef06fd3a83ec2afab527",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:5d18d15ffa3d64fbb26316bf25c1398ca55a2717293f5dd8df733618f385cc40"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-latest",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "action_variant": "guided",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "stability_maintainer": false,
+        "stability_threshold": 0.1,
+        "delta_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "expected_value": true,
+        "proportional_delta": true,
+        "proportional_threshold": 0.2,
+        "proportional_max_mult": 5.0
+      },
+      "outcome": {
+        "success": false,
+        "quality": 0.0,
+        "status": "nose_first_contact",
+        "touchdown": null
+      },
+      "diagnostics": {
+        "decision_count": 77,
+        "mean_latency_ms": 599.2599480519481,
+        "calls": 77,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 31,
+          "stability_hold": 0,
+          "applied": 77
+        },
+        "duration_s": 38.09166666666667
+      }
+    },
+    {
+      "experiment": "direct-current",
+      "run_id": "6a6473c8-588a-486e-b5f8-da0302d0dea7",
+      "record_sha256": "3b5e045da1bd17d861230e56c60e9b95bd3db2e1b1db30f7c23b696739bd4e62",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:3d409d48f5cc39a5da3d874bb3df4e20a3607006b3f1bffab96dd9802862045d"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 35.012,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 89.83256267793354,
+          "cross_track_m": 129.8428,
+          "sink_rate_mps": -2.925818804161045,
+          "airspeed_mps": 27.272355820391194,
+          "heading_error_deg": 99.2251879335007,
+          "roll_deg": 25.106025903593878,
+          "pitch_deg": -0.4566216265064046
+        }
+      },
+      "diagnostics": {
+        "decision_count": 103,
+        "mean_latency_ms": 486.5355339805825,
+        "calls": 103,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 103
+        },
+        "duration_s": 51.15833333333333
+      }
+    },
+    {
+      "experiment": "explicit-signs",
+      "run_id": "d075ddb4-85b3-49b3-b620-4ae495394ea9",
+      "record_sha256": "6b69c6febee1aa478654817d14ceec69db6205e08b7853a763d16619e6d40038",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:ecc1b24d97131786dece377d42c356087a7a69b92f9fc66a6eee8a5aaf536d45"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 46.097,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 903.7869104666656,
+          "cross_track_m": 15.9123,
+          "sink_rate_mps": -0.9101479612085919,
+          "airspeed_mps": 27.88752627246422,
+          "heading_error_deg": 0.6538043892375356,
+          "roll_deg": 0.7890271850883851,
+          "pitch_deg": 2.588189737788558
+        }
+      },
+      "diagnostics": {
+        "decision_count": 149,
+        "mean_latency_ms": 318.1481744966443,
+        "calls": 149,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 149
+        },
+        "duration_s": 74.40833333333333
+      }
+    },
+    {
+      "experiment": "intercept",
+      "run_id": "c1ee9a4f-e77e-45e3-a776-9c2cac6c355e",
+      "record_sha256": "30586e6950bd00a1cfdae200c927b59d3a5edaee8e99ce147e9ab030f9ea4909",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:a7d0498f30b1bc31f31078ab6edccea4589a9afc2fa658dc97725161688ac933"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 39.06,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 889.9950444486894,
+          "cross_track_m": 33.632,
+          "sink_rate_mps": -0.5593964284981691,
+          "airspeed_mps": 28.904018168697007,
+          "heading_error_deg": -13.761218630646425,
+          "roll_deg": -1.3506858756109,
+          "pitch_deg": 3.1417011277699523
+        }
+      },
+      "diagnostics": {
+        "decision_count": 151,
+        "mean_latency_ms": 339.92655629139074,
+        "calls": 151,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 151
+        },
+        "duration_s": 75.26666666666667
+      }
+    },
+    {
+      "experiment": "braking",
+      "run_id": "9c997926-ffeb-4f4a-9006-cc441d9c5542",
+      "record_sha256": "3c573297d69287da4ecca6d058ecd86453912efba2184798798f7c4304510a5c",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:5df708fadf9cf6bc5086a6f737df74bb72f7b9efd60153e3251661730e61f220"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": true,
+        "quality": 50.0,
+        "status": "landed",
+        "touchdown": {
+          "along_track_m": 845.9698069815222,
+          "cross_track_m": -5.7866,
+          "sink_rate_mps": -0.782437709134721,
+          "airspeed_mps": 29.508414649084145,
+          "heading_error_deg": -2.179616963126932,
+          "roll_deg": 8.251743459131928,
+          "pitch_deg": 2.873907662870839
+        }
+      },
+      "diagnostics": {
+        "decision_count": 163,
+        "mean_latency_ms": 319.631018404908,
+        "calls": 163,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 163
+        },
+        "duration_s": 81.025
+      }
+    },
+    {
+      "experiment": "validation",
+      "run_id": "30bf27f7-966a-4641-b6a8-5fae56109d84",
+      "record_sha256": "daf02e8010a39cbdd9bf1df2f59ab4823946e42f0f897ba60563c34652ef7f0e",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:5df708fadf9cf6bc5086a6f737df74bb72f7b9efd60153e3251661730e61f220"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 404,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 914.0869027795043,
+          "cross_track_m": 6.3158,
+          "sink_rate_mps": -0.8551747100644752,
+          "airspeed_mps": 29.07847428779426,
+          "heading_error_deg": 3.286044048653764,
+          "roll_deg": 5.317724723573864,
+          "pitch_deg": 2.682645139903142
+        }
+      },
+      "diagnostics": {
+        "decision_count": 159,
+        "mean_latency_ms": 327.29880503144653,
+        "calls": 159,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 159
+        },
+        "duration_s": 79.09166666666667
+      }
+    },
+    {
+      "experiment": "validation",
+      "run_id": "4e131fb4-1dec-4fce-b19b-a6c2fa354f9c",
+      "record_sha256": "8dbdfbf7c8a420b9c0e0c0b0809ba55c0b8f2b89c6efb12cc5ac1279fef5c7e3",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:5df708fadf9cf6bc5086a6f737df74bb72f7b9efd60153e3251661730e61f220"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 45.476,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 893.9514103589827,
+          "cross_track_m": 38.5367,
+          "sink_rate_mps": -0.7159402623535926,
+          "airspeed_mps": 28.952114541622866,
+          "heading_error_deg": 1.5757851012891422,
+          "roll_deg": -1.7135671928942846,
+          "pitch_deg": 2.8100492579311487
+        }
+      },
+      "diagnostics": {
+        "decision_count": 150,
+        "mean_latency_ms": 338.08586,
+        "calls": 150,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 150
+        },
+        "duration_s": 74.95
+      }
+    },
+    {
+      "experiment": "validation",
+      "run_id": "7b8925f2-0d11-4ccb-a6d4-9b1170403da9",
+      "record_sha256": "99930c299ed75ef8b2a4d2d435748ebacd03aed006fa1ee0dfd6904c7da43f29",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:5df708fadf9cf6bc5086a6f737df74bb72f7b9efd60153e3251661730e61f220"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 303,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 42.534,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 875.2468375224189,
+          "cross_track_m": 38.021,
+          "sink_rate_mps": -1.014701651349182,
+          "airspeed_mps": 29.629949399168034,
+          "heading_error_deg": -0.9011386196529543,
+          "roll_deg": -2.0507434570933,
+          "pitch_deg": 2.1643273163252017
+        }
+      },
+      "diagnostics": {
+        "decision_count": 149,
+        "mean_latency_ms": 300.89657718120804,
+        "calls": 149,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 149
+        },
+        "duration_s": 74.4
+      }
+    },
+    {
+      "experiment": "validation",
+      "run_id": "c0661312-a112-489e-bc07-a6a2d6b8988c",
+      "record_sha256": "a8d63d4a91c048c4558cdf425a745d4bd58324fe8785003cb1e9156592b2b5d2",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:5df708fadf9cf6bc5086a6f737df74bb72f7b9efd60153e3251661730e61f220"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 202,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 33.609,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 852.7412277708181,
+          "cross_track_m": 20.5548,
+          "sink_rate_mps": -1.4898215891092594,
+          "airspeed_mps": 29.91082267747555,
+          "heading_error_deg": -1.1245669710027641,
+          "roll_deg": 6.634059126618142,
+          "pitch_deg": 1.4103447380304064
+        }
+      },
+      "diagnostics": {
+        "decision_count": 147,
+        "mean_latency_ms": 307.09903401360543,
+        "calls": 147,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 147
+        },
+        "duration_s": 73.5
+      }
+    },
+    {
+      "experiment": "validation",
+      "run_id": "c4c81fb0-484b-48a2-a38f-00172edd5809",
+      "record_sha256": "1cc2e177b4dc29024025e99f5404f9a8dfdbfcdfe86f8eae1b6ad79965e304dd",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:5df708fadf9cf6bc5086a6f737df74bb72f7b9efd60153e3251661730e61f220"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 101,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 892.46679377802,
+          "cross_track_m": 33.8567,
+          "sink_rate_mps": -0.26485177335100757,
+          "airspeed_mps": 28.96454529638347,
+          "heading_error_deg": 1.2929345111289763,
+          "roll_deg": -2.0305640575575867,
+          "pitch_deg": 3.6974900212559794
+        }
+      },
+      "diagnostics": {
+        "decision_count": 150,
+        "mean_latency_ms": 302.87655333333333,
+        "calls": 150,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 150
+        },
+        "duration_s": 74.99166666666666
+      }
+    },
+    {
+      "experiment": "medium-validation",
+      "run_id": "7e7dec84-770f-4977-b783-d0cd032756ed",
+      "record_sha256": "83101636166d5a7a7d2605e735ac200471588c3cb56d1105fcf8252ba93bb17f",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:5df708fadf9cf6bc5086a6f737df74bb72f7b9efd60153e3251661730e61f220"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "medium",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 40.584,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 894.7188561986213,
+          "cross_track_m": 40.1705,
+          "sink_rate_mps": -1.0475255488448696,
+          "airspeed_mps": 29.445149888803666,
+          "heading_error_deg": -1.2652049670808196,
+          "roll_deg": 3.6389881864203892,
+          "pitch_deg": 2.242024295402057
+        }
+      },
+      "diagnostics": {
+        "decision_count": 150,
+        "mean_latency_ms": 320.01114666666666,
+        "calls": 150,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 150
+        },
+        "duration_s": 75.0
+      }
+    },
+    {
+      "experiment": "5hz-validation",
+      "run_id": "8aa9a745-f93a-4f92-b9ce-732e2fbdbaec",
+      "record_sha256": "4634de815fee25d1dd5d892ed58f96891f992be4d17f9c17d85401a52ebe282b",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:5df708fadf9cf6bc5086a6f737df74bb72f7b9efd60153e3251661730e61f220"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 5,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 40.71,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 890.4368585116131,
+          "cross_track_m": 18.4044,
+          "sink_rate_mps": -0.9609784661548261,
+          "airspeed_mps": 29.29714347377385,
+          "heading_error_deg": 1.417775656376108,
+          "roll_deg": 4.255874123064761,
+          "pitch_deg": 2.367712669884354
+        }
+      },
+      "diagnostics": {
+        "decision_count": 375,
+        "mean_latency_ms": 316.30733066666664,
+        "calls": 375,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 375
+        },
+        "duration_s": 74.93333333333334
+      }
+    },
+    {
+      "experiment": "glide-validation",
+      "run_id": "6653caa8-aed9-40b2-a706-449636eb5bba",
+      "record_sha256": "1fbc539ad0f8a218036dcb3cd8e086f490c58afc0eec5fed9fd3498217d58305",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:f4b8cd283a7fe21980e032f45cacf83ffba61d6e158d346410f2b50298d9b9fc"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 517.4213590593301,
+          "cross_track_m": -51.8359,
+          "sink_rate_mps": -1.0528194437117122,
+          "airspeed_mps": 29.517923967590317,
+          "heading_error_deg": 3.001936183790292,
+          "roll_deg": -1.0926765695589056,
+          "pitch_deg": 2.104083073386021
+        }
+      },
+      "diagnostics": {
+        "decision_count": 121,
+        "mean_latency_ms": 360.465173553719,
+        "calls": 121,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 121
+        },
+        "duration_s": 60.141666666666666
+      }
+    },
+    {
+      "experiment": "telemetry-validation",
+      "run_id": "5921412e-bb2c-4369-879a-b6565fef2893",
+      "record_sha256": "98a767b15fc49d379beaf2c81a2974febdd2dd3902c823d5758fc1cf2dd1eaef",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:9d9e4da365a2c87c52ba852f41bc8e6019a2e84f802381a7105febb013ec9b11"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 460.69466500307,
+          "cross_track_m": -40.1748,
+          "sink_rate_mps": -1.9821527980607478,
+          "airspeed_mps": 30.519290848691295,
+          "heading_error_deg": 1.1751432609323444,
+          "roll_deg": -1.881644426452609,
+          "pitch_deg": 0.32512704276332677
+        }
+      },
+      "diagnostics": {
+        "decision_count": 117,
+        "mean_latency_ms": 336.5862905982906,
+        "calls": 117,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 117
+        },
+        "duration_s": 58.041666666666664
+      }
+    },
+    {
+      "experiment": "coordinated-validation",
+      "run_id": "e0c5f9c5-6e8a-49f5-8315-151fc250ae7a",
+      "record_sha256": "24ac61dbde27e6a4361144fee887613ac6e7480c40bfa327737474bb34e800f7",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:15bfac07603b45ca0ce9f5053475fec96b67cba3a51873a1259c0920f8a8d651"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 480.623723609084,
+          "cross_track_m": -61.02,
+          "sink_rate_mps": -1.7300463773570258,
+          "airspeed_mps": 30.13910257085715,
+          "heading_error_deg": 1.3309719003569853,
+          "roll_deg": -1.3368939286233572,
+          "pitch_deg": 0.7644755862949785
+        }
+      },
+      "diagnostics": {
+        "decision_count": 118,
+        "mean_latency_ms": 392.08889830508474,
+        "calls": 118,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 118
+        },
+        "duration_s": 58.725
+      }
+    },
+    {
+      "experiment": "distance-validation",
+      "run_id": "33a0fb70-8473-41e7-8ae0-5b4a5efd53d9",
+      "record_sha256": "6ab3167eef1b7dc4b5e4e663da8108b2ad3992733e8a3a9e326d51314878bcaa",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:85a9cc59fbf78a13dc9cbe7bdfc109b6c9399204e469a7e358d4d4b2f19b075e"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 0.0,
+        "status": "nose_first_contact",
+        "touchdown": null
+      },
+      "diagnostics": {
+        "decision_count": 120,
+        "mean_latency_ms": 335.0588666666667,
+        "calls": 120,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 120
+        },
+        "duration_s": 59.9
+      }
+    },
+    {
+      "experiment": "final-verification",
+      "run_id": "e29625ac-b268-4ef6-a4fa-2d590c544b4c",
+      "record_sha256": "d8e049221a9cd6bc2b8debeedd213956323cec1f7f58ab2795df3af27e21b5a7",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:72b2f0559c369e4ffd07ce4f81526e27c3c19036e542384478199383536299ad"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 872.8527839766302,
+          "cross_track_m": 1.356,
+          "sink_rate_mps": -1.0205362470248431,
+          "airspeed_mps": 29.60026615758512,
+          "heading_error_deg": 1.746063170669487,
+          "roll_deg": 6.605788275022656,
+          "pitch_deg": 2.364282637880957
+        }
+      },
+      "diagnostics": {
+        "decision_count": 162,
+        "mean_latency_ms": 376.6179814814815,
+        "calls": 162,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 162
+        },
+        "duration_s": 80.79166666666667
+      }
+    },
+    {
+      "experiment": "airspeed-validation",
+      "run_id": "99b4b045-ed86-4065-833a-c8abcfcd0f03",
+      "record_sha256": "005b3120d4c5904a0905ab1c3fd95b5a635761ef18e15a1d710663f7ca420bbf",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:7d7ab7e894d9fbab027af5ed7cdd05e79e8d3b9a33fbf37bf96f90a128a51b25"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 0.0,
+        "status": "controller_timeout",
+        "touchdown": null
+      },
+      "diagnostics": {
+        "decision_count": 28,
+        "mean_latency_ms": 701.5658620689655,
+        "calls": 29,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 1,
+        "last_api_error": "controller_timeout",
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 28
+        },
+        "duration_s": 14.0
+      }
+    },
+    {
+      "experiment": "priority-validation",
+      "run_id": "266edccd-c575-44af-92f1-cca23c785f88",
+      "record_sha256": "401faff44658c74875a04f50821854a5c17f0f51585addeec63b596b991411a1",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:b25dfde9578e88cb0e496f009928916ef8443d03a4798702c0c9130cf91d8caf"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 888.4725587947887,
+          "cross_track_m": -0.4187,
+          "sink_rate_mps": -1.0960720256334806,
+          "airspeed_mps": 29.9452537602981,
+          "heading_error_deg": 1.3483039683131324,
+          "roll_deg": 2.632559606895959,
+          "pitch_deg": 1.9833848797498075
+        }
+      },
+      "diagnostics": {
+        "decision_count": 159,
+        "mean_latency_ms": 328.85740251572327,
+        "calls": 159,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 159
+        },
+        "duration_s": 79.48333333333333
+      }
+    },
+    {
+      "experiment": "combined-validation",
+      "run_id": "9dd1e4f7-3bd6-46be-9da6-a263c2d8969a",
+      "record_sha256": "bae5596cf1299ed76162c0bdc6d393836a9af56dbe9bc40c6df7e8ea993daa5d",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:332358f3cdfffb0b3d0f39084d04c31b5ca4253fdbef62f53e55d6aee3737175"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 0.0,
+        "status": "nose_first_contact",
+        "touchdown": null
+      },
+      "diagnostics": {
+        "decision_count": 117,
+        "mean_latency_ms": 456.8092393162393,
+        "calls": 117,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 117
+        },
+        "duration_s": 58.458333333333336
+      }
+    },
+    {
+      "experiment": "flare-validation",
+      "run_id": "5e34ab7d-db15-4e77-a17f-c13f2803cc74",
+      "record_sha256": "8803d825a72d493e2d37480ddce6d49615e558e960687ab9861c33775d6cad91",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:97826c229529ec9f99356ea6ae7697a17d886b00233294457741cb5818ddd49c"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 41.672,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 814.6776529622457,
+          "cross_track_m": 13.5984,
+          "sink_rate_mps": -1.1944813202342492,
+          "airspeed_mps": 26.574268869944277,
+          "heading_error_deg": 4.027273800885553,
+          "roll_deg": 1.3697387078394685,
+          "pitch_deg": 2.8079634521402457
+        }
+      },
+      "diagnostics": {
+        "decision_count": 147,
+        "mean_latency_ms": 345.31540136054423,
+        "calls": 147,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 147
+        },
+        "duration_s": 73.10833333333333
+      }
+    },
+    {
+      "experiment": "neighbor-validation",
+      "run_id": "c83467d9-36ca-4bf8-9e65-ff061d1581a3",
+      "record_sha256": "11a925165925ebaac407d312de27652ed84f3fdfb3e093e9c32dca40311ab528",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:97826c229529ec9f99356ea6ae7697a17d886b00233294457741cb5818ddd49c",
+        "experiment_sha256": "d6e3b7f2663bf328fed4edaebf4625dd56bb0cc266b8a78ba3fe0909ad891c9f",
+        "experiment_script": "/tmp/fb_neighbor_probe.py"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "neighbor-candidates-experiment",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 0.0,
+        "status": "nose_first_contact",
+        "touchdown": null
+      },
+      "diagnostics": {
+        "decision_count": 69,
+        "mean_latency_ms": 366.4763913043478,
+        "calls": 69,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 69
+        },
+        "duration_s": 34.483333333333334
+      }
+    },
+    {
+      "experiment": "feedback-validation",
+      "run_id": "8780af3b-212f-410b-abe9-feb61fcada3f",
+      "record_sha256": "b74aa1e7ef903e84ceb7beddcb6a68bfb45563230521da9de193389b2d60e4a4",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:1dd6110b7c1154537622eb34fa77af906481a06851ca8a7e999a27885b6bb92e"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 36.482,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 920.8882076686609,
+          "cross_track_m": 13.9222,
+          "sink_rate_mps": -1.4199469585151332,
+          "airspeed_mps": 26.244636304869758,
+          "heading_error_deg": 5.709276172823905,
+          "roll_deg": 2.8530937869637563,
+          "pitch_deg": 2.3573240910381608
+        }
+      },
+      "diagnostics": {
+        "decision_count": 154,
+        "mean_latency_ms": 351.3707207792208,
+        "calls": 154,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 154
+        },
+        "duration_s": 76.76666666666667
+      }
+    },
+    {
+      "experiment": "late-flare-validation",
+      "run_id": "be6116ae-6bdf-454a-aa4b-6fb7ee31ef9c",
+      "record_sha256": "a4abb22d4eb1ff72899ef942bca91314e84ec77692238bd09ad9013675f7fa2f",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:ea1b511bafd28e6265c7b9a4d8039485855433861fe58b9f02be3241de076e36"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 983.2339831537356,
+          "cross_track_m": 8.1332,
+          "sink_rate_mps": -0.8883451344439921,
+          "airspeed_mps": 27.62183796882312,
+          "heading_error_deg": 0.631832180714639,
+          "roll_deg": 1.8946447372713755,
+          "pitch_deg": 2.6823375548746644
+        }
+      },
+      "diagnostics": {
+        "decision_count": 158,
+        "mean_latency_ms": 366.9205316455696,
+        "calls": 158,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 158
+        },
+        "duration_s": 78.93333333333334
+      }
+    },
+    {
+      "experiment": "phase-question-validation",
+      "run_id": "a96ff108-a5fd-4801-8ad6-a8a52d58f225",
+      "record_sha256": "8e86f4d66522a6bd9d9b50a7a6dedfce5c62563fe7644b87e4146e43f8c4878e",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:a4e78cef529463b4d8d9f9c0d6efcceb418a6d0be23b15c244ace7d82840d55c"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": true,
+        "quality": 68.683,
+        "status": "landed",
+        "touchdown": {
+          "along_track_m": 432.11065716590883,
+          "cross_track_m": 3.4557,
+          "sink_rate_mps": -1.5134023841406155,
+          "airspeed_mps": 26.314253354921753,
+          "heading_error_deg": 4.81642130565271,
+          "roll_deg": 2.6395000498780115,
+          "pitch_deg": 2.139393732931437
+        }
+      },
+      "diagnostics": {
+        "decision_count": 132,
+        "mean_latency_ms": 363.8044621212121,
+        "calls": 132,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 132
+        },
+        "duration_s": 65.64166666666667
+      }
+    },
+    {
+      "experiment": "phase-repeat-validation",
+      "run_id": "03381fd1-06a0-4f8a-8035-747734504a46",
+      "record_sha256": "e63c6c92ab2064bbddb9f9312b56a2910b69e5204696adc9eee6de05e4ec6440",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:a4e78cef529463b4d8d9f9c0d6efcceb418a6d0be23b15c244ace7d82840d55c"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 202,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": true,
+        "quality": 54.393,
+        "status": "landed",
+        "touchdown": {
+          "along_track_m": 432.32525295078426,
+          "cross_track_m": -12.8929,
+          "sink_rate_mps": -1.6365228015438669,
+          "airspeed_mps": 26.366787086219663,
+          "heading_error_deg": 5.64276402756235,
+          "roll_deg": 2.7956504251626244,
+          "pitch_deg": 1.8748178818021113
+        }
+      },
+      "diagnostics": {
+        "decision_count": 132,
+        "mean_latency_ms": 363.3318712121212,
+        "calls": 132,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 132
+        },
+        "duration_s": 65.68333333333334
+      }
+    },
+    {
+      "experiment": "phase-repeat-validation",
+      "run_id": "38a36b2b-853a-43c8-9589-ba3463d6312c",
+      "record_sha256": "91e8c874dd8d90f662d7d4461dc631960c6a7485b2909405dfe106657716df9c",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:a4e78cef529463b4d8d9f9c0d6efcceb418a6d0be23b15c244ace7d82840d55c"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 424.85859472739094,
+          "cross_track_m": 10.5635,
+          "sink_rate_mps": -1.4053130147151072,
+          "airspeed_mps": 26.45400990942284,
+          "heading_error_deg": 7.782831683747759,
+          "roll_deg": 2.8304375401083126,
+          "pitch_deg": 2.373910029056833
+        }
+      },
+      "diagnostics": {
+        "decision_count": 118,
+        "mean_latency_ms": 355.12233898305084,
+        "calls": 118,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 118
+        },
+        "duration_s": 58.9
+      }
+    },
+    {
+      "experiment": "phase-repeat-validation",
+      "run_id": "c41f6c52-5701-468b-9169-8dd750d7c2b8",
+      "record_sha256": "51cebad882aab26dab12b2ad52c6e215eab62d07689eaa9e85d858055483b72a",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:a4e78cef529463b4d8d9f9c0d6efcceb418a6d0be23b15c244ace7d82840d55c"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 101,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": true,
+        "quality": 58.995,
+        "status": "landed",
+        "touchdown": {
+          "along_track_m": 430.1907892943766,
+          "cross_track_m": -9.3611,
+          "sink_rate_mps": -1.5093826733190032,
+          "airspeed_mps": 26.37015585833079,
+          "heading_error_deg": 7.399387544249009,
+          "roll_deg": 2.971427879604209,
+          "pitch_deg": 2.158744479062474
+        }
+      },
+      "diagnostics": {
+        "decision_count": 132,
+        "mean_latency_ms": 342.95984090909093,
+        "calls": 132,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 132
+        },
+        "duration_s": 65.63333333333334
+      }
+    },
+    {
+      "experiment": "phase-medium-validation",
+      "run_id": "4360e629-baae-477a-82d8-a6234c89dc7a",
+      "record_sha256": "0a29f63f028665d7652e3ebb20198362b693903615d1ca8077e05a9872f9a9b0",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:a4e78cef529463b4d8d9f9c0d6efcceb418a6d0be23b15c244ace7d82840d55c"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "medium",
+        "mode": "lockstep",
+        "seed": 40,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 443.0323074552666,
+          "cross_track_m": 8.5114,
+          "sink_rate_mps": -1.1355011127112598,
+          "airspeed_mps": 26.407045519293174,
+          "heading_error_deg": 3.65994581927896,
+          "roll_deg": 2.54189654014851,
+          "pitch_deg": 2.9366130150480294
+        }
+      },
+      "diagnostics": {
+        "decision_count": 126,
+        "mean_latency_ms": 358.1756111111111,
+        "calls": 126,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 126
+        },
+        "duration_s": 62.74166666666667
+      }
+    },
+    {
+      "experiment": "phase-medium-validation",
+      "run_id": "7d5bac59-115d-43a3-a23b-2b6a8d51f812",
+      "record_sha256": "021c0ea8a9c028ffd95d85d671290f07ca2340ee56f14014921b7f2a070f68a7",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:a4e78cef529463b4d8d9f9c0d6efcceb418a6d0be23b15c244ace7d82840d55c"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "medium",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 435.96857462063986,
+          "cross_track_m": 10.2487,
+          "sink_rate_mps": -1.6749634810957346,
+          "airspeed_mps": 26.35407260440208,
+          "heading_error_deg": 8.048515316045155,
+          "roll_deg": 3.048711349203515,
+          "pitch_deg": 1.8057338227823663
+        }
+      },
+      "diagnostics": {
+        "decision_count": 119,
+        "mean_latency_ms": 335.51757142857144,
+        "calls": 119,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 119
+        },
+        "duration_s": 59.416666666666664
+      }
+    },
+    {
+      "experiment": "phase-medium-validation",
+      "run_id": "fd6324a5-96ed-44e0-bceb-f11f34fb90b3",
+      "record_sha256": "724d72df557d3305f50cd83493ce4282156f131e83491a3ecae50bcfca290eef",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:a4e78cef529463b4d8d9f9c0d6efcceb418a6d0be23b15c244ace7d82840d55c"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "medium",
+        "mode": "lockstep",
+        "seed": 41,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 430.9778373272163,
+          "cross_track_m": 13.5114,
+          "sink_rate_mps": -1.8018007479884306,
+          "airspeed_mps": 26.30897430324938,
+          "heading_error_deg": 5.057543253590751,
+          "roll_deg": 2.929062948487285,
+          "pitch_deg": 1.5349375866817232
+        }
+      },
+      "diagnostics": {
+        "decision_count": 118,
+        "mean_latency_ms": 347.72008474576273,
+        "calls": 118,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 118
+        },
+        "duration_s": 58.666666666666664
+      }
+    },
+    {
+      "experiment": "roll-authority-validation",
+      "run_id": "60402fa3-d334-4c71-bbc4-8bffb3f395ef",
+      "record_sha256": "b0db691c4930d0277c545d47a0be143bb0e18545da6f2c6ae422fdbcc4cf4f86",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:721822db6619087aed38e1ab2ec92d3fad895fbfc01d4d3c59cfcd097ab0ff6b"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 101,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": true,
+        "quality": 63.77,
+        "status": "landed",
+        "touchdown": {
+          "along_track_m": 496.96891849908525,
+          "cross_track_m": 7.4944,
+          "sink_rate_mps": -1.4052402664435668,
+          "airspeed_mps": 26.507058982878128,
+          "heading_error_deg": 0.02650303152915967,
+          "roll_deg": 1.0177756611863935,
+          "pitch_deg": 2.3068030914985833
+        }
+      },
+      "diagnostics": {
+        "decision_count": 135,
+        "mean_latency_ms": 381.23196296296294,
+        "calls": 135,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 135
+        },
+        "duration_s": 67.5
+      }
+    },
+    {
+      "experiment": "roll-authority-validation",
+      "run_id": "cb50bea2-975a-4ef4-98e0-9d9cc3865497",
+      "record_sha256": "e9efc3fd8bdac4cf0480bbf67dba19f4ef4a9bcef6d3655350c5801828761a66",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:721822db6619087aed38e1ab2ec92d3fad895fbfc01d4d3c59cfcd097ab0ff6b"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 498.22967815013385,
+          "cross_track_m": 8.3962,
+          "sink_rate_mps": -1.2980583884422554,
+          "airspeed_mps": 26.465921311197864,
+          "heading_error_deg": 5.554394398212821,
+          "roll_deg": 2.5404484793433455,
+          "pitch_deg": 2.6115412800061497
+        }
+      },
+      "diagnostics": {
+        "decision_count": 125,
+        "mean_latency_ms": 374.999056,
+        "calls": 125,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 125
+        },
+        "duration_s": 62.2
+      }
+    },
+    {
+      "experiment": "roll-authority-validation",
+      "run_id": "f18df70c-32cb-46ea-9532-ecafdcb5845d",
+      "record_sha256": "712b972d9e4ea396d8c5a4df5218af7f0680a1f776d1e318ed177f54ba42a994",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:721822db6619087aed38e1ab2ec92d3fad895fbfc01d4d3c59cfcd097ab0ff6b"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 202,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 456.8383530146061,
+          "cross_track_m": 11.5052,
+          "sink_rate_mps": -1.8780434864702817,
+          "airspeed_mps": 27.490424112496363,
+          "heading_error_deg": 3.7241559776823863,
+          "roll_deg": -0.2796108606488693,
+          "pitch_deg": 1.8694505034450501
+        }
+      },
+      "diagnostics": {
+        "decision_count": 122,
+        "mean_latency_ms": 379.6490491803279,
+        "calls": 122,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 122
+        },
+        "duration_s": 60.59166666666667
+      }
+    },
+    {
+      "experiment": "bank-target-validation",
+      "run_id": "a8485127-50a4-4ff7-96a5-464f45b7f44e",
+      "record_sha256": "82dcfe6d1fb6f55b56ec72383acb77b8cd631dee6edcd09151dcb2bb3a4dfded",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:621e8c87d411ccc545907a144e78c8d717eb7222695155b892b089494e95981a"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 438.5578065643376,
+          "cross_track_m": 11.9279,
+          "sink_rate_mps": -1.5270119305795424,
+          "airspeed_mps": 26.3643095071035,
+          "heading_error_deg": 3.9603972605822264,
+          "roll_deg": 1.4178685222149843,
+          "pitch_deg": 2.0900086283982957
+        }
+      },
+      "diagnostics": {
+        "decision_count": 120,
+        "mean_latency_ms": 383.65371666666664,
+        "calls": 120,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 120
+        },
+        "duration_s": 59.75
+      }
+    },
+    {
+      "experiment": "bank-target-validation",
+      "run_id": "eb6287f8-ecbb-4de2-9904-3fd948f3fa4e",
+      "record_sha256": "ec53bc1bbd292fc5440eda114b94d78f68ea3f7ddefe0d9d448266b77e83de16",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:621e8c87d411ccc545907a144e78c8d717eb7222695155b892b089494e95981a"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 202,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 47.618,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 503.9464797935052,
+          "cross_track_m": 14.4442,
+          "sink_rate_mps": -1.6298542115097563,
+          "airspeed_mps": 26.476339588579112,
+          "heading_error_deg": 6.560199937605887,
+          "roll_deg": 1.0686028369475127,
+          "pitch_deg": 1.84107697145137
+        }
+      },
+      "diagnostics": {
+        "decision_count": 121,
+        "mean_latency_ms": 370.4185123966942,
+        "calls": 121,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 121
+        },
+        "duration_s": 60.208333333333336
+      }
+    },
+    {
+      "experiment": "bank-target-validation",
+      "run_id": "f2af263c-2310-47b1-9a63-adc273f6aa35",
+      "record_sha256": "072f2101ae98f37f4dcf2ead1e9def8246e052edacf46e9c53b4f62c8ab5257f",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:621e8c87d411ccc545907a144e78c8d717eb7222695155b892b089494e95981a"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 101,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 506.4939239804512,
+          "cross_track_m": 11.583,
+          "sink_rate_mps": -1.4038023690891432,
+          "airspeed_mps": 26.36390876631444,
+          "heading_error_deg": 4.777544958588237,
+          "roll_deg": 2.3428261459289383,
+          "pitch_deg": 2.3633943484658877
+        }
+      },
+      "diagnostics": {
+        "decision_count": 123,
+        "mean_latency_ms": 372.4508292682927,
+        "calls": 123,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 123
+        },
+        "duration_s": 61.391666666666666
+      }
+    },
+    {
+      "experiment": "bank-target-medium-validation",
+      "run_id": "1b8e6ce6-c29c-43e5-be5f-bdfcf520bfdb",
+      "record_sha256": "11253cf7d830d12e7c113117ebf3278a143842309f08aee02e1c39f0955e4d14",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:621e8c87d411ccc545907a144e78c8d717eb7222695155b892b089494e95981a"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "medium",
+        "mode": "lockstep",
+        "seed": 40,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 436.22179908711064,
+          "cross_track_m": 13.0739,
+          "sink_rate_mps": -1.725393160500026,
+          "airspeed_mps": 26.433609816345374,
+          "heading_error_deg": 4.162658802425369,
+          "roll_deg": 2.847024622201035,
+          "pitch_deg": 1.6631017656914648
+        }
+      },
+      "diagnostics": {
+        "decision_count": 119,
+        "mean_latency_ms": 390.035756302521,
+        "calls": 119,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 119
+        },
+        "duration_s": 59.03333333333333
+      }
+    },
+    {
+      "experiment": "bank-target-medium-validation",
+      "run_id": "2f8a6906-2a13-4b14-b083-b42e263bd85e",
+      "record_sha256": "f64dc1c9ef8b933abd620d190bdcf9c62a73d3a1b0b99947e244cbf09f6bedc6",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:621e8c87d411ccc545907a144e78c8d717eb7222695155b892b089494e95981a"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "medium",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 445.5868414914826,
+          "cross_track_m": -37.8753,
+          "sink_rate_mps": -1.4994934592012439,
+          "airspeed_mps": 26.433414069985574,
+          "heading_error_deg": 0.19667705991855655,
+          "roll_deg": -0.10715697600375951,
+          "pitch_deg": 2.1123670569999144
+        }
+      },
+      "diagnostics": {
+        "decision_count": 117,
+        "mean_latency_ms": 393.23771794871794,
+        "calls": 117,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 117
+        },
+        "duration_s": 58.45
+      }
+    },
+    {
+      "experiment": "bank-target-medium-validation",
+      "run_id": "a7e618fa-4ae3-427f-9e8d-a90e0c2d7ef8",
+      "record_sha256": "6bd149369eefc7cbcd7dce358d7c10268a1cec9410c8d5a5ea7ae5372a3d5323",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:621e8c87d411ccc545907a144e78c8d717eb7222695155b892b089494e95981a"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "medium",
+        "mode": "lockstep",
+        "seed": 41,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 443.1024728692332,
+          "cross_track_m": 9.0564,
+          "sink_rate_mps": -1.345260060737043,
+          "airspeed_mps": 26.30398917392637,
+          "heading_error_deg": 2.7386105956981908,
+          "roll_deg": 2.2428980885048797,
+          "pitch_deg": 2.5009554590264216
+        }
+      },
+      "diagnostics": {
+        "decision_count": 128,
+        "mean_latency_ms": 380.8869765625,
+        "calls": 128,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 128
+        },
+        "duration_s": 63.925
+      }
+    },
+    {
+      "experiment": "phase-aileron-validation",
+      "run_id": "1f1a6dbb-6ec7-4049-a529-f2184fdff6b8",
+      "record_sha256": "7ec7cfadf114cdca58af6b72fec9fbe50a0ffbc78d14dc8f0827f04096c1876d",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:fcb3b20b70a5ac377772ea7ac2b245340639994a9e47719aa4213ddba1f04015"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 42,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 438.29150484555225,
+          "cross_track_m": -29.3542,
+          "sink_rate_mps": -1.1462231524032702,
+          "airspeed_mps": 26.58058921942139,
+          "heading_error_deg": 1.212611411489604,
+          "roll_deg": 0.36917634704558894,
+          "pitch_deg": 2.872511421708224
+        }
+      },
+      "diagnostics": {
+        "decision_count": 117,
+        "mean_latency_ms": 378.20397435897434,
+        "calls": 117,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 117
+        },
+        "duration_s": 58.03333333333333
+      }
+    },
+    {
+      "experiment": "phase-aileron-validation",
+      "run_id": "4b2e76a6-4a3f-4977-adcd-d16a2b48b46b",
+      "record_sha256": "1ad4c1a9fe2b64572b7946a267ebca65bfa669581861b837c88380a14ab6b186",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:fcb3b20b70a5ac377772ea7ac2b245340639994a9e47719aa4213ddba1f04015"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 202,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": true,
+        "quality": 58.063,
+        "status": "landed",
+        "touchdown": {
+          "along_track_m": 457.97292769477394,
+          "cross_track_m": -14.5869,
+          "sink_rate_mps": -1.2368511402603115,
+          "airspeed_mps": 26.54949658933008,
+          "heading_error_deg": 1.8802820290567297,
+          "roll_deg": 0.7202750873034856,
+          "pitch_deg": 2.7189040889292966
+        }
+      },
+      "diagnostics": {
+        "decision_count": 134,
+        "mean_latency_ms": 376.8242014925373,
+        "calls": 134,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 134
+        },
+        "duration_s": 66.66666666666667
+      }
+    },
+    {
+      "experiment": "phase-aileron-validation",
+      "run_id": "54d9272a-5038-497c-8234-21629ebf3708",
+      "record_sha256": "f11f7fb3782592adff7100374bf88e9e2704d174b4f612ef46af9d10e8628aee",
+      "source_identity": {
+        "versions": {
+          "flightbench": "0.1.0",
+          "jsbsim": "1.3.1",
+          "gymnasium": "1.3.0"
+        },
+        "source_hash": "sha256:fcb3b20b70a5ac377772ea7ac2b245340639994a9e47719aa4213ddba1f04015"
+      },
+      "config": {
+        "controller": "jev",
+        "model": "jev-1.13.0",
+        "scenario": "easy",
+        "mode": "lockstep",
+        "seed": 101,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "human_assistance": {
+          "auto_center": false,
+          "wing_leveler": false
+        },
+        "policy": "direct-categorical",
+        "experimental": true,
+        "assistance": "none"
+      },
+      "outcome": {
+        "success": false,
+        "quality": 49.0,
+        "status": "runway_excursion",
+        "touchdown": {
+          "along_track_m": 438.33096928849704,
+          "cross_track_m": -22.5837,
+          "sink_rate_mps": -1.5216930300176896,
+          "airspeed_mps": 26.35611685995433,
+          "heading_error_deg": 5.0388747140270596,
+          "roll_deg": 0.8688127908611274,
+          "pitch_deg": 2.0980606384341316
+        }
+      },
+      "diagnostics": {
+        "decision_count": 117,
+        "mean_latency_ms": 379.6087179487179,
+        "calls": 117,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 117
+        },
+        "duration_s": 58.21666666666667
+      }
+    }
+  ]
+}

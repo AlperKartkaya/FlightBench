@@ -1,0 +1,25 @@
+[project]
+name = "flightbench"
+version = "0.1.0"
+description = "Reproducible JSBSim fixed-wing landing benchmark"
+requires-python = ">=3.11,<3.14"
+license = "MIT"
+dependencies = ["jsbsim>=1.2.3,<2", "gymnasium>=1.0,<2", "numpy>=2,<3", "fastapi>=0.115,<1", "uvicorn[standard]>=0.30,<1", "pydantic>=2.9,<3"]
+
+[project.optional-dependencies]
+codex = ["llm", "llm-openai-via-codex"]
+jev = ["typesafe-sdk"]
+dev = ["pytest>=8", "httpx", "ruff", "typesafe-sdk"]
+
+[project.scripts]
+flightbench = "flightbench.benchmark:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
