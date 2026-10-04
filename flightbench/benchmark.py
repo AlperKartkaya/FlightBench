@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import json
+import sys
 from collections import Counter
 from collections.abc import Mapping
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, TimeoutError
 from copy import deepcopy
 from pathlib import Path
 from statistics import mean
@@ -96,12 +98,17 @@ def run_episode(
     observation, _ = env.reset(seed=seed)
     initial_observation = observation
     initial_snapshot = env.snapshot()
-    controller = make_controller(
-        controller_name,
-        seed=seed,
-        model=model,
-        decision_hz=decision_hz,
-    )
+    if ":" in controller_name:
+        from .loading import ExternalController
+
+        controller = ExternalController(controller_name)
+    else:
+        controller = make_controller(
+            controller_name,
+            seed=seed,
+            model=model,
+            decision_hz=decision_hz,
+        )
     from .core import TRIM_AILERON, TRIM_ELEVATOR, TRIM_RUDDER
 
     action = ControlCommand(
@@ -499,6 +506,19 @@ def _episode_row(episode: dict) -> dict:
                 )
                 / 1_000_000,
             )
+    elif controller in {"ollama", "systemone"}:
+        usage = [((d.get("decision_info") or {}).get("usage") or {}) for d in decisions]
+        known = [
+            u
+            for u in usage
+            if isinstance(u.get("input_tokens"), int) and isinstance(u.get("output_tokens"), int)
+        ]
+        row.update(
+            input_tokens=sum(u["input_tokens"] for u in known),
+            output_tokens=sum(u["output_tokens"] for u in known),
+            missing_usage=len(usage) - len(known),
+            cost_usd=0.0,
+        )
     elif controller == "jev":
         requests = [(d.get("decision_info") or {}) for d in decisions]
         complete = [
@@ -621,6 +641,15 @@ def episode_markdown(rows: list[dict]) -> str:
 
 
 def main(argv: list[str] | None = None) -> None:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ["leaderboard"]:
+        from .leaderboard import main as leaderboard_main
+
+        leaderboard_main(argv[1:])
+        return
+    if argv[:1] == ["eval"]:
+        evaluate(argv[1:])
+        return
     parser = argparse.ArgumentParser(description="Run reproducible FlightBench episodes")
     parser.add_argument("--controllers", default="hold,random,baseline")
     parser.add_argument("--seeds", default="42")
@@ -685,3 +714,96 @@ def main(argv: list[str] | None = None) -> None:
     with episodes_path.open("x", encoding="utf-8") as output:
         output.write(episode_markdown(episode_rows(episodes)))
     print(episodes_path)
+
+
+def _eval_episode(request: dict) -> dict:
+    record = run_episode(**request)
+    print(
+        json.dumps(
+            {
+                "run_id": record["run_id"],
+                "seed": record["seed"],
+                "mode": record["mode"],
+                **record["outcome"],
+            }
+        ),
+        flush=True,
+    )
+    return record
+
+
+def evaluate(argv: list[str]) -> None:
+    """Evaluate one built-in or explicitly trusted local external controller."""
+    from .leaderboard import _controller_identity, build_submission
+
+    parser = argparse.ArgumentParser(description="Evaluate and export a community submission")
+    parser.add_argument("--controller", required=True)
+    parser.add_argument("--model")
+    parser.add_argument("--metadata", type=Path, help="Controller provenance JSON")
+    parser.add_argument("--modes", default="lockstep,realtime")
+    parser.add_argument("--seeds", default="42,101,202,303,404")
+    parser.add_argument("--scenario", choices=("easy", "medium"), default="easy")
+    parser.add_argument("--decision-hz", type=int, choices=(2, 5, 10), default=2)
+    parser.add_argument("--time-scale", type=float, choices=(1.0, 0.5, 0.25), default=1.0)
+    parser.add_argument("--timeout", type=float, default=120)
+    parser.add_argument("--jobs", type=int, default=1)
+    parser.add_argument("--output-dir", type=Path, required=True)
+    args = parser.parse_args(argv)
+    modes, seeds = args.modes.split(","), [int(s) for s in args.seeds.split(",")]
+    if not modes or set(modes) - {"lockstep", "realtime"} or len(set(modes)) != len(modes):
+        parser.error("modes must be unique lockstep/realtime values")
+    if not seeds or len(set(seeds)) != len(seeds) or any(s < 0 or s > 4294967295 for s in seeds):
+        parser.error("seeds must be unique unsigned 32-bit integers")
+    if not 1 <= args.jobs <= 32 or args.timeout <= 0:
+        parser.error("jobs must be 1..32 and timeout positive")
+    output = args.output_dir.resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    submission_path = output / "submission.json"
+    if submission_path.exists():
+        raise FileExistsError(submission_path)
+    metadata = json.loads(args.metadata.read_text()) if args.metadata else {}
+    requests = [
+        {
+            "controller_name": args.controller,
+            "model": args.model,
+            "seed": seed,
+            "mode": mode,
+            "scenario": args.scenario,
+            "decision_hz": args.decision_hz,
+            "time_scale": args.time_scale,
+            "timeout_s": args.timeout,
+            "record_dir": output,
+        }
+        for mode in modes
+        for seed in seeds
+    ]
+    if args.jobs == 1:
+        episodes = [_eval_episode(request) for request in requests]
+    else:
+        with ProcessPoolExecutor(max_workers=args.jobs) as pool:
+            episodes = list(pool.map(_eval_episode, requests))
+    _, recorded_model, recorded_type = _controller_identity(episodes[0])
+    automatic = episodes[0]["config"].get("controller_metadata", {})
+    metadata = automatic | metadata
+    metadata.setdefault("name", args.model or args.controller)
+    metadata.setdefault("slug", args.controller.replace(":", "-").replace("/", "-"))
+    metadata.setdefault(
+        "controller_type",
+        recorded_type,
+    )
+    metadata.setdefault("provider", args.controller)
+    metadata.setdefault("model", recorded_model)
+    metadata.setdefault("source_url", "https://github.com/AlperKartkaya/FlightBench")
+    metadata.setdefault("license", "MIT" if metadata["controller_type"] != "ai" else "unspecified")
+    artifact_paths = []
+    for record in episodes:
+        path = output / f"{record['run_id']}.json.gz"
+        with path.open("xb") as file:
+            file.write(gzip.compress(json.dumps(record, allow_nan=False).encode(), mtime=0))
+        artifact_paths.append(path)
+    build_submission(episodes, metadata, artifact_paths, submission_path)
+    print(submission_path)
+
+
+if __name__ == "__main__":
+    main()

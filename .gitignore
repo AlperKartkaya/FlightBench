@@ -13,3 +13,4 @@ dist/
 .omx/
 scratch/
 *.csv
+.uv-cache/

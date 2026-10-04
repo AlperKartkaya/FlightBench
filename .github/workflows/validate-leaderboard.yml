@@ -1,0 +1,51 @@
+name: Validate leaderboard submissions
+
+on:
+  pull_request:
+    paths:
+      - "leaderboard/submissions/**"
+      - "leaderboard/schema/**"
+      - "leaderboard/verified.json"
+      - "flightbench/leaderboard.py"
+      - "flightbench/protocol.py"
+      - ".github/workflows/validate-leaderboard.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - name: Validate data only (never execute submitted controllers)
+        run: |
+          files=(leaderboard/submissions/*/submission.json)
+          if [[ -e "${files[0]}" ]]; then
+            uv run python -m flightbench.leaderboard validate "${files[@]}"
+          fi
+          uv run python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from flightbench.leaderboard import Submission
+          (Path(os.environ["RUNNER_TEMP"]) / "submission-v1.schema.json").write_text(
+              json.dumps(Submission.model_json_schema(), indent=2) + "\n"
+          )
+          PY
+          diff -u leaderboard/schema/submission-v1.schema.json "$RUNNER_TEMP/submission-v1.schema.json"
+          # A pull request cannot grant itself verified publication status.
+          base="${{ github.event.pull_request.base.sha }}"
+          if git cat-file -e "$base:leaderboard/verified.json" 2>/dev/null; then
+            git show "$base:leaderboard/verified.json" > "$RUNNER_TEMP/verified.json"
+          else
+            printf '{}\n' > "$RUNNER_TEMP/verified.json"
+          fi
+          uv run python -m flightbench.leaderboard build --output-dir "$RUNNER_TEMP/leaderboard" \
+            --verified-registry "$RUNNER_TEMP/verified.json"

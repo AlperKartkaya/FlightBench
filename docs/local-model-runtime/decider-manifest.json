@@ -1,0 +1,55 @@
+{
+  "name": "Decider 2B v11 Q4_K_M",
+  "slug": "decider-2b-v11-q4",
+  "model": "decider-2b-v11",
+  "provider": "Mapika / local llama.cpp",
+  "source_url": "https://github.com/Mapika/decider",
+  "license": "Apache-2.0",
+  "model_revision": "ff2e5e687327eda9ac34e9a3ca84d3f400672c87",
+  "source_revision": "45024082b7d4bb667bf9140b7a7c073d3b483f6b",
+  "backend": "llama.cpp Metal, CPU 2 threads",
+  "quantization": "Q4_K_M",
+  "parameter_count": 1900000000,
+  "n_ctx": 8192,
+  "n_seq_max": 1,
+  "controller_type": "ai",
+  "local": true,
+  "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+  "campaign": {
+    "model_parallelism": 2,
+    "per_model_episode_jobs": 1,
+    "shared_hardware": "Apple M1 Pro 16GB unified memory",
+    "scenario": "easy: seed-independent physical initialization",
+    "decision_hz": 2,
+    "time_scale": 1.0
+  },
+  "files": {
+    "tokenizer_config.json": {
+      "sha256": "171ecbe7ddae98d11840698f7df2b8d5b4722139db0f0620d3bbf429bd656250",
+      "bytes": 1127
+    },
+    "tokenizer.json": {
+      "sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+      "bytes": 19989325
+    },
+    "decider_config.json": {
+      "sha256": "6e4891f2754a1c18a10f8dadb0c04e439e7f79fab0333d56641491bd4a05e722",
+      "bytes": 1240
+    },
+    "README.md": {
+      "sha256": "0b73533c101886ebba3af587f9afc88be7b913572e7171ef1e77ad4540d02134",
+      "bytes": 6119
+    },
+    "chat_template.jinja": {
+      "sha256": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80",
+      "bytes": 7755
+    },
+    "decider-2b-v11-Q4_K_M.gguf": {
+      "sha256": "b7c132a67934d51c81abc96bb7724800f965ff5a288aed3e1ca7d8bc349c1386",
+      "bytes": 1274396800
+    }
+  },
+  "n_gpu_layers": -1,
+  "runtime_wrapper_sha256": "e0ac7a51dd2098e911120330279299d03e109339f6723685fb7112ff9f513e17",
+  "runtime_wrapper_note": "Campaign used the raw HTTP wrapper; published examples/local/decider_gguf_server.py adds model_dir CLI and body limit only. Same native Decider inference/options."
+}

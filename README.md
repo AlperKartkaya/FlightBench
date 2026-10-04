@@ -61,7 +61,30 @@ Open <http://127.0.0.1:5173>, choose a controller, and select **Start flight**.
 Human-pilot and baseline modes require neither an API key nor a Codex account. For Jev, run `uv sync --extra jev` and set `TYPESAFE_API_KEY`. For Codex, run `uv sync --extra codex`, install the Codex CLI, then authenticate with `codex login` and check `codex login status`; this connection uses a [ChatGPT plan (free, plus, or pro) with Codex CLI access](https://learn.chatgpt.com/docs/pricing), not an API key. See [llm-openai-via-codex](https://github.com/simonw/llm-openai-via-codex).
 
 
-## Benchmark results and estimated API cost
+## Canonical protocol and community leaderboard
+
+Jev, Codex, and local decision models now share the frozen `flightbench-v1` observation,
+categorical action IDs, instructions, and phase criteria. Every new run records the action-space
+SHA-256 and source identity. See [the protocol](docs/benchmark-protocol.md).
+
+Evaluate a trusted local controller and generate the leaderboard from its evidence:
+
+```sh
+uv run flightbench eval --controller examples/controllers/categorical.py:ExampleController \
+  --modes lockstep,realtime --seeds 42,101,202,303,404 \
+  --output-dir leaderboard/submissions/example
+uv run flightbench leaderboard build --historical leaderboard/historical/manifest.json
+```
+
+[Controller API and submission guide](docs/controllers.md) ·
+[Local model sources and license checks](docs/local-model-sources.md) ·
+[50-run local campaign results](docs/local-model-results.md) ·
+[Generated leaderboard and graphs](leaderboard/README.md)
+
+The historical Jev/Codex records below predate v1. They remain explicitly labeled references,
+not controlled comparisons against the new canonical runs.
+
+## Historical benchmark results and estimated API cost
 
 Where Jev landed successfully in realtime at an effective rate of about 2.4 calls per second, no Codex model managed to land successfully even with 2 Hz lockstep. Jev's performance is **not a 5-star one**, it performed with a 14% successful landing, 74% runway excursion, 9% nose-first contact (crash), and 2% timeout rate. The baseline controller landed with a score of **69.9/100**, a little below [my personal best](https://alperkartkaya.github.io/FlightBench/human-flight/)!
 

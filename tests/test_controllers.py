@@ -1,3 +1,4 @@
+import json
 import sys
 from types import SimpleNamespace
 
@@ -13,6 +14,7 @@ from flightbench.controllers import (
     discover_models,
     make_controller,
 )
+from flightbench.protocol import SharedActionDecision, canonical_observation, protocol_metadata
 
 OBSERVATION = {
     "runway": {
@@ -60,6 +62,18 @@ def test_local_controllers_are_deterministic_and_factory_validates_name():
         make_controller("teleport")
 
 
+def test_ollama_factory_lazily_passes_the_model(monkeypatch):
+    created = SimpleNamespace()
+    monkeypatch.setitem(
+        sys.modules,
+        "flightbench.local",
+        SimpleNamespace(OllamaController=lambda model: setattr(created, "model", model) or created),
+    )
+
+    assert make_controller("ollama", model="local-model") is created
+    assert created.model == "local-model"
+
+
 def test_baseline_corrects_right_offset_and_low_airspeed():
     command = BaselineController().decide(OBSERVATION)
     assert command.aileron < 0
@@ -70,7 +84,7 @@ def test_baseline_corrects_right_offset_and_low_airspeed():
 def test_codex_discovery_and_structured_decision(monkeypatch):
     request = {}
     response = SimpleNamespace(
-        text=lambda: '{"aileron":-0.5,"elevator":0.0,"rudder":0.5,"throttle":0.75}',
+        text=lambda: '{"aileron":"0","elevator":"4","rudder":"2","throttle":"5"}',
         response_json={"usage": {"input_tokens": 100, "output_tokens": 20}},
     )
 
@@ -92,10 +106,17 @@ def test_codex_discovery_and_structured_decision(monkeypatch):
     assert discover_models() == ["openai-codex/a", "openai-codex/z"]
     controller = CodexController()
     assert controller.model_id == "openai-codex/a"
-    assert controller.decide(OBSERVATION).throttle == 0.75
+    assert controller.decide(OBSERVATION).model_dump() == {
+        "aileron": -0.35,
+        "elevator": 0.0,
+        "rudder": 0.05,
+        "throttle": 0.8,
+    }
     assert controller.last_decision["usage"] == {"input_tokens": 100, "output_tokens": 20}
     assert controller.last_decision["reasoning_effort"] == "low"
-    assert request["schema"] is ControlCommand
+    assert request["schema"] is SharedActionDecision
     assert request["reasoning_effort"] == "low"
     assert all(axis in request["system"] for axis in ("aileron", "elevator", "rudder", "throttle"))
     assert "absolute" in request["system"] and "FlightBench" in request["system"]
+    assert json.loads(request["payload"]) == canonical_observation(OBSERVATION)
+    assert protocol_metadata().items() <= controller.last_decision.items()

@@ -1,0 +1,412 @@
+[
+  {
+    "controller": "Decider 2B v11 Q4_K_M",
+    "model": "decider-2b-v11",
+    "source": "https://github.com/Mapika/decider",
+    "verification": "community",
+    "submission": "submissions/decider-2b-v11-q4/submission.json",
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 5
+      },
+      "mean_latency_ms": 5281.362885714286,
+      "p50_latency_ms": 4180.388,
+      "p95_latency_ms": 9214.647,
+      "max_latency_ms": 9847.771,
+      "effective_decisions_per_second": 2.0257234726688105,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 5
+      },
+      "mean_latency_ms": 4486.167941176471,
+      "p50_latency_ms": 4274.107,
+      "p95_latency_ms": 5768.273,
+      "max_latency_ms": 7551.596,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 34,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 34,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "best": {
+      "run_id": "748e8646-8170-4a5a-a0d2-da41d30f44b6",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:24baa3218799850035e4b55b2c84a0586927ed4e7e63a6d8a83b6963d7f56229"
+    }
+  },
+  {
+    "controller": "Kev 0.8B v1.0",
+    "model": "kev-0.8b-v1.0",
+    "source": "https://github.com/jaredpalmer/kev",
+    "verification": "community",
+    "submission": "submissions/kev-0.8b-v1/submission.json",
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 5
+      },
+      "mean_latency_ms": 2200.6351529411763,
+      "p50_latency_ms": 2183.321,
+      "p95_latency_ms": 2944.277,
+      "max_latency_ms": 3873.368,
+      "effective_decisions_per_second": 2.02113606340819,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 5
+      },
+      "mean_latency_ms": 2354.903634920635,
+      "p50_latency_ms": 2198.928,
+      "p95_latency_ms": 3573.141,
+      "max_latency_ms": 4126.0,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 63,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 63,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "best": {
+      "run_id": "8fcc33bf-f8f9-4dfa-b6ee-54ba102491a9",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:4c712d70ecebe714a7f93905ce55d696bd0a051e85a39f7b6343f5b4ad0f3eaf"
+    }
+  },
+  {
+    "controller": "Bespoke Nimble 9B Q4_K_M",
+    "model": "nimble:9b-q4_K_M",
+    "source": "https://ollama.com/library/nimble",
+    "verification": "community",
+    "submission": "submissions/nimble-9b-q4/submission.json",
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 23.414,
+      "median_score": 23.414,
+      "terminal_outcomes": {
+        "runway_excursion": 5
+      },
+      "mean_latency_ms": 14427.015125316455,
+      "p50_latency_ms": 13190.103,
+      "p95_latency_ms": 20511.451,
+      "max_latency_ms": 60978.381,
+      "effective_decisions_per_second": 2.009965016431676,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 5
+      },
+      "mean_latency_ms": 13188.2099,
+      "p50_latency_ms": 13767.563,
+      "p95_latency_ms": 15349.261,
+      "max_latency_ms": 15349.261,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 10,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 10,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "best": {
+      "run_id": "30dc7b40-a96d-4728-a10a-c6b1108713a4",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 23.414,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:f0fecfb420c8bfec458a5089cb237c4aa2e2d3eb6b3c9ed3fc48200cfcb2f5e2"
+    }
+  },
+  {
+    "controller": "OpenThai-SystemOne v0.3 Q8",
+    "model": "iapp/openthai-systemone:0.8b-q8_0",
+    "source": "https://huggingface.co/iapp/OpenThai-SystemOne-Ollama",
+    "verification": "community",
+    "submission": "submissions/openthai-v0.3-q8/submission.json",
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 5
+      },
+      "mean_latency_ms": 553.8697660377359,
+      "p50_latency_ms": 356.914,
+      "p95_latency_ms": 1313.764,
+      "max_latency_ms": 3828.646,
+      "effective_decisions_per_second": 2.026122969098439,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 5
+      },
+      "mean_latency_ms": 1238.9947142857143,
+      "p50_latency_ms": 1315.849,
+      "p95_latency_ms": 1383.178,
+      "max_latency_ms": 1433.621,
+      "effective_decisions_per_second": 0.0718132854578097,
+      "deadline_misses": 52,
+      "deadline_miss_rate": 0.9285714285714286,
+      "stale_decisions": 50,
+      "stale_decision_rate": 0.8928571428571429,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "best": {
+      "run_id": "117ae2d8-b2f1-4d6b-b272-e605c52d7531",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:d512958d5ba644bb699ec93ebb3c93689dbb71736fdc13a7b392f0083cd2f70a"
+    }
+  },
+  {
+    "controller": "Von 1.3",
+    "model": "von-1.3.0",
+    "source": "https://github.com/wfzyx/von",
+    "verification": "community",
+    "submission": "submissions/von-1.3/submission.json",
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "crash": 5
+      },
+      "mean_latency_ms": 4003.6165285714287,
+      "p50_latency_ms": 3890.044,
+      "p95_latency_ms": 4685.526,
+      "max_latency_ms": 9420.312,
+      "effective_decisions_per_second": 2.066420664206642,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 5
+      },
+      "mean_latency_ms": 4301.703617647059,
+      "p50_latency_ms": 4049.852,
+      "p95_latency_ms": 5480.411,
+      "max_latency_ms": 5969.504,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 34,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 34,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "best": {
+      "run_id": "bb91fdb0-1b71-42cd-9217-7bf0bd81478a",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:6048ab0800c444cee9e8b1dc0077749a67f994dfa88331c80ce91c9680ef0630"
+    }
+  },
+  {
+    "controller": "Jev",
+    "model": "jev-1.13.0",
+    "source": "https://github.com/AlperKartkaya/FlightBench",
+    "verification": "legacy/reference (not v1)",
+    "submission": "historical/manifest.json",
+    "lockstep": null,
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 1,
+      "success_rate": 1.0,
+      "median_score": 56.123,
+      "p50_latency_ms": 301.0149170004297,
+      "p95_latency_ms": 374.34333299461287,
+      "cost_per_run_usd": 0.01223804
+    },
+    "best": {
+      "run_id": "05716196-e32b-4e34-94d3-8a06d4bb7baa",
+      "seed": 42,
+      "mode": "realtime",
+      "success": true,
+      "score": 56.123,
+      "terminal_outcome": "landed"
+    }
+  },
+  {
+    "controller": "gpt-6-luna",
+    "model": "openai-codex/gpt-6-luna",
+    "source": "https://github.com/AlperKartkaya/FlightBench",
+    "verification": "legacy/reference (not v1)",
+    "submission": "historical/manifest.json",
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "median_score": 0.0,
+      "p50_latency_ms": 2020.367,
+      "p95_latency_ms": 6337.035,
+      "cost_per_run_usd": 0.00644746
+    },
+    "realtime": null,
+    "best": {
+      "run_id": "e41e8e09-6984-4326-bc70-58025a203a91",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact"
+    }
+  },
+  {
+    "controller": "gpt-6-sol",
+    "model": "openai-codex/gpt-6-sol",
+    "source": "https://github.com/AlperKartkaya/FlightBench",
+    "verification": "legacy/reference (not v1)",
+    "submission": "historical/manifest.json",
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "median_score": 49.0,
+      "p50_latency_ms": 4240.161,
+      "p95_latency_ms": 8157.344,
+      "cost_per_run_usd": 0.3540756
+    },
+    "realtime": null,
+    "best": {
+      "run_id": "11e086de-ea8b-4850-ae18-ebe910388a49",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 49.0,
+      "terminal_outcome": "runway_excursion"
+    }
+  },
+  {
+    "controller": "gpt-6-astra",
+    "model": "openai-codex/gpt-6-astra",
+    "source": "https://github.com/AlperKartkaya/FlightBench",
+    "verification": "legacy/reference (not v1)",
+    "submission": "historical/manifest.json",
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "median_score": 49.0,
+      "p50_latency_ms": 4401.165,
+      "p95_latency_ms": 6796.968,
+      "cost_per_run_usd": 1.7491940000000001
+    },
+    "realtime": null,
+    "best": {
+      "run_id": "de808825-1edb-488c-88b7-fac31fa3043f",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 49.0,
+      "terminal_outcome": "runway_excursion"
+    }
+  }
+]
