@@ -205,6 +205,37 @@
           },
           "title": "Time Scale By Mode",
           "type": "object"
+        },
+        "realtime_response_policy": {
+          "default": "discard-stale",
+          "enum": [
+            "discard-stale",
+            "apply-on-arrival"
+          ],
+          "title": "Realtime Response Policy",
+          "type": "string"
+        },
+        "scoring_version": {
+          "default": "v1",
+          "enum": [
+            "v1",
+            "v2"
+          ],
+          "title": "Scoring Version",
+          "type": "string"
+        },
+        "scoring_config_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scoring Config Sha256"
         }
       },
       "required": [

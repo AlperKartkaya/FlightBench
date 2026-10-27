@@ -1,0 +1,27 @@
+
+
+     JSBSim Flight Dynamics Model v1.3.1 [GitHub build 1837/commit 3b25f25e49b42d0489c04ac805674fc1450ca579] May 17 2026 14:38:05
+            [JSBSim-ML v2.0]
+
+JSBSim startup beginning ...
+
+{"run_id": "ae38703a-709f-4176-a220-5014b0b8179f", "seed": 42, "mode": "lockstep", "success": false, "quality": 0.0, "status": "runway_excursion", "touchdown": {"along_track_m": 494.3503056612776, "cross_track_m": 10.0805, "sink_rate_mps": -1.870516746653696, "airspeed_mps": 27.579895438009842, "heading_error_deg": 3.150316186790235, "roll_deg": 0.9649625085573293, "pitch_deg": 1.8887104249123188}}
+/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/trials/42/submission.json
+
+
+     JSBSim Flight Dynamics Model v1.3.1 [GitHub build 1837/commit 3b25f25e49b42d0489c04ac805674fc1450ca579] May 17 2026 14:38:05
+            [JSBSim-ML v2.0]
+
+JSBSim startup beginning ...
+
+{"run_id": "dfa524ef-20c8-48ee-b364-b8718f47c520", "seed": 42, "mode": "lockstep", "success": false, "quality": 0.0, "status": "controller_timeout", "touchdown": {"along_track_m": 542.9797462208712, "cross_track_m": 9.8775, "sink_rate_mps": -0.5569207528878123, "airspeed_mps": 27.91495714370509, "heading_error_deg": 2.1860913973648053, "roll_deg": 1.1231697611477955, "pitch_deg": 2.8125205284215595}}
+/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/trials/42/submission.json
+
+
+     JSBSim Flight Dynamics Model v1.3.1 [GitHub build 1837/commit 3b25f25e49b42d0489c04ac805674fc1450ca579] May 17 2026 14:38:05
+            [JSBSim-ML v2.0]
+
+JSBSim startup beginning ...
+
+{"run_id": "0d6ce355-55ab-488b-b2bf-fc8ac1a6299a", "seed": 42, "mode": "lockstep", "success": true, "quality": 78.507, "status": "landed", "touchdown": {"along_track_m": 519.0116540462163, "cross_track_m": 4.9287, "sink_rate_mps": -1.1830775278168808, "airspeed_mps": 27.474005901825855, "heading_error_deg": 2.2466899256920954, "roll_deg": 3.210428653837557, "pitch_deg": 3.3102869124020478}}
+/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/trials/42/submission.json

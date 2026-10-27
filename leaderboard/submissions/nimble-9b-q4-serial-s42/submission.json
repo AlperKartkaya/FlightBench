@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "Bespoke Nimble 9B Q4_K_M",
+    "slug": "nimble-9b-q4-serial-s42",
+    "type": "ai",
+    "provider": "Bespoke / local Ollama",
+    "model": "nimble:9b-q4_K_M",
+    "source_url": "https://ollama.com/library/nimble",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": 9000000000,
+    "quantization": "Q4_K_M",
+    "metadata": {
+      "backend": "Ollama 0.35.0 Metal System One scoring",
+      "model_digest": "572f1f4c801d37171344b0520d14853a88887c249d11db3acfa6c81a34cdcfa3",
+      "model_manifest_sha256": "572f1f4c801d37171344b0520d14853a88887c249d11db3acfa6c81a34cdcfa3",
+      "files": {
+        "application/vnd.ollama.image.model": {
+          "sha256": "sha256:0e228c45932655a4b97b175eba79a578e180778ce0d576a10b86f8726962d993",
+          "bytes": 5629108736
+        },
+        "application/vnd.ollama.image.system": {
+          "sha256": "sha256:47bec4463a2ae8ca4223cd9da803232e93f3e2c3c1990b17d79019133ad344a6",
+          "bytes": 385
+        },
+        "application/vnd.ollama.image.license": {
+          "sha256": "sha256:d0c0372065bbe3b1a9931ec5ed842e7ddce6d1308bb3d3bbd9edd27724e5cdd7",
+          "bytes": 400
+        },
+        "application/vnd.ollama.image.params": {
+          "sha256": "sha256:7892eb6262be941f7a3278cb307efebaadef0fbd35dea0837dc50533a4df6c89",
+          "bytes": 17
+        }
+      },
+      "context_length": 8192,
+      "generation": false,
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "campaign": {
+        "id": "serial-2026-10-07",
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "warmup": "One complete canonical initial-state request before both episodes; retained separately.",
+        "order": "lockstep then realtime; one model server at a time; host kept awake with caffeinate -i",
+        "isolation": "Other desktop/agent activity possible; no other benchmark model jobs."
+      },
+      "endpoint": "http://127.0.0.1:11435",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42
+    ],
+    "modes": [
+      "lockstep",
+      "realtime"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0,
+      "realtime": 1.0
+    }
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 23.414,
+      "median_score": 23.414,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 13475.346816455696,
+      "p50_latency_ms": 12849.213,
+      "p95_latency_ms": 15965.72,
+      "max_latency_ms": 16657.275,
+      "effective_decisions_per_second": 2.009965016431676,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 12537.127,
+      "p50_latency_ms": 12284.916,
+      "p95_latency_ms": 12789.338,
+      "max_latency_ms": 12789.338,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 2,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 2,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "2368a889-31f9-42e2-94bf-98eafb9ac973",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 23.414,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:36fd93d865900800a45bc5289441487a5eedd534f5ba48570ae9a7d3bc770ea0"
+    },
+    {
+      "run_id": "a8486484-91f5-4457-bff5-bdb8104a4790",
+      "seed": 42,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:aa91e0c5a727e75065dd2bcde0c79cef2d7bd53d90f129d15be4deabc5c5a344"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "2368a889-31f9-42e2-94bf-98eafb9ac973.json.gz",
+      "sha256": "sha256:36fd93d865900800a45bc5289441487a5eedd534f5ba48570ae9a7d3bc770ea0",
+      "bytes": 148040,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "a8486484-91f5-4457-bff5-bdb8104a4790.json.gz",
+      "sha256": "sha256:aa91e0c5a727e75065dd2bcde0c79cef2d7bd53d90f129d15be4deabc5c5a344",
+      "bytes": 7264,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-07T19:47:59.662105Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

@@ -36,13 +36,15 @@ class RunSettings(BaseModel):
     """One validated request contract for browser and headless runs."""
 
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True, allow_inf_nan=False)
-    controller: str = Field(default="baseline", min_length=1, max_length=80)
+    controller: str = Field(default="baseline", min_length=1, max_length=4096)
     model: str | None = Field(default=None, max_length=200)
+    reasoning_effort: Literal["low", "medium", "high", "xhigh", "max"] = "low"
     scenario: Literal["easy", "medium"] = "easy"
     mode: Literal["lockstep", "realtime"] = "lockstep"
     seed: int = Field(default=42, ge=0, le=4294967295)
     decision_hz: Literal[2, 5, 10] = 2
     time_scale: Literal[1.0, 0.5, 0.25] = 1.0
+    realtime_response_policy: Literal["discard-stale", "apply-on-arrival"] = "discard-stale"
     human_assistance: HumanAssistance = Field(default_factory=HumanAssistance)
 
 
@@ -51,6 +53,9 @@ def effective_config(settings: RunSettings, controller=None) -> dict:
 
     config = settings.model_dump()
     config.update(protocol_metadata())
+    from .scoring import ScoringConfig
+
+    config["scoring_version"] = ScoringConfig().version
     name = settings.controller
     if name == "jev":
         config["model"] = controller._model

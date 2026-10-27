@@ -1,0 +1,113 @@
+{
+  "kind": "clef-flash-evidence-summary-v1",
+  "interpretation": "Protocol/input-fit and flight evidence only. Fixed-state choices have no correctness labels and are not an accuracy measurement. One seed cannot establish general landing capability or causal latency differences.",
+  "upstream": {
+    "source_model": {
+      "repository": "Cloudflare/clef-flash",
+      "revision": "fde727a287004204b7518dcc983fe64379776712",
+      "license": "Apache-2.0",
+      "claimed_parameters": "9B"
+    },
+    "quantized_model": {
+      "repository": "ggml-org/Clef-Flash-GGUF",
+      "revision": "4a192915ef971886004b5b13294f2b4c7a7fc39d",
+      "file": "Clef-Flash-Q4_K_M.gguf",
+      "bytes": 6486448288,
+      "sha256": "fd3e90605e8103307dca37cb5a8cdb036267e2fe3cb2d908d80a8ceb9ec0638c"
+    },
+    "runtime": {
+      "release": "b11429",
+      "source_revision": "d81235049384534c167caea52b85a694f6103d14",
+      "archive_bytes": 11971406,
+      "archive_sha256": "740288ec6887be94280a5dfa25b5e23a78285cab104519e6c7e218904ee82459"
+    }
+  },
+  "runtime": {
+    "device": "MTL0 Apple M1 Pro",
+    "gpu_layers": "33/33",
+    "model_buffer_mib": 6175.49,
+    "compute_buffer_mib": 1842.53,
+    "evidence": "offload-verification.log"
+  },
+  "conformance": {
+    "fixture_cases": 7,
+    "requests_completed": 7,
+    "native_truncated_requests": 0,
+    "latency_ms": {
+      "mean": 10691.76373814532,
+      "median": 10557.31979200209,
+      "min": 10026.251457995386,
+      "max": 11493.148249996011
+    },
+    "raw": "conformance.json"
+  },
+  "warmup": {
+    "latency_ms": 11210.61875000305,
+    "raw": "warmup.json"
+  },
+  "runs": [
+    {
+      "run_id": "44d23f9d-8a13-4b9a-a162-ac1efbb3d842",
+      "mode": "lockstep",
+      "status": "runway_excursion",
+      "success": false,
+      "quality": 31.67,
+      "decision_count": 151,
+      "mean_latency_ms": 14173.587271523178,
+      "diagnostics": {
+        "decision_count": 151,
+        "mean_latency_ms": 14173.587271523178,
+        "calls": 151,
+        "requests_started": 151,
+        "requests_completed": 151,
+        "requests_cancel_requested": 0,
+        "requests_cancelled_before_start": 0,
+        "requests_outstanding": 0,
+        "residual_work": false,
+        "usage_unknown_requests": 0,
+        "late_decisions": 0,
+        "stale_decisions": 0,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 151
+        },
+        "duration_s": 75.39166666666667
+      }
+    },
+    {
+      "run_id": "96292dde-1103-4665-a1cc-c8e18353a63c",
+      "mode": "realtime",
+      "status": "out_of_bounds",
+      "success": false,
+      "quality": 0.0,
+      "decision_count": 0,
+      "mean_latency_ms": 16080.406500000001,
+      "diagnostics": {
+        "decision_count": 0,
+        "mean_latency_ms": 16080.406500000001,
+        "calls": 2,
+        "requests_started": 3,
+        "requests_completed": 2,
+        "requests_cancel_requested": 1,
+        "requests_cancelled_before_start": 0,
+        "requests_outstanding": 1,
+        "residual_work": true,
+        "usage_unknown_requests": 1,
+        "late_decisions": 2,
+        "stale_decisions": 2,
+        "api_errors": 0,
+        "last_api_error": null,
+        "interventions": {
+          "fallback": 0,
+          "stability_hold": 0,
+          "applied": 0
+        },
+        "duration_s": 34.25833333333333
+      }
+    }
+  ],
+  "submission": "leaderboard/submissions/clef-flash-9b-q4-serial-s42/submission.json"
+}

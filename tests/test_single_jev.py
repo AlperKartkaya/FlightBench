@@ -11,7 +11,8 @@ def test_retired_jev_names_are_rejected(name):
         make_controller(name)
 
 
-def test_direct_jev_applies_selected_commands_without_fallback_or_blending(monkeypatch):
+@pytest.mark.parametrize("model", [None, "jev-1.14.0"])
+def test_direct_jev_applies_selected_commands_without_fallback_or_blending(monkeypatch, model):
     import sys
     from types import SimpleNamespace
 
@@ -32,12 +33,14 @@ def test_direct_jev_applies_selected_commands_without_fallback_or_blending(monke
         def system_one(self, **kwargs):
             requests.append(kwargs)
             return SimpleNamespace(
+                model=kwargs["model"],
+                usage=SimpleNamespace(input_tokens=1200, output_tokens=0),
                 choices={
                     axis: SimpleNamespace(
                         choice=choice, confidence=0.01, probabilities={choice: 0.4, "0": 0.6}
                     )
                     for axis, choice in selected.items()
-                }
+                },
             )
 
     monkeypatch.setitem(
@@ -49,7 +52,7 @@ def test_direct_jev_applies_selected_commands_without_fallback_or_blending(monke
             TypeSafeClient=lambda **kw: Client(),
         ),
     )
-    controller = JevController()
+    controller = JevController(model=model)
     env = FixedWingLandingEnv()
     obs, _ = env.reset(seed=42)
     obs["temporal"] = {"rates": {"cross_track_rate_mps": -1.25}}
@@ -60,7 +63,7 @@ def test_direct_jev_applies_selected_commands_without_fallback_or_blending(monke
     monkeypatch.setattr("flightbench.controllers.BaselineController.decide", forbidden_baseline)
     action = controller.decide(obs)
     assert action.model_dump() == {axis: JEV_COMMANDS[axis][int(i)] for axis, i in selected.items()}
-    assert len(requests) == 1 and requests[0]["model"] == JEV_MODEL
+    assert len(requests) == 1 and requests[0]["model"] == (model or JEV_MODEL)
     assert set(requests[0]["questions"]) == set(JEV_COMMANDS)
     assert requests[0]["state"]["flight"] == obs["flight"]
     assert requests[0]["state"]["runway"] == obs["runway"]
@@ -68,6 +71,8 @@ def test_direct_jev_applies_selected_commands_without_fallback_or_blending(monke
     assert requests[0]["state"]["status"] == obs["status"]
     assert list(requests[0]["questions"]["elevator"].criteria.values()) == JEV_CRITERIA["elevator"]
     assert controller.last_decision["policy"] == "direct-categorical"
+    assert controller.last_decision["resolved_model"] == (model or JEV_MODEL)
+    assert controller.last_decision["usage"] == {"input_tokens": 1200, "output_tokens": 0}
     config = effective_config(RunSettings(controller="jev"), controller)
     assert config["assistance"] == "none" and config["experimental"] is True
     obs["runway"]["altitude_agl_m"] = 8
@@ -92,8 +97,16 @@ def test_direct_jev_applies_selected_commands_without_fallback_or_blending(monke
     selected["elevator"] = "illegal"
     with pytest.raises(ValueError, match="invalid actuator"):
         controller.decide(obs)
-    with pytest.raises(ValueError, match="one pinned model"):
+    with pytest.raises(ValueError, match="requires a pinned model"):
         JevController(model="another-model")
+    monkeypatch.setattr(
+        controller._client, "system_one", lambda **kw: SimpleNamespace(model="wrong-version")
+    )
+    with pytest.raises(ValueError, match="does not match"):
+        controller.decide(obs)
+    monkeypatch.setattr(controller._client, "system_one", lambda **kw: SimpleNamespace())
+    with pytest.raises(ValueError, match="does not match"):
+        controller.decide(obs)
     env.close()
 
 

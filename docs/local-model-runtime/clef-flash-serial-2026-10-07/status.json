@@ -1,0 +1,35 @@
+{
+  "started_at": "2026-10-07T20:18:34.388981+00:00",
+  "status": "complete",
+  "command": [
+    "/Users/alperkartkaya/Documents/FlightBench/scratch/clef-flash/runtime-b11429/llama-b11429/llama-server",
+    "-m",
+    "/Users/alperkartkaya/Documents/FlightBench/scratch/clef-flash/model/Clef-Flash-Q4_K_M.gguf",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "8012",
+    "--alias",
+    "clef-flash-q4",
+    "-ngl",
+    "99",
+    "-c",
+    "8192",
+    "-b",
+    "8192",
+    "-ub",
+    "8192",
+    "-np",
+    "1",
+    "-t",
+    "2",
+    "-tb",
+    "2"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "2",
+    "VECLIB_MAXIMUM_THREADS": "2"
+  },
+  "submission": "leaderboard/submissions/clef-flash-9b-q4-serial-s42/submission.json",
+  "finished_at": "2026-10-07T20:56:43.826057+00:00"
+}

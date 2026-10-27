@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "Von 1.3",
+    "slug": "von-1.3-serial-s42",
+    "type": "ai",
+    "provider": "wfzyx / local von-sdk",
+    "model": "von-1.3.0",
+    "source_url": "https://github.com/wfzyx/von",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": null,
+    "quantization": null,
+    "metadata": {
+      "model_revision": "498ceba33390b32cfefaab6422ec380318ba9b99",
+      "source_revision": "a72b19c25bd3a90e5f7133999155a9213f61994a",
+      "runtime_version": "von-sdk 1.3.7",
+      "runtime_wheel_sha256": "c728895955da163eff7aebe4cd0387593ec0c2af6eec8ea5e18399236366eeef",
+      "backend": "PyTorch MPS; CPU helper threads 2; no CPU fallback requested",
+      "on_overflow": "refuse",
+      "chains": false,
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "campaign": {
+        "id": "serial-2026-10-07",
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "warmup": "One complete canonical initial-state request before both episodes; retained separately.",
+        "order": "lockstep then realtime; one model server at a time; host kept awake with caffeinate -i",
+        "isolation": "Other desktop/agent activity possible; no other benchmark model jobs."
+      },
+      "files": {
+        "config.json": {
+          "sha256": "091b9a53c47e1cbc0b10b521a2d2f21dedf863851c07122cfa3d3e497e5e82ec",
+          "bytes": 6329
+        },
+        "tokenizer.json": {
+          "sha256": "bb637767e8dfb8044597df6c58243bff2e592ae9e3b310c0bbdb8591f6ac543d",
+          "bytes": 3583486
+        },
+        "tokenizer_config.json": {
+          "sha256": "4d2a485d5fd1ee514db180744fc00807c11da34012ac3666744c0377f6c23731",
+          "bytes": 571
+        },
+        "model.safetensors": {
+          "sha256": "af57d5d2ab15715a753a1eb4add4271d1aecce7e76f3365f629c082df329297a",
+          "bytes": 1579143688
+        },
+        "option_marker.pt": {
+          "sha256": "3faf27f88d30aaf9aa37860d4cdef99f1d05450cf40364f6236ac892d4d139ed",
+          "bytes": 1581316459
+        },
+        "marker_calibration.json": {
+          "sha256": "9b32949dcd0cfd122db509c9bd5be67f0cfe35696153aa93d667caf0aae147c9",
+          "bytes": 1456
+        }
+      },
+      "endpoint": "http://127.0.0.1:11437",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42
+    ],
+    "modes": [
+      "lockstep",
+      "realtime"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0,
+      "realtime": 1.0
+    }
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "crash": 1
+      },
+      "mean_latency_ms": 1364.2342142857142,
+      "p50_latency_ms": 1391.295,
+      "p95_latency_ms": 1444.874,
+      "max_latency_ms": 1449.226,
+      "effective_decisions_per_second": 2.066420664206642,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 1574.376117647059,
+      "p50_latency_ms": 1574.714,
+      "p95_latency_ms": 1648.014,
+      "max_latency_ms": 1659.21,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 17,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 17,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "e5f19866-7949-4668-b630-7a75f36ab791",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:6db2181206a78ea668cf7b88575ae4850e15e821f3b05ab9e59b3c1cb18f9bfc"
+    },
+    {
+      "run_id": "d264617b-49ad-49fc-88b7-7ecc4f6a9f7f",
+      "seed": 42,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:190ace3dfd5f756101a17f1516484d1820079eef3b840e721de7e2acd39ed9dc"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "e5f19866-7949-4668-b630-7a75f36ab791.json.gz",
+      "sha256": "sha256:6db2181206a78ea668cf7b88575ae4850e15e821f3b05ab9e59b3c1cb18f9bfc",
+      "bytes": 14198,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "d264617b-49ad-49fc-88b7-7ecc4f6a9f7f.json.gz",
+      "sha256": "sha256:190ace3dfd5f756101a17f1516484d1820079eef3b840e721de7e2acd39ed9dc",
+      "bytes": 19659,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-07T19:11:30.443172Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

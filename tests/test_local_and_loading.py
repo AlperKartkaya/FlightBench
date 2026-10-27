@@ -131,3 +131,39 @@ def test_new_records_have_protocol_and_model_metadata(monkeypatch):
     assert record["config"]["model"] == "local-model"
     assert record["config"]["protocol_participant"]
     assert record["source_identity"]["git_commit"]
+
+
+def test_long_external_file_reference_evaluates_and_exports_both_modes(monkeypatch, tmp_path):
+    from flightbench import benchmark
+    from flightbench.environment import FixedWingLandingEnv
+    from flightbench.leaderboard import validate_submission
+
+    directory = tmp_path / ("nested-" * 20) / ("controller-" * 10)
+    directory.mkdir(parents=True)
+    path = directory / "pilot.py"
+    path.write_text("""class Pilot:
+    def decide(self, observation):
+        return {"aileron":"3", "elevator":"7", "rudder":"3", "throttle":"3"}
+""")
+    reference = f"{path}:Pilot"
+    assert len(reference) > 200
+    monkeypatch.setattr(
+        benchmark,
+        "FixedWingLandingEnv",
+        lambda **kw: FixedWingLandingEnv(**(kw | {"max_time_s": 0.025})),
+    )
+    output = tmp_path / "submission"
+    benchmark.evaluate(
+        [
+            "--controller",
+            reference,
+            "--seeds",
+            "42",
+            "--modes",
+            "lockstep,realtime",
+            "--output-dir",
+            str(output),
+        ]
+    )
+    payload = json.loads((output / "submission.json").read_text())
+    assert set(validate_submission(payload, output).results) == {"lockstep", "realtime"}

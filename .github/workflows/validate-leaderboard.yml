@@ -4,10 +4,14 @@ on:
   pull_request:
     paths:
       - "leaderboard/submissions/**"
+      - "leaderboard/campaigns/**"
       - "leaderboard/schema/**"
       - "leaderboard/verified.json"
-      - "flightbench/leaderboard.py"
-      - "flightbench/protocol.py"
+      - "flightbench/**"
+      - "tests/**"
+      - "examples/controllers/**"
+      - "pyproject.toml"
+      - "uv.lock"
       - ".github/workflows/validate-leaderboard.yml"
 
 permissions:
@@ -23,18 +27,21 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - uses: astral-sh/setup-uv@v6
-      - run: uv sync --frozen
+      - run: uv sync --frozen --extra dev
+      - name: Offline regression checks (no provider credentials)
+        run: |
+          uv run --frozen ruff check flightbench tests
+          uv run --frozen ruff format --check flightbench tests
+          uv run --frozen pytest -q
       - name: Validate data only (never execute submitted controllers)
         run: |
-          files=(leaderboard/submissions/*/submission.json)
-          if [[ -e "${files[0]}" ]]; then
-            uv run python -m flightbench.leaderboard validate "${files[@]}"
-          fi
           uv run python - <<'PY'
           import json
           import os
           from pathlib import Path
-          from flightbench.leaderboard import Submission
+          from flightbench.leaderboard import Submission, validate_submission
+          for path in Path("leaderboard").rglob("submission.json"):
+              validate_submission(json.loads(path.read_text()), path.parent)
           (Path(os.environ["RUNNER_TEMP"]) / "submission-v1.schema.json").write_text(
               json.dumps(Submission.model_json_schema(), indent=2) + "\n"
           )

@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "gpt-6-astra medium",
+    "slug": "gpt-6-astra-medium",
+    "type": "ai",
+    "provider": "OpenAI",
+    "model": "openai-codex/gpt-6-astra",
+    "source_url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+    "license": "proprietary hosted API",
+    "local": false,
+    "cost_kind": "unknown",
+    "parameter_count": null,
+    "quantization": null,
+    "metadata": {
+      "pricing_date": "2026-10-22",
+      "cost_methodology": "Selected-flight actual token usage at dated Standard short-context API-equivalent rates; not subscription billing. Missing usage or cache-write TTL means unknown. Jev $0.042/M input, output free.",
+      "campaign": {
+        "id": "2026-10-22-scoring-v2",
+        "scoring_version": "v2",
+        "seeds": [
+          42,
+          101,
+          202
+        ],
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "request_timeout_s": 300,
+        "scenario": "easy: repeated physical initialization",
+        "selection": "highest score of three completed campaign trials; lower seed breaks ties; excluded controller/infrastructure attempts disclosed separately",
+        "provider_hardware": "undisclosed remote",
+        "warmup": "none"
+      },
+      "reasoning_effort": "medium"
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:2583efb1a0c1437a432ab694a2bc05dd1b4dcffae64075618a1f04ad201f1d3e",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42,
+      101,
+      202
+    ],
+    "modes": [
+      "lockstep"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0
+    },
+    "realtime_response_policy": "apply-on-arrival",
+    "scoring_version": "v2",
+    "scoring_config_sha256": "82684d68cfb2dc37bd08ee8a1e0072d88d31a3190483eb89b39e523a0b8a7b80"
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 3,
+      "successful_landings": 1,
+      "success_rate": 0.3333333333333333,
+      "mean_score": 24.075,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "runway_excursion": 2,
+        "landed": 1
+      },
+      "mean_latency_ms": 4266.520671497585,
+      "p50_latency_ms": 3838.305,
+      "p95_latency_ms": 7181.728,
+      "max_latency_ms": 17990.462,
+      "effective_decisions_per_second": 2.0056519983851433,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "95955769-f656-41e2-97dc-3f5da4bbaa80",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:be2906787a65bdc74dd6c79584afe77483f873c8a72c187c44d37776f4806f58"
+    },
+    {
+      "run_id": "9b5d8c78-67ac-4947-9f3f-d4e6af293c5b",
+      "seed": 101,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:57ffa2a7ff6c5c7310cab4fc652ab4e0b64a8ffddf82c30c93ca0f4452c823cb"
+    },
+    {
+      "run_id": "f8e1db8a-daea-4226-8ad9-bc8c58d75d23",
+      "seed": 202,
+      "mode": "lockstep",
+      "success": true,
+      "score": 72.225,
+      "terminal_outcome": "landed",
+      "artifact_sha256": "sha256:06746ff60019c42431b2d374c89ab23b157592c7d3c53628821757f47afcce62"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "trials/42/95955769-f656-41e2-97dc-3f5da4bbaa80.json.gz",
+      "sha256": "sha256:be2906787a65bdc74dd6c79584afe77483f873c8a72c187c44d37776f4806f58",
+      "bytes": 66510,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "trials/101/9b5d8c78-67ac-4947-9f3f-d4e6af293c5b.json.gz",
+      "sha256": "sha256:57ffa2a7ff6c5c7310cab4fc652ab4e0b64a8ffddf82c30c93ca0f4452c823cb",
+      "bytes": 68186,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "trials/202/f8e1db8a-daea-4226-8ad9-bc8c58d75d23.json.gz",
+      "sha256": "sha256:06746ff60019c42431b2d374c89ab23b157592c7d3c53628821757f47afcce62",
+      "bytes": 70453,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-25T12:45:14.761692Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": "2026-10-22",
+    "cost_methodology": "Selected-flight actual token usage at dated Standard short-context API-equivalent rates; not subscription billing. Missing usage or cache-write TTL means unknown. Jev $0.042/M input, output free."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

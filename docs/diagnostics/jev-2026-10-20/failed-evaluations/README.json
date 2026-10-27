@@ -1,0 +1,5 @@
+{
+  "reason": "Transient API hostname resolution failure before inference; not model-quality evidence. No SDK retry enabled. All original episode artifacts preserved here.",
+  "observed_error": "TypeSafeAPIConnectionError caused by socket.gaierror [Errno 8]",
+  "recovery": "System DNS lookup recovered without application or resolver changes; separate full evaluation attempt follows."
+}

@@ -1,0 +1,29 @@
+
+
+     JSBSim Flight Dynamics Model v1.3.1 [GitHub build 1837/commit 3b25f25e49b42d0489c04ac805674fc1450ca579] May 17 2026 14:38:05
+            [JSBSim-ML v2.0]
+
+JSBSim startup beginning ...
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/benchmark.py", line 903, in <module>
+    main()
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/benchmark.py", line 724, in main
+    evaluate(argv[1:])
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/benchmark.py", line 874, in evaluate
+    episodes = [_eval_episode(request) for request in requests]
+                ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/benchmark.py", line 803, in _eval_episode
+    record = run_episode(**request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/benchmark.py", line 138, in run_episode
+    controller = make_controller(
+                 ^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/controllers.py", line 380, in make_controller
+    return CodexController(model, reasoning_effort=reasoning_effort)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/controllers.py", line 213, in __init__
+    raise ValueError(f"Codex model is unavailable: {model}")
+ValueError: Codex model is unavailable: openai-codex/gpt-6.1-sol

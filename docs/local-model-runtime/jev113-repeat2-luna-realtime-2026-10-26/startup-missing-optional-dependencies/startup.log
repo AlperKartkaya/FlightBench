@@ -1,0 +1,27 @@
+
+
+     JSBSim Flight Dynamics Model v1.3.1 [GitHub build 1837/commit 3b25f25e49b42d0489c04ac805674fc1450ca579] May 17 2026 14:38:05
+            [JSBSim-ML v2.0]
+
+JSBSim startup beginning ...
+
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/jev113-repeat2-luna-realtime-2026-10-26/diagnostic_entry.py", line 49, in <module>
+    main()
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/benchmark.py", line 743, in main
+    evaluate(argv[1:])
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/benchmark.py", line 893, in evaluate
+    episodes = [_eval_episode(request) for request in requests]
+                ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/benchmark.py", line 822, in _eval_episode
+    record = run_episode(**request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/benchmark.py", line 150, in run_episode
+    controller = make_controller(
+                 ^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/controllers.py", line 382, in make_controller
+    return JevController(model=model, decision_hz=decision_hz)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/controllers.py", line 273, in __init__
+    from typesafe_sdk import Choice, RetryPolicy, TypeSafeClient
+ModuleNotFoundError: No module named 'typesafe_sdk'

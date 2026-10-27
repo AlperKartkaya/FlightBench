@@ -1,0 +1,30 @@
+{
+  "name": "gpt-6-sol high",
+  "slug": "gpt-6-sol-high",
+  "model": "openai-codex/gpt-6-sol",
+  "controller_type": "ai",
+  "provider": "OpenAI",
+  "source_url": "https://developers.openai.com/api/docs/models/gpt-6-sol",
+  "license": "proprietary hosted API",
+  "local": false,
+  "pricing_date": "2026-10-22",
+  "cost_methodology": "Selected-flight actual token usage at dated Standard short-context API-equivalent rates; not subscription billing. Missing usage or cache-write TTL means unknown. Jev $0.042/M input, output free.",
+  "campaign": {
+    "id": "2026-10-22-scoring-v2",
+    "scoring_version": "v2",
+    "seeds": [
+      42,
+      101
+    ],
+    "model_parallelism": 1,
+    "per_model_episode_jobs": 1,
+    "decision_hz": 2,
+    "time_scale": 1.0,
+    "request_timeout_s": 300,
+    "scenario": "easy: repeated physical initialization",
+    "selection": "highest score of exactly two recorded trials; lower seed breaks ties",
+    "provider_hardware": "undisclosed remote",
+    "warmup": "none"
+  },
+  "reasoning_effort": "high"
+}

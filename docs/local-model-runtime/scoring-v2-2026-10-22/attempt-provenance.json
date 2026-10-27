@@ -1,0 +1,1235 @@
+{
+  "retained_final_status": "docs/local-model-runtime/scoring-v2-2026-10-22/status.json",
+  "note": "Unique historical rows not identically present in final status; retains running/error transitions, command arrays and exact outcomes. Repeated completed rows omitted. Preservation-only hashes of existing output files omitted from resume notes.",
+  "historical_status_events": [
+    {
+      "event": {
+        "model": "openai-codex/gpt-6.1-sol",
+        "effort": "xhigh",
+        "seed": 42,
+        "started_at": "2026-10-21T22:45:02.639716+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "-m",
+          "flightbench.benchmark",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6.1-sol",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-xhigh/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "42",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-xhigh/trials/42",
+          "--reasoning-effort",
+          "xhigh"
+        ],
+        "status": "recorded",
+        "cleanup": "terminated already-exported process with residual provider work",
+        "exit_code": -15,
+        "finished_at": "2026-10-21T22:53:38.033372+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_timeout",
+          "touchdown": null
+        },
+        "applied": 25
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6.1-sol",
+        "effort": "xhigh",
+        "seed": 101,
+        "started_at": "2026-10-21T22:53:38.089534+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "-m",
+          "flightbench.benchmark",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6.1-sol",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-xhigh/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "101",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-xhigh/trials/101",
+          "--reasoning-effort",
+          "xhigh"
+        ],
+        "status": "export_failed",
+        "exit_code": 1,
+        "finished_at": "2026-10-21T22:53:40.098469+00:00"
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6.1-sol",
+        "effort": "xhigh",
+        "seed": 101,
+        "started_at": "2026-10-22T06:28:46.310986+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "-m",
+          "flightbench.benchmark",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6.1-sol",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-xhigh/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "101",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-xhigh/trials/101",
+          "--reasoning-effort",
+          "xhigh"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-22T06:29:08.376450+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 2
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T064959Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6.1-sol",
+        "effort": "max",
+        "seed": 42,
+        "started_at": "2026-10-22T07:22:55.725368+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "-m",
+          "flightbench.benchmark",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6.1-sol",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-max/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "42",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-max/trials/42",
+          "--reasoning-effort",
+          "max"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-22T07:48:10.957695+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 66
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T110903Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6.1-sol",
+        "effort": "max",
+        "seed": 42,
+        "started_at": "2026-10-22T11:09:03.832971+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "-m",
+          "flightbench.benchmark",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6.1-sol",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-max/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "42",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-max/trials/42",
+          "--reasoning-effort",
+          "max"
+        ],
+        "status": "recorded",
+        "cleanup": "terminated already-exported process with residual provider work",
+        "exit_code": -15,
+        "finished_at": "2026-10-22T12:38:30.646494+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_timeout",
+          "touchdown": null
+        },
+        "applied": 36
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T125435Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "low",
+        "seed": 42,
+        "started_at": "2026-10-22T12:54:35.920683+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "-m",
+          "flightbench.benchmark",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-low/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "42",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-low/trials/42",
+          "--reasoning-effort",
+          "low"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-22T12:56:20.157518+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 21
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T131402Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "low",
+        "seed": 101,
+        "started_at": "2026-10-22T13:26:16.559127+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "-m",
+          "flightbench.benchmark",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-low/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "101",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-low/trials/101",
+          "--reasoning-effort",
+          "low"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-22T13:37:00.014699+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 126
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T140033Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "low",
+        "seed": 101,
+        "started_at": "2026-10-22T14:00:33.993794+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-low/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "101",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-low/trials/101",
+          "--reasoning-effort",
+          "low"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-22T14:00:38.003779+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 0
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T160852Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "medium",
+        "seed": 101,
+        "started_at": "2026-10-22T16:28:12.560763+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-medium/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "101",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-medium/trials/101",
+          "--reasoning-effort",
+          "medium"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-22T16:29:10.818873+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 11
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T190102Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "xhigh",
+        "seed": 42,
+        "started_at": "2026-10-22T19:34:24.153338+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-xhigh/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "42",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-xhigh/trials/42",
+          "--reasoning-effort",
+          "xhigh"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-22T19:35:58.392962+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 7
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T122341Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-luna",
+        "effort": "high",
+        "seed": 42,
+        "started_at": "2026-10-23T13:40:29.036158+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-luna",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-luna-high/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "42",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-luna-high/trials/42",
+          "--reasoning-effort",
+          "high"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-23T13:44:13.573534+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 36
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T182418Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6.1-sol",
+        "effort": "max",
+        "seed": 42,
+        "started_at": "2026-10-23T20:48:29.925569+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6.1-sol",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-max/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "42",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-1-sol-max/trials/42",
+          "--reasoning-effort",
+          "max"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-23T21:16:05.593607+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 80
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T234057Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "max",
+        "seed": 42,
+        "started_at": "2026-10-24T00:59:50.110670+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-max/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "42",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-max/trials/42",
+          "--reasoning-effort",
+          "max"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-24T01:36:50.877502+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": {
+            "along_track_m": 574.1521158674741,
+            "cross_track_m": 6.618,
+            "sink_rate_mps": -1.666858476581013,
+            "airspeed_mps": 27.78675948249911,
+            "heading_error_deg": -0.9907891900085417,
+            "roll_deg": 1.9737797487941187,
+            "pitch_deg": 0.5938696311205227
+          }
+        },
+        "applied": 126
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T044944Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "max",
+        "seed": 101,
+        "started_at": "2026-10-24T05:29:49.436049+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-max/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "101",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-max/trials/101",
+          "--reasoning-effort",
+          "max"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-24T06:00:18.111206+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 88
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T102350Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "max",
+        "seed": 101,
+        "started_at": "2026-10-24T10:23:51.392034+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-max/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "101",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-max/trials/101",
+          "--reasoning-effort",
+          "max"
+        ],
+        "status": "recorded",
+        "cleanup": "terminated already-exported process with residual provider work",
+        "exit_code": -15,
+        "finished_at": "2026-10-24T10:51:29.996326+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_timeout",
+          "touchdown": null
+        },
+        "applied": 55
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T114802Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "max",
+        "seed": 101,
+        "started_at": "2026-10-24T11:48:03.499443+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-max/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "101",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-max/trials/101",
+          "--reasoning-effort",
+          "max"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-24T12:40:52.558639+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": {
+            "along_track_m": 574.8360696401282,
+            "cross_track_m": 3.8715,
+            "sink_rate_mps": -1.6633643844028663,
+            "airspeed_mps": 27.77818441128935,
+            "heading_error_deg": 1.2105496731348637,
+            "roll_deg": 0.6275260460173245,
+            "pitch_deg": 0.5817064074743441
+          }
+        },
+        "applied": 132
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T182251Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "medium",
+        "seed": 202,
+        "started_at": "2026-10-24T19:59:23.860575+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-medium/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "202",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-medium/trials/202",
+          "--reasoning-effort",
+          "medium"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-24T20:04:10.544002+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 74
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T123511Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-astra",
+        "effort": "xhigh",
+        "seed": 202,
+        "started_at": "2026-10-25T12:58:34.369649+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-astra",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-xhigh/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "202",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-xhigh/trials/202",
+          "--reasoning-effort",
+          "xhigh"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-25T13:23:36.604966+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 102
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T173638Z/status-before-resume.json"
+      ]
+    },
+    {
+      "event": {
+        "model": "openai-codex/gpt-6-sol",
+        "effort": "xhigh",
+        "seed": 202,
+        "started_at": "2026-10-25T19:08:26.820444+00:00",
+        "command": [
+          "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+          "-u",
+          "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+          "eval",
+          "--controller",
+          "codex",
+          "--model",
+          "openai-codex/gpt-6-sol",
+          "--metadata",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-sol-xhigh/metadata.json",
+          "--modes",
+          "lockstep",
+          "--seeds",
+          "202",
+          "--jobs",
+          "1",
+          "--decision-hz",
+          "2",
+          "--time-scale",
+          "1.0",
+          "--realtime-response-policy",
+          "apply-on-arrival",
+          "--timeout",
+          "300",
+          "--output-dir",
+          "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-sol-xhigh/trials/202",
+          "--reasoning-effort",
+          "xhigh"
+        ],
+        "status": "recorded",
+        "exit_code": 0,
+        "finished_at": "2026-10-25T19:09:10.928271+00:00",
+        "outcome": {
+          "success": false,
+          "quality": 0.0,
+          "status": "controller_error",
+          "touchdown": null
+        },
+        "applied": 5
+      },
+      "observed_in": [
+        "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T223720Z/status-before-resume.json"
+      ]
+    }
+  ],
+  "resume_events": [
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-22T05:59:26.083599+00:00",
+        "reason": "User requested restarting interrupted trials. xhigh/42 controller_timeout; xhigh/101 model discovery failed before export. Current discovery confirms requested model available. Completed flights retained.",
+        "resumed_runner_sha256": "55cf812132216e88a18f2adad8cc73e5c3e466039092463a85d4863cc8a43f19"
+      },
+      "omitted_redundant_preservation_hash_counts": {
+        "preserved_completed_files_sha256": 40
+      }
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T064959Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-22T06:49:59.018803+00:00",
+        "reason": "Controller error after two applied commands; original export retains only sanitized error category, underlying cause unknown. Fresh direct xhigh decision succeeded. Retry of unfinished flight, not a completed poor landing.",
+        "resumed_runner_sha256": "55cf812132216e88a18f2adad8cc73e5c3e466039092463a85d4863cc8a43f19"
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T110903Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-22T11:09:03.427350+00:00",
+        "reason": "User requested retry after interruption. Controller error after 66 applied commands; underlying cause unknown from sanitized export. Separate diagnostic request stalled and was terminated.",
+        "resumed_runner_sha256": "55cf812132216e88a18f2adad8cc73e5c3e466039092463a85d4863cc8a43f19"
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T125435Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-22T12:54:35.550539+00:00",
+        "reason": "max/42 ended after 36 applied commands with controller_timeout. Retry deferred after non-max cases, still serial; no completed flight overwritten.",
+        "resumed_runner_sha256": "ad437e30cac20284757979f0f4dfef9f7b6730b4a62c7389af34cb2ac0a30980"
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T131402Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-22T13:14:02.678534+00:00",
+        "reason": "User requested retry of interrupted run. Astra low controller error after 21 applied commands; underlying exception absent from sanitized export. Fresh calls with the failed observation succeeded.",
+        "resumed_runner_sha256": "ad437e30cac20284757979f0f4dfef9f7b6730b4a62c7389af34cb2ac0a30980"
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T140033Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-22T14:00:33.412290+00:00",
+        "reason": "Astra low/101 controller_error; restarting unfinished flight. Entry wrapper now logs only error class, integer HTTP status and validation categories, then reraises unchanged. No control, timing, scoring or provider parameters changed.",
+        "runner_sha256": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+        "diagnostic_entry_sha256": "7a21b55f02dd36735c6aa389a0ebe4897ea00431b945077744138278606571c7"
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T160852Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-22T16:08:52.685418+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T190102Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-22T19:01:02.451038+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T122341Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-23T12:23:41.540790+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T182418Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-23T18:24:18.581587+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T234057Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-23T23:40:57.284191+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T044944Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-24T04:49:44.808925+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T102350Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-24T10:23:50.780812+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T114802Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-24T11:48:02.841035+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T182251Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-24T18:22:51.319699+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T123511Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-25T12:35:11.741770+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "run-third.py": "d7b447e17662004fbd67b1e023b3150a34ffae70a1723b15a5e1dee8af015297",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T173638Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-25T17:36:38.887115+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "run-third.py": "d7b447e17662004fbd67b1e023b3150a34ffae70a1723b15a5e1dee8af015297",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    },
+    {
+      "source": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T223720Z/resume.json",
+      "event": {
+        "resumed_at": "2026-10-25T22:37:20.786675+00:00",
+        "reason": "Explicit retry of unfinished controller/infrastructure attempt authorized by user. Completed flight results retained. See diagnostic log for observed category; do not infer provider cause without evidence.",
+        "entry_files_sha256": {
+          "run.py": "df6674ef4454aa48612a48c184ca9f459de0820aaec4ca2a14393b31022076e5",
+          "run-third.py": "a59e6ead7f759d0234dbd6cbedc96c198cdef988658fb53de7b3e032a83ed60b",
+          "diagnostic_entry.py": "b403f28ef649dd30ab0d8722d53859c2ad6eb64b378cf3d09b8e0c6712f131dc"
+        }
+      },
+      "omitted_redundant_preservation_hash_counts": {}
+    }
+  ],
+  "deduplicated_runner_paths": {
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T160852Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T190102Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T122341Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T182418Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T234057Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T044944Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T102350Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T114802Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T182251Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T123511Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T173638Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T223720Z/diagnostic_entry.py": "docs/local-model-runtime/scoring-v2-2026-10-22/diagnostic_entry.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T064959Z/runner-after-resume.py": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/runner-after-resume.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T110903Z/runner-after-resume.py": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/runner-after-resume.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T125435Z/runner-before-resume.py": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/runner-after-resume.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T131402Z/runner-after-resume.py": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T125435Z/runner-after-resume.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T140033Z/runner-before-resume.py": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T125435Z/runner-after-resume.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T140033Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T160852Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T190102Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T122341Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T182418Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T234057Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T044944Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T102350Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T114802Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T182251Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T123511Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T173638Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T223720Z/run.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T123511Z/run-third.py": "docs/local-model-runtime/scoring-v2-2026-10-22/runner-revisions/20261025T173638Z-before-max-exclusion.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T173638Z/run-third.py": "docs/local-model-runtime/scoring-v2-2026-10-22/runner-revisions/20261025T173638Z-before-max-exclusion.py",
+    "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T223720Z/run-third.py": "docs/local-model-runtime/scoring-v2-2026-10-22/run-third.py"
+  }
+}

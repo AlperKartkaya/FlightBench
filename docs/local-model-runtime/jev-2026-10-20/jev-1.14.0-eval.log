@@ -1,0 +1,10 @@
+
+
+     JSBSim Flight Dynamics Model v1.3.1 [GitHub build 1837/commit 3b25f25e49b42d0489c04ac805674fc1450ca579] May 17 2026 14:38:05
+            [JSBSim-ML v2.0]
+
+JSBSim startup beginning ...
+
+{"run_id": "a43e5d27-ffcf-4fd2-a0ca-701473ee1d27", "seed": 42, "mode": "lockstep", "success": false, "quality": 0.0, "status": "controller_error", "touchdown": null}
+{"run_id": "f6075daf-49d4-4d00-8f89-15f438c594b3", "seed": 42, "mode": "realtime", "success": false, "quality": 0.0, "status": "controller_error", "touchdown": null}
+/Users/alperkartkaya/Documents/FlightBench/leaderboard/submissions/jev-1-14-0-arrival-s42/submission.json

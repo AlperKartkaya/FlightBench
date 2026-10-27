@@ -1,0 +1,6 @@
+{
+  "model": "decider-2b-v11",
+  "backend": "llama.cpp Metal",
+  "n_ctx": 8192,
+  "truncation": "refuse"
+}

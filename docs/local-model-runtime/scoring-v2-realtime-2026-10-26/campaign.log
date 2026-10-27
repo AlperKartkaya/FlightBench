@@ -1,0 +1,30 @@
+jev-1-13-0-realtime 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 511.1973247274241, 'cross_track_m': 26.338, 'sink_rate_mps': -3.3182489920021334, 'airspeed_mps': 25.423454602810683, 'heading_error_deg': 16.864568327570055, 'roll_deg': 7.25774454354031, 'pitch_deg': 0.09776735799754786}}
+jev-1-13-0-realtime 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 386.3980246709482, 'cross_track_m': -73.3034, 'sink_rate_mps': -2.365645933843906, 'airspeed_mps': 26.8496583152192, 'heading_error_deg': 4.3436735682203675, 'roll_deg': 3.2030316528038068, 'pitch_deg': -0.873116809661508}}
+jev-1-13-0-realtime 202 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 468.37054994155847, 'cross_track_m': -17.3183, 'sink_rate_mps': -1.1810822987203, 'airspeed_mps': 27.152035621558603, 'heading_error_deg': 2.7429157193665787, 'roll_deg': 4.329240211234954, 'pitch_deg': 3.5040408582286875}}
+jev-1-14-0-realtime 42 {'success': True, 'quality': 66.719, 'status': 'landed', 'touchdown': {'along_track_m': 456.7130052533555, 'cross_track_m': 10.194, 'sink_rate_mps': -2.270945571133762, 'airspeed_mps': 26.621286543616403, 'heading_error_deg': 1.63092680708138, 'roll_deg': 2.0446384613432826, 'pitch_deg': -0.5278319199948752}}
+jev-1-14-0-realtime 101 {'success': True, 'quality': 64.825, 'status': 'landed', 'touchdown': {'along_track_m': 422.53233711062717, 'cross_track_m': 4.1381, 'sink_rate_mps': -1.0552413710607789, 'airspeed_mps': 26.89519266045349, 'heading_error_deg': 3.671379922459039, 'roll_deg': 3.6018304357250512, 'pitch_deg': 3.6780912599105196}}
+jev-1-14-0-realtime 202 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 560.251348815385, 'cross_track_m': 26.684, 'sink_rate_mps': -1.7052570071068158, 'airspeed_mps': 26.886461360515916, 'heading_error_deg': 3.0068614025402667, 'roll_deg': 0.2817724850163712, 'pitch_deg': 2.1777213443294885}}
+gpt-6-luna-high-landing-retry 303 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/run.py", line 236, in <module>
+    records = publish(
+              ^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/run.py", line 205, in publish
+    records, artifacts = zip(
+                         ^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/run.py", line 207, in <genexpr>
+    run_trial(
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/run.py", line 196, in run_trial
+    raise RuntimeError(f"Infrastructure failure: {slug} seed {seed}; inspect sanitized log")
+RuntimeError: Infrastructure failure: gpt-6-luna-high-landing-retry seed 303; inspect sanitized log
+gpt-6-luna-high-landing-retry 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 494.3503056612776, 'cross_track_m': 10.0805, 'sink_rate_mps': -1.870516746653696, 'airspeed_mps': 27.579895438009842, 'heading_error_deg': 3.150316186790235, 'roll_deg': 0.9649625085573293, 'pitch_deg': 1.8887104249123188}}
+gpt-6-luna-high-landing-retry 42 {'success': False, 'quality': 0.0, 'status': 'controller_timeout', 'touchdown': {'along_track_m': 542.9797462208712, 'cross_track_m': 9.8775, 'sink_rate_mps': -0.5569207528878123, 'airspeed_mps': 27.91495714370509, 'heading_error_deg': 2.1860913973648053, 'roll_deg': 1.1231697611477955, 'pitch_deg': 2.8125205284215595}}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/run.py", line 242, in <module>
+    record, _ = run_trial("codex", luna_model, "lockstep", seed, luna_slug, "high")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/run.py", line 196, in run_trial
+    raise RuntimeError(f"Infrastructure failure: {slug} seed {seed}; inspect sanitized log")
+RuntimeError: Infrastructure failure: gpt-6-luna-high-landing-retry seed 42; inspect sanitized log
+gpt-6-luna-high-landing-retry 42 {'success': True, 'quality': 78.507, 'status': 'landed', 'touchdown': {'along_track_m': 519.0116540462163, 'cross_track_m': 4.9287, 'sink_rate_mps': -1.1830775278168808, 'airspeed_mps': 27.474005901825855, 'heading_error_deg': 2.2466899256920954, 'roll_deg': 3.210428653837557, 'pitch_deg': 3.3102869124020478}}
+CAMPAIGN COMPLETE

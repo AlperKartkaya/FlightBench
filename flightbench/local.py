@@ -105,10 +105,16 @@ class OllamaController:
                 },
             )
             usage = response.get("usage") or {}
-            if response.get("truncated") or (
-                usage.get("state_tokens_used") is not None
-                and usage.get("state_tokens") is not None
-                and usage["state_tokens_used"] < usage["state_tokens"]
+            # Von emits a nonempty truncation report only when input was dropped.
+            if (
+                response.get("truncated")
+                or response.get("truncation")
+                or usage.get("truncated")
+                or (
+                    usage.get("state_tokens_used") is not None
+                    and usage.get("state_tokens") is not None
+                    and usage["state_tokens_used"] < usage["state_tokens"]
+                )
             ):
                 raise ValueError("Local model truncated the canonical observation")
             answers = response["answers"]
@@ -125,6 +131,7 @@ class OllamaController:
                 "action_ids": ids.model_dump(),
                 "command": command.model_dump(),
                 "usage": response.get("usage"),
+                "input_integrity": {key: response.get(key) for key in ("truncated", "truncation")},
                 "sdk_request": {"questions": questions},
             }
             return command

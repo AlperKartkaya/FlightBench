@@ -1,0 +1,172 @@
+jev-1-13-0 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 427.1439675192237, 'cross_track_m': 4.8103, 'sink_rate_mps': -1.5098832007803216, 'airspeed_mps': 26.434175220953616, 'heading_error_deg': 6.7332959336415, 'roll_deg': 2.6510725992379243, 'pitch_deg': 2.151130571479818}}
+jev-1-13-0 101 {'success': True, 'quality': 41.201, 'status': 'landed', 'touchdown': {'along_track_m': 427.39458456968873, 'cross_track_m': -4.5366, 'sink_rate_mps': -1.561157531671663, 'airspeed_mps': 26.47527563571211, 'heading_error_deg': 6.527740154670056, 'roll_deg': 2.5709644055967518, 'pitch_deg': 2.028635754787296}}
+jev-1-14-0 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 466.48295639375647, 'cross_track_m': 15.6297, 'sink_rate_mps': -1.3294396608879941, 'airspeed_mps': 26.53410517572122, 'heading_error_deg': 4.806210147024103, 'roll_deg': 1.9328855940147194, 'pitch_deg': 2.5156472782864743}}
+jev-1-14-0 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 471.8725623871278, 'cross_track_m': 8.4269, 'sink_rate_mps': -1.2116089814844158, 'airspeed_mps': 26.517921924680643, 'heading_error_deg': 4.9731853437070015, 'roll_deg': 2.9354223974286384, 'pitch_deg': 2.777329183622972}}
+gpt-6-1-sol-low 42 {'success': True, 'quality': 78.541, 'status': 'landed', 'touchdown': {'along_track_m': 537.5452396471744, 'cross_track_m': 2.9895, 'sink_rate_mps': -1.5653169026153018, 'airspeed_mps': 28.715432996528513, 'heading_error_deg': 0.12555662469961248, 'roll_deg': 0.2040847838619817, 'pitch_deg': 2.385828296599284}}
+gpt-6-1-sol-low 101 {'success': False, 'quality': 0.0, 'status': 'nose_first_contact', 'touchdown': None}
+gpt-6-1-sol-medium 42 {'success': True, 'quality': 74.731, 'status': 'landed', 'touchdown': {'along_track_m': 578.4199005544983, 'cross_track_m': 3.8937, 'sink_rate_mps': -1.0784695153711235, 'airspeed_mps': 27.839637713237067, 'heading_error_deg': -0.11531884397038539, 'roll_deg': 0.49715026912929783, 'pitch_deg': 1.6856954163109368}}
+gpt-6-1-sol-medium 101 {'success': False, 'quality': 0.0, 'status': 'nose_first_contact', 'touchdown': None}
+gpt-6-1-sol-high 42 {'success': True, 'quality': 76.087, 'status': 'landed', 'touchdown': {'along_track_m': 576.2410842021422, 'cross_track_m': 3.9275, 'sink_rate_mps': -1.1059100611121429, 'airspeed_mps': 27.846021028800298, 'heading_error_deg': -0.21109831224657682, 'roll_deg': 0.26412970272395014, 'pitch_deg': 1.6120858988395392}}
+gpt-6-1-sol-high 101 {'success': True, 'quality': 74.478, 'status': 'landed', 'touchdown': {'along_track_m': 576.9898752580234, 'cross_track_m': 4.0438, 'sink_rate_mps': -1.1190538345759709, 'airspeed_mps': 27.80909027049622, 'heading_error_deg': 0.5355349467188262, 'roll_deg': 1.0371131769277449, 'pitch_deg': 1.6366146510741733}}
+gpt-6-1-sol-xhigh 42 {'success': False, 'quality': 0.0, 'status': 'controller_timeout', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 68, in <module>
+    raise RuntimeError(f'Trial export failed: {slug} seed {seed}; inspect sanitized log')
+RuntimeError: Trial export failed: gpt-6-1-sol-xhigh seed 101; inspect sanitized log
+gpt-6-1-sol-xhigh 42 {'success': True, 'quality': 71.444, 'status': 'landed', 'touchdown': {'along_track_m': 608.1820999585684, 'cross_track_m': 6.9178, 'sink_rate_mps': -1.2686335763904593, 'airspeed_mps': 26.954719993226245, 'heading_error_deg': 1.3662931804982748, 'roll_deg': 0.5427999261395675, 'pitch_deg': 1.953469010001475}}
+gpt-6-1-sol-xhigh 101 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 94, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-1-sol-xhigh 101 {'success': True, 'quality': 76.279, 'status': 'landed', 'touchdown': {'along_track_m': 575.3858294465858, 'cross_track_m': 3.9791, 'sink_rate_mps': -0.9741345075070201, 'airspeed_mps': 27.838891756818064, 'heading_error_deg': 0.4535672310884138, 'roll_deg': -0.2503236462632475, 'pitch_deg': 1.8792968316388898}}
+gpt-6-1-sol-max 42 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 94, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-1-sol-max 42 {'success': False, 'quality': 0.0, 'status': 'controller_timeout', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 94, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-low 42 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-low 42 {'success': True, 'quality': 74.31, 'status': 'landed', 'touchdown': {'along_track_m': 561.1708067832183, 'cross_track_m': 4.3375, 'sink_rate_mps': -1.7752089536485687, 'airspeed_mps': 27.47661861183171, 'heading_error_deg': 2.5888899291610983, 'roll_deg': 1.8401952536077182, 'pitch_deg': 2.1270422115507044}}
+gpt-6-astra-low 101 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-low 101 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-low 101 {'success': True, 'quality': 72.536, 'status': 'landed', 'touchdown': {'along_track_m': 562.4251605401346, 'cross_track_m': 4.7876, 'sink_rate_mps': -1.6666808675038027, 'airspeed_mps': 27.486590690284775, 'heading_error_deg': 0.5522350027820835, 'roll_deg': 1.0045157203700552, 'pitch_deg': 2.321104792616561}}
+gpt-6-astra-medium 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 630.5679634742305, 'cross_track_m': 11.2527, 'sink_rate_mps': -0.7090865886304322, 'airspeed_mps': 26.77562939283019, 'heading_error_deg': 2.222574633818425, 'roll_deg': 3.2907259684487484, 'pitch_deg': 3.8762249793715804}}
+gpt-6-astra-medium 101 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-medium 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 613.1458011281052, 'cross_track_m': 9.1339, 'sink_rate_mps': -0.9485696097044914, 'airspeed_mps': 26.967578264514497, 'heading_error_deg': 2.056752106537118, 'roll_deg': 2.5645694576675124, 'pitch_deg': 2.666385192679337}}
+gpt-6-astra-high 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 624.28047772328, 'cross_track_m': 13.8267, 'sink_rate_mps': -2.016302299150029, 'airspeed_mps': 26.430115439971825, 'heading_error_deg': 4.920522310740097, 'roll_deg': 2.607881824180145, 'pitch_deg': 1.677058401852729}}
+gpt-6-astra-high 101 {'success': True, 'quality': 72.42, 'status': 'landed', 'touchdown': {'along_track_m': 615.4801316051203, 'cross_track_m': 2.6263, 'sink_rate_mps': -0.9712361780703973, 'airspeed_mps': 26.997204199269696, 'heading_error_deg': 0.36176623473210157, 'roll_deg': 2.2589651428175173, 'pitch_deg': 2.5912593101582213}}
+gpt-6-astra-xhigh 42 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-xhigh 42 {'success': True, 'quality': 72.604, 'status': 'landed', 'touchdown': {'along_track_m': 574.8760148792153, 'cross_track_m': 3.5814, 'sink_rate_mps': -1.6661096741428045, 'airspeed_mps': 27.80687928768084, 'heading_error_deg': 1.2133932225841022, 'roll_deg': 1.3636462361098538, 'pitch_deg': 0.5175361403678119}}
+gpt-6-astra-xhigh 101 {'success': True, 'quality': 70.397, 'status': 'landed', 'touchdown': {'along_track_m': 615.1143399805628, 'cross_track_m': 5.5483, 'sink_rate_mps': -1.5231016770462147, 'airspeed_mps': 26.91103279498542, 'heading_error_deg': 2.0537593796842657, 'roll_deg': 0.8876274888831884, 'pitch_deg': 1.4395810169208172}}
+gpt-6-luna-low 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 341.63527724727305, 'cross_track_m': 10.9664, 'sink_rate_mps': -2.055906298693975, 'airspeed_mps': 26.493547513885797, 'heading_error_deg': 3.309505666268848, 'roll_deg': 1.3466815456839645, 'pitch_deg': 0.9205802377637058}}
+gpt-6-luna-low 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 398.3835878340574, 'cross_track_m': 13.2822, 'sink_rate_mps': -1.9742419861396188, 'airspeed_mps': 26.439485172269716, 'heading_error_deg': 2.3911081712026316, 'roll_deg': 0.3672543220544544, 'pitch_deg': 1.2584013045364069}}
+gpt-6-luna-medium 42 {'success': True, 'quality': 58.488, 'status': 'landed', 'touchdown': {'along_track_m': 426.84471343490486, 'cross_track_m': 4.3569, 'sink_rate_mps': -1.093010167799029, 'airspeed_mps': 26.552310684930188, 'heading_error_deg': 2.1264310584238046, 'roll_deg': 0.09454729723785539, 'pitch_deg': 2.9884325695899343}}
+gpt-6-luna-medium 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 435.7723180777334, 'cross_track_m': 19.9224, 'sink_rate_mps': -2.110168796531497, 'airspeed_mps': 26.265251249570788, 'heading_error_deg': 5.655119224098172, 'roll_deg': 1.9261084535195574, 'pitch_deg': 1.4322732442043742}}
+gpt-6-luna-high 42 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-luna-high 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 645.1021728911946, 'cross_track_m': 11.8919, 'sink_rate_mps': -1.2357654421591202, 'airspeed_mps': 26.456767018577334, 'heading_error_deg': 3.5877047409020406, 'roll_deg': 1.4799545101262315, 'pitch_deg': 2.736190081969213}}
+gpt-6-luna-high 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 589.6370345345331, 'cross_track_m': 11.9772, 'sink_rate_mps': -0.4939445207020855, 'airspeed_mps': 27.08405519722861, 'heading_error_deg': 1.820502809171387, 'roll_deg': 1.1243099502577552, 'pitch_deg': 3.644972671698249}}
+gpt-6-luna-xhigh 42 {'success': True, 'quality': 77.306, 'status': 'landed', 'touchdown': {'along_track_m': 548.4009525519241, 'cross_track_m': 4.1239, 'sink_rate_mps': -0.5913708655411423, 'airspeed_mps': 27.644941929695726, 'heading_error_deg': 1.1185723966393937, 'roll_deg': 1.575630719400286, 'pitch_deg': 4.207237337444233}}
+gpt-6-luna-xhigh 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 609.096536401858, 'cross_track_m': 8.9791, 'sink_rate_mps': -1.416520349690284, 'airspeed_mps': 26.325023464721674, 'heading_error_deg': 3.104660227350621, 'roll_deg': 1.7403515847156699, 'pitch_deg': 2.342631430246433}}
+gpt-6-sol-low 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 465.7946658273288, 'cross_track_m': 20.4647, 'sink_rate_mps': -1.7153219512883797, 'airspeed_mps': 26.31351389990132, 'heading_error_deg': 5.661524823946081, 'roll_deg': 2.3443557887389876, 'pitch_deg': 1.7886358884980726}}
+gpt-6-sol-low 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 463.80971565464324, 'cross_track_m': 11.1489, 'sink_rate_mps': -1.3419062096073178, 'airspeed_mps': 26.43553951405867, 'heading_error_deg': 3.493814057278172, 'roll_deg': 1.7875244692487207, 'pitch_deg': 2.512971532153116}}
+gpt-6-sol-medium 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 533.7030862591289, 'cross_track_m': 16.3391, 'sink_rate_mps': -1.5712229372825994, 'airspeed_mps': 26.26879072150022, 'heading_error_deg': 3.760057831020106, 'roll_deg': 2.2366150769253474, 'pitch_deg': 2.0331539862210617}}
+gpt-6-sol-medium 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 562.7405878890295, 'cross_track_m': 12.8998, 'sink_rate_mps': -2.1159687187607927, 'airspeed_mps': 26.217499083866663, 'heading_error_deg': 5.104180539839319, 'roll_deg': 1.79479547741974, 'pitch_deg': 1.033339486107493}}
+gpt-6-sol-high 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 509.5377478805374, 'cross_track_m': 11.2663, 'sink_rate_mps': -1.3206880118185613, 'airspeed_mps': 26.420161620494845, 'heading_error_deg': 3.7683286819963087, 'roll_deg': 1.9408478189515797, 'pitch_deg': 2.565024764864525}}
+gpt-6-sol-high 101 {'success': True, 'quality': 72.722, 'status': 'landed', 'touchdown': {'along_track_m': 602.8558607120553, 'cross_track_m': 6.3324, 'sink_rate_mps': -0.9105089938990333, 'airspeed_mps': 26.861194998935197, 'heading_error_deg': 0.573679342875181, 'roll_deg': 3.669691269589582, 'pitch_deg': 3.4121803500723735}}
+gpt-6-sol-xhigh 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 506.8384931320388, 'cross_track_m': 6.4984, 'sink_rate_mps': -1.3157417825762678, 'airspeed_mps': 26.405577984334954, 'heading_error_deg': 3.722395696082259, 'roll_deg': 1.380142313511423, 'pitch_deg': 2.562365496213664}}
+gpt-6-sol-xhigh 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 468.7760272346911, 'cross_track_m': 7.4089, 'sink_rate_mps': -0.9820195670686485, 'airspeed_mps': 26.603221866938895, 'heading_error_deg': 3.4750762740037544, 'roll_deg': 2.391495233084564, 'pitch_deg': 3.302276521724854}}
+gpt-6-1-sol-max 42 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-1-sol-max 42 {'success': True, 'quality': 79.808, 'status': 'landed', 'touchdown': {'along_track_m': 518.7639757230322, 'cross_track_m': 4.3702, 'sink_rate_mps': -1.4736027493547048, 'airspeed_mps': 27.562851443472702, 'heading_error_deg': 1.600063764130084, 'roll_deg': 0.9622248194282478, 'pitch_deg': 2.690623880505127}}
+gpt-6-1-sol-max 101 {'success': True, 'quality': 74.214, 'status': 'landed', 'touchdown': {'along_track_m': 576.9772555652003, 'cross_track_m': 3.8286, 'sink_rate_mps': -1.7485771808447617, 'airspeed_mps': 27.757235466765522, 'heading_error_deg': 0.5842627474738435, 'roll_deg': -0.9229153341364806, 'pitch_deg': 0.4016614081515109}}
+gpt-6-astra-max 42 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': {'along_track_m': 574.1521158674741, 'cross_track_m': 6.618, 'sink_rate_mps': -1.666858476581013, 'airspeed_mps': 27.78675948249911, 'heading_error_deg': -0.9907891900085417, 'roll_deg': 1.9737797487941187, 'pitch_deg': 0.5938696311205227}}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-max 42 {'success': False, 'quality': 0.0, 'status': 'nose_first_contact', 'touchdown': None}
+gpt-6-astra-max 101 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-max 101 {'success': False, 'quality': 0.0, 'status': 'controller_timeout', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-max 101 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': {'along_track_m': 574.8360696401282, 'cross_track_m': 3.8715, 'sink_rate_mps': -1.6633643844028663, 'airspeed_mps': 27.77818441128935, 'heading_error_deg': 1.2105496731348637, 'roll_deg': 0.6275260460173245, 'pitch_deg': 0.5817064074743441}}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run.py", line 95, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+jev-1-13-0 202 {'success': True, 'quality': 19.904, 'status': 'landed', 'touchdown': {'along_track_m': 432.2974236891803, 'cross_track_m': -13.26, 'sink_rate_mps': -1.6353126874459512, 'airspeed_mps': 26.36827833871646, 'heading_error_deg': 5.7251519164909155, 'roll_deg': 2.8120017609951327, 'pitch_deg': 1.8773675812738326}}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run-third.py", line 100, in <module>
+    payload=build_submission(records,metadata,artifacts,folder/'submission.json')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/flightbench/leaderboard.py", line 561, in build_submission
+    raise FileExistsError(output_path)
+FileExistsError: /Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/jev-1-13-0/submission.json
+jev-1-14-0 202 {'success': True, 'quality': 80.462, 'status': 'landed', 'touchdown': {'along_track_m': 455.758530004915, 'cross_track_m': 2.2714, 'sink_rate_mps': -1.2290274125592386, 'airspeed_mps': 26.47543653957229, 'heading_error_deg': 2.6089118577142756, 'roll_deg': 3.153575869744881, 'pitch_deg': 2.6714526373557645}}
+gpt-6-1-sol-low 202 {'success': True, 'quality': 80.129, 'status': 'landed', 'touchdown': {'along_track_m': 483.3484442223121, 'cross_track_m': 5.6334, 'sink_rate_mps': -1.6565365700589405, 'airspeed_mps': 27.116974078656128, 'heading_error_deg': 2.3753108231502438, 'roll_deg': 1.8320053574778477, 'pitch_deg': 2.3732414895062863}}
+gpt-6-1-sol-medium 202 {'success': False, 'quality': 0.0, 'status': 'nose_first_contact', 'touchdown': None}
+gpt-6-1-sol-high 202 {'success': True, 'quality': 65.803, 'status': 'landed', 'touchdown': {'along_track_m': 625.6922094813913, 'cross_track_m': 8.5212, 'sink_rate_mps': -2.2022186680342912, 'airspeed_mps': 26.36935201525529, 'heading_error_deg': 0.8609880547054445, 'roll_deg': 0.7226283380402971, 'pitch_deg': 0.9171854737299586}}
+gpt-6-1-sol-xhigh 202 {'success': True, 'quality': 74.52, 'status': 'landed', 'touchdown': {'along_track_m': 575.9197610389565, 'cross_track_m': 3.1414, 'sink_rate_mps': -1.7488364042895943, 'airspeed_mps': 27.804509339712382, 'heading_error_deg': 1.2300044254303089, 'roll_deg': 0.8341849390634034, 'pitch_deg': 0.40866744292732615}}
+gpt-6-astra-low 202 {'success': True, 'quality': 70.266, 'status': 'landed', 'touchdown': {'along_track_m': 614.9756528664452, 'cross_track_m': 7.1892, 'sink_rate_mps': -1.5295125322262677, 'airspeed_mps': 26.911905217024636, 'heading_error_deg': 1.7264094513059547, 'roll_deg': 2.167714425496074, 'pitch_deg': 1.4781850368684013}}
+gpt-6-astra-medium 202 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run-third.py", line 101, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-medium 202 {'success': True, 'quality': 72.225, 'status': 'landed', 'touchdown': {'along_track_m': 614.5139374721516, 'cross_track_m': 6.1965, 'sink_rate_mps': -0.9291797271531846, 'airspeed_mps': 26.984468816731088, 'heading_error_deg': 1.0681536535223586, 'roll_deg': 0.694688954615944, 'pitch_deg': 2.6378535197778357}}
+gpt-6-astra-high 202 {'success': True, 'quality': 74.565, 'status': 'landed', 'touchdown': {'along_track_m': 564.177677568759, 'cross_track_m': 5.0627, 'sink_rate_mps': -1.6121243758475874, 'airspeed_mps': 27.406776901386976, 'heading_error_deg': 1.8316123682275816, 'roll_deg': 0.9998282758726553, 'pitch_deg': 2.4322027285119034}}
+gpt-6-astra-xhigh 202 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run-third.py", line 101, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-astra-xhigh 202 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 627.6507740923848, 'cross_track_m': 19.4594, 'sink_rate_mps': -2.2359590055750336, 'airspeed_mps': 26.338912091356114, 'heading_error_deg': 6.071070049287243, 'roll_deg': 2.3492326513902446, 'pitch_deg': 1.039217232070904}}
+gpt-6-luna-low 202 {'success': True, 'quality': 77.402, 'status': 'landed', 'touchdown': {'along_track_m': 344.2726818194908, 'cross_track_m': 8.7441, 'sink_rate_mps': -0.6381465223066611, 'airspeed_mps': 26.87215246196783, 'heading_error_deg': 1.9364572743491237, 'roll_deg': 0.7715939946778385, 'pitch_deg': 3.9383877524594535}}
+gpt-6-luna-medium 202 {'success': True, 'quality': 76.552, 'status': 'landed', 'touchdown': {'along_track_m': 479.0102643629484, 'cross_track_m': 11.2919, 'sink_rate_mps': -1.0200187139729175, 'airspeed_mps': 27.40892760281971, 'heading_error_deg': 1.0864647961860499, 'roll_deg': -0.30673866940113675, 'pitch_deg': 3.5818200228778596}}
+gpt-6-luna-high 202 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 608.1796870435792, 'cross_track_m': 9.2778, 'sink_rate_mps': -1.9297356320811772, 'airspeed_mps': 26.391639699546875, 'heading_error_deg': 4.265893401041467, 'roll_deg': 2.6082261614939597, 'pitch_deg': 1.2616017438167442}}
+gpt-6-luna-xhigh 202 {'success': True, 'quality': 75.65, 'status': 'landed', 'touchdown': {'along_track_m': 534.5052135771284, 'cross_track_m': 3.6741, 'sink_rate_mps': -1.8602778312730546, 'airspeed_mps': 27.620778062977113, 'heading_error_deg': 1.2400109474977796, 'roll_deg': 1.434638565147724, 'pitch_deg': 1.9489467332831687}}
+gpt-6-sol-low 202 {'success': True, 'quality': 54.068, 'status': 'landed', 'touchdown': {'along_track_m': 490.13108428303144, 'cross_track_m': 2.6394, 'sink_rate_mps': -1.1064384076694436, 'airspeed_mps': 26.456948822933082, 'heading_error_deg': 3.29316702393362, 'roll_deg': 0.8188882233072938, 'pitch_deg': 3.0030778414700383}}
+gpt-6-sol-medium 202 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 499.06606995006723, 'cross_track_m': 9.842, 'sink_rate_mps': -1.2107841669966422, 'airspeed_mps': 26.48898893969677, 'heading_error_deg': 2.918333821210325, 'roll_deg': 2.0584592812751747, 'pitch_deg': 2.799183837030818}}
+gpt-6-sol-high 202 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 529.3263914915055, 'cross_track_m': 13.3376, 'sink_rate_mps': -1.6641251866424869, 'airspeed_mps': 26.22480015967008, 'heading_error_deg': 3.5418419943616186, 'roll_deg': 2.3032371615957317, 'pitch_deg': 1.8363749417526147}}
+gpt-6-sol-xhigh 202 {'success': False, 'quality': 0.0, 'status': 'controller_error', 'touchdown': None}
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-2026-10-22/run-third.py", line 102, in <module>
+    assert record['outcome']['status'] not in {'controller_timeout','controller_error','interrupted','error'}, 'Infrastructure failure: stop campaign for diagnosis'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Infrastructure failure: stop campaign for diagnosis
+gpt-6-sol-xhigh 202 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 473.4757287864054, 'cross_track_m': 9.6502, 'sink_rate_mps': -1.2611977805057435, 'airspeed_mps': 26.403073838167405, 'heading_error_deg': 2.9789724531255217, 'roll_deg': 2.231155966825227, 'pitch_deg': 2.7186709596106207}}
+CAMPAIGN COMPLETE

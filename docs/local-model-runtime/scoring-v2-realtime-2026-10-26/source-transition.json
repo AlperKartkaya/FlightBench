@@ -1,0 +1,11 @@
+{
+  "old_source_hash": "sha256:2583efb1a0c1437a432ab694a2bc05dd1b4dcffae64075618a1f04ad201f1d3e",
+  "new_source_hash": "sha256:ebbaf763d742e79e847f43f8f64f701ec923160f770960b0d6cecfe3c81fa128",
+  "changed_files": [
+    "flightbench/benchmark.py",
+    "flightbench/scoring.py"
+  ],
+  "verified_old_flights": 54,
+  "score_and_episode_rows_identical": true,
+  "scope": "Validation-only guards; no observation, control, physics, timing, scoring formula or valid-usage pricing changes. Different flight dates and realtime execution remain explicitly labeled."
+}

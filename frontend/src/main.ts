@@ -1843,6 +1843,7 @@ byId("start").addEventListener("click", () => {
     seed: Number(seedInput.value),
     decision_hz: Number(byId<HTMLSelectElement>("decisionRate").value),
     time_scale: 1,
+    realtime_response_policy: "apply-on-arrival",
     human_assistance: { auto_center: autoCenterEnabled, wing_leveler: wingLevelerEnabled },
     model: controllerSelect.value === "codex" ? modelSelect.value : null,
   };

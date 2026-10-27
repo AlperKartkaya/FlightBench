@@ -1,0 +1,215 @@
+{
+  "latency_ms": 4428.706582999439,
+  "decision_info": {
+    "controller": "systemone",
+    "model": "decider-2b-v11",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9",
+    "input": {
+      "flight": {
+        "airspeed_mps": 33.438888888889736,
+        "groundspeed_mps": 33.54315861349885,
+        "vertical_speed_mps": -1.7579224530722855,
+        "flight_path_angle_deg": -2.999999999999992,
+        "angle_of_attack_deg": 4.999999999999994,
+        "alpha_deg": 4.999999999999994,
+        "roll_deg": -1.889605438696786e-14,
+        "pitch_deg": 2.000000000000002,
+        "heading_deg": 90.0,
+        "p_rad_s": 0.0,
+        "q_rad_s": 0.0,
+        "r_rad_s": 0.0,
+        "beta_deg": 1.2798540759470421e-14
+      },
+      "runway": {
+        "distance_to_threshold_m": 1500.000000000001,
+        "along_track_m": -1500.000000000001,
+        "cross_track_error_m": 0.0,
+        "centerline_offset_m": -0.0,
+        "runway_width_m": 30,
+        "altitude_agl_m": 93.61166892332044,
+        "glideslope_error_deg": -4.728883951088392e-11,
+        "heading_error_deg": 0.0
+      },
+      "current_controls": {
+        "aileron": -0.15,
+        "elevator": 0.17,
+        "rudder": 0.09,
+        "throttle": 0.5,
+        "flaps_deg": 20.0
+      },
+      "time_s": 0.0,
+      "motion": {
+        "airspeed_rate_mps2": 0.0,
+        "vertical_speed_rate_mps2": 0.0,
+        "cross_track_rate_mps": 0.0,
+        "glideslope_error_rate_deg_s": 0.0,
+        "heading_error_rate_deg_s": 0.0,
+        "flight_path_angle_rate_deg_s": 0.0,
+        "angle_of_attack_rate_deg_s": 0.0,
+        "distance_closure_rate_mps": 0.0,
+        "cross_track_accel_mps2": 0.0
+      },
+      "status": {
+        "on_ground": false,
+        "main_gear_on_ground": false
+      },
+      "phase": "APPROACH"
+    },
+    "choices": {
+      "aileron": {
+        "type": "choice",
+        "choice": "3",
+        "confidence": 0.7899,
+        "x_p_max": 0.8199,
+        "certainty": 0.6816,
+        "probabilities": {
+          "0": 0.0017,
+          "1": 0.0037,
+          "2": 0.1331,
+          "3": 0.8199,
+          "4": 0.0337,
+          "5": 0.0058,
+          "6": 0.0021
+        }
+      },
+      "elevator": {
+        "type": "choice",
+        "choice": "7",
+        "confidence": 0.5427,
+        "x_p_max": 0.5884,
+        "certainty": 0.4932,
+        "probabilities": {
+          "0": 0.0059,
+          "1": 0.0023,
+          "2": 0.0062,
+          "3": 0.0079,
+          "4": 0.0083,
+          "5": 0.0336,
+          "6": 0.093,
+          "7": 0.5884,
+          "8": 0.251,
+          "9": 0.0033
+        }
+      },
+      "rudder": {
+        "type": "choice",
+        "choice": "2",
+        "confidence": 0.2748,
+        "x_p_max": 0.3784,
+        "certainty": 0.1636,
+        "probabilities": {
+          "0": 0.035,
+          "1": 0.128,
+          "2": 0.3784,
+          "3": 0.1455,
+          "4": 0.22,
+          "5": 0.0758,
+          "6": 0.0173
+        }
+      },
+      "throttle": {
+        "type": "choice",
+        "choice": "3",
+        "confidence": 0.9304,
+        "x_p_max": 0.9403,
+        "certainty": 0.8423,
+        "probabilities": {
+          "0": 0.0063,
+          "1": 0.0067,
+          "2": 0.0336,
+          "3": 0.9403,
+          "4": 0.007,
+          "5": 0.0037,
+          "6": 0.0022
+        }
+      }
+    },
+    "action_ids": {
+      "aileron": "3",
+      "elevator": "7",
+      "rudder": "2",
+      "throttle": "3"
+    },
+    "command": {
+      "aileron": -0.15,
+      "elevator": 0.15,
+      "rudder": 0.05,
+      "throttle": 0.5
+    },
+    "usage": {
+      "input_tokens": 2127,
+      "output_tokens": 0
+    },
+    "input_integrity": {
+      "truncated": false,
+      "truncation": null
+    },
+    "sdk_request": {
+      "questions": {
+        "aileron": {
+          "type": "choice",
+          "instructions": "Choose the absolute aileron command using `flight.roll_deg` and `flight.p_rad_s` FIRST. Positive roll_deg means RIGHT bank; negative means LEFT bank. Positive p_rad_s means rolling RIGHT. Arrest a bank of 3 degrees or more BEFORE chasing runway alignment or sideways velocity; do not increase excessive bank. Only with bank below 3 degrees, first BRAKE sideways motion using motion.cross_track_rate_mps: above +0.5 m/s needs LEFT bank; below -0.5 m/s needs RIGHT bank, even if still on the opposite side of centerline. Wings level alone does NOT stop sideways drift. Only when sideways speed is below 0.5 m/s, use position to intercept: offset above +2m needs LEFT bank, below -2m needs RIGHT bank. Keep corrective bank small, about 2 degrees. Positive runway.centerline_offset_m means POSITION right of runway; positive runway.heading_error_deg means nose POINTING right, NOT position. Absolute trim aileron is -0.15; more positive rolls right, more negative rolls left. Use current `flight` and `runway` state to choose one matching physical correction; do not select trim when the aircraft is diverging.",
+          "criteria": {
+            "0": "Strong LEFT roll correction: roll_deg above +8 (large RIGHT bank), especially p_rad_s positive. Recovery outranks runway offset.",
+            "1": "Moderate LEFT roll correction: roll_deg +3 to +8 degrees (RIGHT bank); reduce bank before it grows.",
+            "2": "Only with bank between -3 and +3 degrees: gentle LEFT roll, moving RIGHT faster than +0.5 m/s and roll>-2; OR nearly stationary sideways, position offset>+2m and roll>-2; OR centered with small RIGHT bank. NOT when moving LEFT faster than -0.5 m/s.",
+            "3": "Only with bank between -3 and +3 degrees: maintain current small bank: already banking LEFT about -2 degrees to brake RIGHT motion, or RIGHT about +2 degrees to brake LEFT motion; OR centered with sideways speed below 0.5 m/s and wings level.",
+            "4": "Only with bank between -3 and +3 degrees: gentle RIGHT roll, moving LEFT faster than -0.5 m/s and roll<+2; OR nearly stationary sideways, position offset<-2m and roll<+2; OR centered with small LEFT bank. NOT when moving RIGHT faster than +0.5 m/s.",
+            "5": "Moderate RIGHT roll correction: roll_deg -3 to -8 degrees (LEFT bank); reduce bank before it grows.",
+            "6": "Strong RIGHT roll correction: roll_deg below -8 (large LEFT bank), especially p_rad_s negative. Recovery outranks runway offset."
+          }
+        },
+        "elevator": {
+          "type": "choice",
+          "instructions": "Choose ABSOLUTE elevator during APPROACH. Positive commands pitch nose DOWN, negative nose UP. Follow the3-degree glidepath before threshold; normal sink1.5-3m/s is not an emergency. Modest nose-negative pitch can be normal while descending. Do not flare early. Use the matching approach criterion, considering vertical_speed_mps, pitch_deg and q_rad_s. Above glidepath and shallow descent needs more nose-down; arrest an actual worsening dive. Use current `flight` and `runway` state to choose one matching physical correction; do not select trim when the aircraft is diverging.",
+          "criteria": {
+            "0": "Emergency nose-UP: severe dive sinking faster than8m/s, or pitch below -15 degrees and falling.",
+            "1": "Strong nose-UP: deep dive sinking6-8m/s, with pitch below -10 degrees.",
+            "2": "Firm nose-UP: dive sinking5-6m/s, with pitch below -7 degrees.",
+            "3": "Nose-UP recovery: sinking4.5-5m/s with nose below -5 and still falling.",
+            "4": "Nose-UP support: sinking4-4.5m/s with negative pitch.",
+            "5": "Moderate nose-UP support: sinking3.5-4m/s with negative pitch.",
+            "6": "Mild nose-UP support: below glidepath and descending, or sink3-3.5m/s worsening with nose low.",
+            "7": "Normal approach command: descent1-3m/s and modest pitch. Maintain normal descent; do not arrest it.",
+            "8": "Moderate nose-DOWN: before threshold, above glidepath by more than0.5 degrees and sink shallower than2m/s; OR climbing/pitch rising excessively.",
+            "9": "Strong nose-DOWN: steep climb faster than3m/s with pitch above10 degrees."
+          }
+        },
+        "rudder": {
+          "type": "choice",
+          "instructions": "Select ABSOLUTE rudder command for C172 approach. Trim +0.09 counters propeller torque. Increasing yaw command turns nose LEFT; decreasing turns nose RIGHT. Positive heading error is pointing right of runway: increase rudder gently; negative heading error decrease. Damp yaw rate and beta sideslip. Near alignment use trim. Use current `flight` and `runway` state to choose one matching physical correction; do not select trim when the aircraft is diverging.",
+          "criteria": {
+            "0": "Strong yaw RIGHT: nose points far LEFT of runway heading.",
+            "1": "Moderate yaw RIGHT: nose points LEFT of runway heading.",
+            "2": "Gentle yaw RIGHT: nose points slightly LEFT of runway heading.",
+            "3": "Trim yaw: nose aligned with runway and low yaw rate.",
+            "4": "Gentle yaw LEFT: nose points slightly RIGHT of runway heading.",
+            "5": "Moderate yaw LEFT: nose points RIGHT of runway heading.",
+            "6": "Strong yaw LEFT: nose points far RIGHT of runway heading."
+          }
+        },
+        "throttle": {
+          "type": "choice",
+          "instructions": "Select ABSOLUTE throttle for C172 approach. Aim approach airspeed 30 m/s; use about 0.5 at 30 m/s, add power if slow, reduce if fast. During FLARE reduce throttle to 0.25 or less during flare. Do not cut early while still high. Touchdown ideal airspeed 28m/s. Use current `flight` and `runway` state to choose one matching physical correction; do not select trim when the aircraft is diverging.",
+          "criteria": {
+            "0": "Idle for ground rollout or final flare with excessive airspeed.",
+            "1": "Reduced power during FLARE.",
+            "2": "Slightly reduced approach power for airspeed faster than 36 m/s; never when below glidepath.",
+            "3": "Normal approach power at airspeed 29 to 36 m/s, phase APPROACH; maintain while not safely in flare.",
+            "4": "Increased approach power for airspeed about 27 m/s.",
+            "5": "High approach power for airspeed about 24 m/s.",
+            "6": "Full power for dangerously low airspeed below 22 m/s."
+          }
+        }
+      }
+    }
+  },
+  "command": {
+    "aileron": -0.15,
+    "elevator": 0.15,
+    "rudder": 0.05,
+    "throttle": 0.5
+  }
+}

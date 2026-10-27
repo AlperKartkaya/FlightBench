@@ -6,7 +6,7 @@ from gymnasium.utils.env_checker import check_env
 
 from flightbench.environment import FixedWingLandingEnv
 from flightbench.geometry import attitude_quaternion
-from flightbench.scoring import evaluate
+from flightbench.scoring import ScoringConfig, evaluate, trajectory_error_rate
 
 
 def rotate(q, v):
@@ -87,10 +87,112 @@ def test_score_tiers():
         "roll_deg": 0,
         "pitch_deg": 5,
     }
-    assert evaluate(touchdown, False)["quality"] < evaluate(touchdown, True)["quality"]
-    assert evaluate(touchdown, True)["success"]
-    assert not evaluate({**touchdown, "sink_rate_mps": -8}, True)["success"]
-    assert evaluate(None)["quality"] == 0
+    trajectory = {"lateral": 0, "pitch": 0, "glide": 0}
+    assert evaluate(touchdown, False, trajectory=trajectory)["quality"] == 0
+    assert evaluate(touchdown, True, trajectory=trajectory)["success"]
+    assert not evaluate({**touchdown, "sink_rate_mps": -8}, True, trajectory=trajectory)["success"]
+    assert evaluate(None, trajectory=trajectory)["quality"] == 0
+
+
+def test_v1_score_is_preserved_and_explicit():
+    touchdown = {
+        "along_track_m": 200,
+        "cross_track_m": 0,
+        "sink_rate_mps": -0.5,
+        "airspeed_mps": 28,
+        "heading_error_deg": 0,
+        "roll_deg": 0,
+        "pitch_deg": 5,
+    }
+    result = evaluate(touchdown, True, config=ScoringConfig(version="v1"))
+    assert result["quality"] == 95.833
+    assert result["scoring_version"] == "v1"
+    assert result["scoring"]["version"] == "v1"
+
+
+def test_v2_rewards_stable_approach_and_gates_failures():
+    touchdown = {
+        "along_track_m": 200,
+        "cross_track_m": 0,
+        "sink_rate_mps": -1,
+        "airspeed_mps": 28,
+        "heading_error_deg": 0,
+        "roll_deg": 0,
+        "pitch_deg": 5,
+    }
+    stable = evaluate(
+        touchdown,
+        True,
+        trajectory={"lateral": 0, "pitch": 0, "glide": 0},
+    )
+    unstable = evaluate(
+        touchdown,
+        True,
+        trajectory={"lateral": 60, "pitch": 60, "glide": 60},
+    )
+    failed = evaluate(
+        touchdown,
+        False,
+        trajectory={"lateral": 0, "pitch": 0, "glide": 0},
+    )
+    assert stable["quality"] > unstable["quality"]
+    assert failed["quality"] == 0
+    assert stable["scoring_version"] == "v2"
+    assert stable["scoring"]["version"] == "v2"
+
+
+def test_v2_rejects_invalid_constants_and_trajectory():
+    with pytest.raises(ValueError, match="positive and finite"):
+        ScoringConfig(reference_duration_s=0)
+    with pytest.raises(ValueError, match="finite, nonnegative, and complete"):
+        evaluate(None, trajectory={"lateral": -1, "pitch": 0, "glide": 0})
+    with pytest.raises(ValueError, match="finite, nonnegative, and complete"):
+        evaluate(None, trajectory={"lateral": 0, "pitch": float("nan"), "glide": 0})
+
+
+@pytest.mark.parametrize(
+    "trajectory",
+    [
+        None,
+        {},
+        {"lateral": 0, "pitch": 0},
+        {"lateral": 0, "pitch": 0, "glide": 0, "extra": 0},
+        {"lateral": True, "pitch": 0, "glide": 0},
+        {"lateral": "0", "pitch": 0, "glide": 0},
+    ],
+)
+def test_v2_requires_complete_numeric_trajectory_evidence(trajectory):
+    with pytest.raises(ValueError, match="finite, nonnegative, and complete"):
+        evaluate(None, trajectory=trajectory)
+
+
+def test_v2_sample_uses_centerline_and_allows_low_altitude_flare():
+    observation = {
+        "runway": {
+            "centerline_offset_m": 4,
+            "altitude_agl_m": 5,
+            "distance_to_threshold_m": 0,
+        },
+        "flight": {"pitch_deg": 8, "q_rad_s": 0},
+    }
+    flare = trajectory_error_rate(observation, ScoringConfig())
+    observation["runway"]["altitude_agl_m"] = 20
+    approach = trajectory_error_rate(observation, ScoringConfig())
+    assert flare == {"lateral": pytest.approx(0.16), "pitch": 0, "glide": 0}
+    assert approach["pitch"] > flare["pitch"]
+    assert approach["glide"] > 0
+
+
+def test_v2_trajectory_uses_physics_time_not_advance_size():
+    action = [0, 0, 0, 0.5]
+    batched = FixedWingLandingEnv()
+    stepped = FixedWingLandingEnv()
+    batched.reset(seed=42)
+    stepped.reset(seed=42)
+    batched.advance(action, ticks=30)
+    for _ in range(30):
+        stepped.advance(action, ticks=1)
+    assert batched._trajectory_error == pytest.approx(stepped._trajectory_error)
 
 
 def test_first_touchdown_frozen_and_rollout(monkeypatch):
@@ -109,11 +211,13 @@ def test_first_touchdown_frozen_and_rollout(monkeypatch):
     monkeypatch.setattr(env, "observe", lambda: deepcopy(observation))
     env.advance([0, 0, 0, 0.5])
     frozen = deepcopy(env.touchdown)
+    frozen_trajectory = deepcopy(env._trajectory_error)
     observation["runway"]["along_track_m"] = 250
     observation["flight"]["groundspeed_mps"] = 2
     _, _, terminated, _, info = env.advance([0, 0, 0, 0.5])
     assert terminated and info["result"]["success"]
     assert env.touchdown == frozen
+    assert env._trajectory_error == frozen_trajectory
     assert env.action.throttle == 0
 
 

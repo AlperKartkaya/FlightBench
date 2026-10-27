@@ -1,0 +1,30 @@
+{
+  "started_at": "2026-10-21T11:13:32.007208+00:00",
+  "arguments": [
+    "--controller",
+    "codex",
+    "--model",
+    "openai-codex/gpt-6.1-sol",
+    "--metadata",
+    "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/gpt-high-2026-10-21/metadata.json",
+    "--modes",
+    "lockstep",
+    "--seeds",
+    "42",
+    "--jobs",
+    "1",
+    "--decision-hz",
+    "2",
+    "--time-scale",
+    "1.0",
+    "--realtime-response-policy",
+    "apply-on-arrival",
+    "--timeout",
+    "120",
+    "--output-dir",
+    "/Users/alperkartkaya/Documents/FlightBench/leaderboard/submissions/gpt-6-1-sol-high-20261021"
+  ],
+  "reasoning_effort": "high",
+  "status": "exported",
+  "finished_at": "2026-10-21T11:27:39.711132+00:00"
+}

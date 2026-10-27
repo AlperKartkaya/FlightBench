@@ -74,3 +74,92 @@ Evidence must share a controller, model, type, protocol, source identity and eva
 AI evidence must contain canonical action IDs and matching commands. Claimed runtime audit
 metadata, hardware and dependency versions must match the full records. These checks detect
 inconsistency; they do not prove that self-reported evidence was honestly generated.
+
+## Timing and incomplete provider usage
+
+New full records separate `requests_started` (submitted work), `requests_completed`,
+`requests_cancel_requested`, `requests_cancelled_before_start`, and `requests_outstanding`.
+`calls` remains the number of recorded decision events for compatibility; timeout events are
+not completed provider responses. `decision_count` counts applied, non-error commands.
+Outstanding work is frozen at terminal cleanup and may finish later; cancellation of a Python
+thread is not guaranteed. Browser accounting conservatively includes work whose cancellation
+cannot be proven. Terminal physics and saved evidence never change after a late response.
+
+`usage_unknown_requests` also covers completed responses that reached terminal before their
+usage was collected. Such remote-provider totals stay unknown in submissions; lower-bound CLI
+estimates retain their missing-usage count. Zero local provider fees still exclude compute,
+hardware and electricity. Old records have no started/outstanding counters: publication displays
+unknown rather than retrospectively inventing them.
+
+Plots conservatively separate source hashes, execution paths, declared hardware/load, and
+evaluation settings. A validator-only edit can therefore create another cohort; equivalence is
+not inferred solely from an unchanged action-space hash. Undeclared execution conditions remain
+unknown, never proof of identical hardware performance. A result's effective applied Hz uses
+simulation seconds, not wall-clock throughput.
+
+Long local file references are supported without copying their path into short display metadata.
+Without explicit model metadata the class name is only an identifier, not a claimed checkpoint;
+provide real checkpoint/digest information for reproducible model submissions.
+
+## Applying realtime responses on arrival
+
+Use `--realtime-response-policy apply-on-arrival` to apply every valid completed model command
+while the episode is active. Physics continues at the requested realtime scale; there is one
+pending request, no command blending, and no age-based rejection in this mode. Invalid responses,
+transport failures and episode termination still retain their explicit error/accounting behavior.
+The browser uses this policy too. The CLI's historical `discard-stale` default remains available
+for reproducing older records; choose the policy explicitly when comparing experiments.
+
+The selected policy is recorded in run config and submission evaluation, checked against evidence,
+and included in comparison grouping. It does not change the frozen observation, action vocabulary,
+phase instructions, actuator mapping or scoring. Results with different timing policies must not
+be silently combined.
+
+## Pinned live Jev versions
+
+The built-in Jev controller supports `jev-1.13.0` (default) and `jev-1.14.0` (preview).
+It requires the returned model version to match the requested pin and retains actual provider
+input/output token counts. Credentials are loaded from `TYPESAFE_API_KEY`/the ignored `.env` file;
+do not put credentials in a command argument or metadata file.
+
+```sh
+uv run flightbench eval --controller jev --model jev-1.14.0 \
+  --modes lockstep,realtime --seeds 42 --jobs 1 --decision-hz 2 --time-scale 1 \
+  --realtime-response-policy apply-on-arrival \
+  --output-dir scratch/jev-preview-new-run
+```
+
+The preview model is selected through the CLI; the browser retains its stable Jev selection.
+Model/version and API fields were checked against [official models](https://docs.typesafe.ai/models.md)
+and [System One API documentation](https://docs.typesafe.ai/api/system-one.md) on 2026-10-20.
+
+## Scoring V2 and Codex effort sweeps
+
+New CLI/browser runs use scoring V2. The categorical action protocol remains `flightbench-v1`;
+scoring version and complete scoring-configuration hash are separate evidence fields. V1
+records remain unchanged and default to V1 when the historical field is absent.
+See [the formulas and calibration](scoring/README.md).
+
+```sh
+uv run flightbench eval --controller codex --model openai-codex/gpt-6.1-sol \
+  --reasoning-effort max --modes lockstep --seeds 42,101 --jobs 1 \
+  --decision-hz 2 --timeout 300 --output-dir runs/2026-10-22-sol-max
+```
+
+Supported explicit efforts: `low`, `medium`, `high`, `xhigh`, `max`; default remains `low`.
+The installed plugin's older option enum is extended per-model for literal `max`, without
+replacing it with another effort or changing the SDK installation. Every decision records
+the requested effort; exported metadata is checked against the actual decision records.
+
+For the dated curated campaign, regenerate only its selected best-of-three rows and figures:
+
+```sh
+.venv/bin/python examples/build_v2_publication.py \
+  --submissions leaderboard/campaigns/2026-10-22-scoring-v2/submissions \
+  --output docs/evaluations/2026-10-22-scoring-v2
+```
+
+The curated chart excludes historical/open-model campaigns. Those raw records remain dated
+in the [archive index](local-model-runtime/archive-index.json). Codex cost means API-equivalent
+Standard pricing applied to the selected flight's full actual usage, not subscription billing.
+Unknown usage is not shown as zero cost; neither calls nor cost is normalized to another flight.

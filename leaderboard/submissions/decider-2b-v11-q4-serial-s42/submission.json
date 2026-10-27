@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "Decider 2B v11 Q4_K_M",
+    "slug": "decider-2b-v11-q4-serial-s42",
+    "type": "ai",
+    "provider": "Mapika / local llama.cpp",
+    "model": "decider-2b-v11",
+    "source_url": "https://github.com/Mapika/decider",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": 1900000000,
+    "quantization": "Q4_K_M",
+    "metadata": {
+      "model_revision": "ff2e5e687327eda9ac34e9a3ca84d3f400672c87",
+      "source_revision": "45024082b7d4bb667bf9140b7a7c073d3b483f6b",
+      "backend": "llama.cpp Metal, CPU 2 threads",
+      "n_ctx": 8192,
+      "n_seq_max": 1,
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "campaign": {
+        "id": "serial-2026-10-07",
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "warmup": "One complete canonical initial-state request before both episodes; retained separately.",
+        "order": "lockstep then realtime; one model server at a time; host kept awake with caffeinate -i",
+        "isolation": "Other desktop/agent activity possible; no other benchmark model jobs."
+      },
+      "files": {
+        "tokenizer_config.json": {
+          "sha256": "171ecbe7ddae98d11840698f7df2b8d5b4722139db0f0620d3bbf429bd656250",
+          "bytes": 1127
+        },
+        "tokenizer.json": {
+          "sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+          "bytes": 19989325
+        },
+        "decider_config.json": {
+          "sha256": "6e4891f2754a1c18a10f8dadb0c04e439e7f79fab0333d56641491bd4a05e722",
+          "bytes": 1240
+        },
+        "README.md": {
+          "sha256": "0b73533c101886ebba3af587f9afc88be7b913572e7171ef1e77ad4540d02134",
+          "bytes": 6119
+        },
+        "chat_template.jinja": {
+          "sha256": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80",
+          "bytes": 7755
+        },
+        "decider-2b-v11-Q4_K_M.gguf": {
+          "sha256": "b7c132a67934d51c81abc96bb7724800f965ff5a288aed3e1ca7d8bc349c1386",
+          "bytes": 1274396800
+        }
+      },
+      "n_gpu_layers": -1,
+      "runtime_wrapper_sha256": "1f1497b98fe53993a3f2997b5ab2233b771f777d0587b72cdaf98b4f4420a247",
+      "runtime_wrapper_note": "Published loopback wrapper; actual wrapper included in campaign source archive.",
+      "endpoint": "http://127.0.0.1:11439",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42
+    ],
+    "modes": [
+      "lockstep",
+      "realtime"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0,
+      "realtime": 1.0
+    }
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 4447.045746031746,
+      "p50_latency_ms": 4227.46,
+      "p95_latency_ms": 5946.168,
+      "max_latency_ms": 6627.001,
+      "effective_decisions_per_second": 2.02572347266881,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 4155.597857142857,
+      "p50_latency_ms": 4216.047,
+      "p95_latency_ms": 4241.598,
+      "max_latency_ms": 4241.598,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 7,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 7,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "4883215a-dd52-4bae-b36c-829e100f41bc",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:ccb192bdab97d305359d68bff84f5a5ec86564deb8508b533a5b6de635f3e604"
+    },
+    {
+      "run_id": "8b328688-e043-4074-bb07-974e505d8518",
+      "seed": 42,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:e49190422ccb51420075df6bf61ffbc700690f5de55a39bc72b1ea95bc584601"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "4883215a-dd52-4bae-b36c-829e100f41bc.json.gz",
+      "sha256": "sha256:ccb192bdab97d305359d68bff84f5a5ec86564deb8508b533a5b6de635f3e604",
+      "bytes": 45829,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "8b328688-e043-4074-bb07-974e505d8518.json.gz",
+      "sha256": "sha256:e49190422ccb51420075df6bf61ffbc700690f5de55a39bc72b1ea95bc584601",
+      "bytes": 11660,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-07T19:10:18.893874Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

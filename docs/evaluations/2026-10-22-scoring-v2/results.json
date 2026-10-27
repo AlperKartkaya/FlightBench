@@ -1,0 +1,1982 @@
+{
+  "schema_version": 1,
+  "scoring_version": "v2",
+  "scoring_config_sha256": "82684d68cfb2dc37bd08ee8a1e0072d88d31a3190483eb89b39e523a0b8a7b80",
+  "selection": "highest score among three completed trials per model/effort/mode; lower seed breaks ties; Luna high uses user-selected successful seed42 retry",
+  "cost": "selected full run; exact only with complete usage; lower bounds explicitly marked",
+  "groups": [
+    {
+      "model": "gpt-6.1-sol",
+      "mode": "lockstep",
+      "reasoning_effort": "low",
+      "trials": [
+        {
+          "run_id": "2ea0f5e1-0bc9-4e4e-b917-598f7b78c233",
+          "seed": 42,
+          "score": 78.541,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "fb9973de-3537-47f8-a671-90a37b58a3ce",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "nose_first_contact",
+          "completed": true
+        },
+        {
+          "run_id": "0dcfda42-3a99-42e7-8ad2-de3fd6e29ae8",
+          "seed": 202,
+          "score": 80.129,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "0dcfda42-3a99-42e7-8ad2-de3fd6e29ae8",
+      "selected": {
+        "run_id": "0dcfda42-3a99-42e7-8ad2-de3fd6e29ae8",
+        "seed": 202,
+        "score": 80.129,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 134,
+        "diagnostics": {
+          "decision_count": 134,
+          "mean_latency_ms": 3493.063694029851,
+          "calls": 134,
+          "requests_started": 134,
+          "requests_completed": 134,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 134
+          },
+          "duration_s": 66.7
+        },
+        "started_at": "2026-10-24T18:54:25.674466+00:00",
+        "finished_at": "2026-10-24T19:02:15.726779+00:00",
+        "cost_lower_bound_usd": 0.695464,
+        "input_tokens": 316387,
+        "output_tokens": 6269,
+        "cost_usd": 0.695464,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "mode": "lockstep",
+      "reasoning_effort": "medium",
+      "trials": [
+        {
+          "run_id": "f9ffd46d-f893-4116-891b-6125d943e6c5",
+          "seed": 42,
+          "score": 74.731,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "3ff1d223-d5fb-49a8-b039-8cf05d3fc618",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "nose_first_contact",
+          "completed": true
+        },
+        {
+          "run_id": "e4b54c88-4147-4b6b-98ff-268a23d25e9f",
+          "seed": 202,
+          "score": 0.0,
+          "success": false,
+          "status": "nose_first_contact",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "f9ffd46d-f893-4116-891b-6125d943e6c5",
+      "selected": {
+        "run_id": "f9ffd46d-f893-4116-891b-6125d943e6c5",
+        "seed": 42,
+        "score": 74.731,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 140,
+        "diagnostics": {
+          "decision_count": 140,
+          "mean_latency_ms": 3244.0461785714288,
+          "calls": 140,
+          "requests_started": 140,
+          "requests_completed": 140,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 140
+          },
+          "duration_s": 69.91666666666667
+        },
+        "started_at": "2026-10-21T22:10:27.802750+00:00",
+        "finished_at": "2026-10-21T22:18:04.116609+00:00",
+        "cost_lower_bound_usd": 0.7561476,
+        "input_tokens": 331291,
+        "output_tokens": 9770,
+        "cost_usd": 0.7561476,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "mode": "lockstep",
+      "reasoning_effort": "high",
+      "trials": [
+        {
+          "run_id": "f570f314-8db1-40bf-a042-14e8a7474afb",
+          "seed": 42,
+          "score": 76.087,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "f9076194-72fa-4aae-a093-bd0177d491ec",
+          "seed": 101,
+          "score": 74.478,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "93d2c520-c519-41fd-8c20-c7e3b5a84fd3",
+          "seed": 202,
+          "score": 65.803,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "f570f314-8db1-40bf-a042-14e8a7474afb",
+      "selected": {
+        "run_id": "f570f314-8db1-40bf-a042-14e8a7474afb",
+        "seed": 42,
+        "score": 76.087,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 140,
+        "diagnostics": {
+          "decision_count": 140,
+          "mean_latency_ms": 4289.385935714286,
+          "calls": 140,
+          "requests_started": 140,
+          "requests_completed": 140,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 140
+          },
+          "duration_s": 69.85
+        },
+        "started_at": "2026-10-21T22:24:48.019214+00:00",
+        "finished_at": "2026-10-21T22:34:50.743903+00:00",
+        "cost_lower_bound_usd": 0.840704,
+        "input_tokens": 331297,
+        "output_tokens": 17811,
+        "cost_usd": 0.840704,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "mode": "lockstep",
+      "reasoning_effort": "xhigh",
+      "trials": [
+        {
+          "run_id": "8931adbb-5800-466b-8851-5a8b603690b9",
+          "seed": 42,
+          "score": 71.444,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "06518a18-438e-40a1-ab9c-38d881d186cf",
+          "seed": 101,
+          "score": 76.279,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "7cf3b8c4-a543-4d6b-a724-dbd9018871b8",
+          "seed": 202,
+          "score": 74.52,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "06518a18-438e-40a1-ab9c-38d881d186cf",
+      "selected": {
+        "run_id": "06518a18-438e-40a1-ab9c-38d881d186cf",
+        "seed": 101,
+        "score": 76.279,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 140,
+        "diagnostics": {
+          "decision_count": 140,
+          "mean_latency_ms": 14094.322235714286,
+          "calls": 140,
+          "requests_started": 140,
+          "requests_completed": 140,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 140
+          },
+          "duration_s": 69.84166666666667
+        },
+        "started_at": "2026-10-22T06:49:59.537281+00:00",
+        "finished_at": "2026-10-22T07:22:54.893896+00:00",
+        "cost_lower_bound_usd": 1.1197524,
+        "input_tokens": 331264,
+        "output_tokens": 46525,
+        "cost_usd": 1.1197524,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6-astra",
+      "mode": "lockstep",
+      "reasoning_effort": "low",
+      "trials": [
+        {
+          "run_id": "4804af59-885b-42e2-b4b6-a3446631ebfb",
+          "seed": 42,
+          "score": 74.31,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "156cb988-e07b-402e-882f-3ad941676338",
+          "seed": 101,
+          "score": 72.536,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "7ceca705-c3ff-4ed6-ba83-8691216c7932",
+          "seed": 202,
+          "score": 70.266,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "4804af59-885b-42e2-b4b6-a3446631ebfb",
+      "selected": {
+        "run_id": "4804af59-885b-42e2-b4b6-a3446631ebfb",
+        "seed": 42,
+        "score": 74.31,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 140,
+        "diagnostics": {
+          "decision_count": 140,
+          "mean_latency_ms": 5208.915285714285,
+          "calls": 140,
+          "requests_started": 140,
+          "requests_completed": 140,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 140
+          },
+          "duration_s": 69.65833333333333
+        },
+        "started_at": "2026-10-22T13:14:03.201658+00:00",
+        "finished_at": "2026-10-22T13:26:14.563206+00:00",
+        "cost_lower_bound_usd": 3.61008,
+        "input_tokens": 331023,
+        "output_tokens": 5997,
+        "cost_usd": 3.61008,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6-astra",
+      "mode": "lockstep",
+      "reasoning_effort": "medium",
+      "trials": [
+        {
+          "run_id": "95955769-f656-41e2-97dc-3f5da4bbaa80",
+          "seed": 42,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "9b5d8c78-67ac-4947-9f3f-d4e6af293c5b",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "f8e1db8a-daea-4226-8ad9-bc8c58d75d23",
+          "seed": 202,
+          "score": 72.225,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "f8e1db8a-daea-4226-8ad9-bc8c58d75d23",
+      "selected": {
+        "run_id": "f8e1db8a-daea-4226-8ad9-bc8c58d75d23",
+        "seed": 202,
+        "score": 72.225,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 143,
+        "diagnostics": {
+          "decision_count": 143,
+          "mean_latency_ms": 4181.680160839161,
+          "calls": 143,
+          "requests_started": 143,
+          "requests_completed": 143,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 143
+          },
+          "duration_s": 71.16666666666667
+        },
+        "started_at": "2026-10-25T12:35:12.719450+00:00",
+        "finished_at": "2026-10-25T12:45:13.964248+00:00",
+        "cost_lower_bound_usd": 3.68796,
+        "input_tokens": 338196,
+        "output_tokens": 6120,
+        "cost_usd": 3.68796,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6-astra",
+      "mode": "lockstep",
+      "reasoning_effort": "high",
+      "trials": [
+        {
+          "run_id": "8c67e4db-e1b7-4000-a330-b6209968b4a9",
+          "seed": 42,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "4fb7b0fd-46cc-40f5-b3a0-0ef12bfc74c3",
+          "seed": 101,
+          "score": 72.42,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "acdcbc29-0262-44d1-b6ad-7b6b36f653e2",
+          "seed": 202,
+          "score": 74.565,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "acdcbc29-0262-44d1-b6ad-7b6b36f653e2",
+      "selected": {
+        "run_id": "acdcbc29-0262-44d1-b6ad-7b6b36f653e2",
+        "seed": 202,
+        "score": 74.565,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 140,
+        "diagnostics": {
+          "decision_count": 140,
+          "mean_latency_ms": 5677.522121428571,
+          "calls": 140,
+          "requests_started": 140,
+          "requests_completed": 140,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 140
+          },
+          "duration_s": 69.78333333333333
+        },
+        "started_at": "2026-10-25T12:45:15.327982+00:00",
+        "finished_at": "2026-10-25T12:58:32.562911+00:00",
+        "cost_lower_bound_usd": 3.81851,
+        "input_tokens": 330976,
+        "output_tokens": 10175,
+        "cost_usd": 3.81851,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6-astra",
+      "mode": "lockstep",
+      "reasoning_effort": "xhigh",
+      "trials": [
+        {
+          "run_id": "991facdf-1cad-44c9-a34f-696839759f52",
+          "seed": 42,
+          "score": 72.604,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "b08c094a-dc37-486b-ab32-41dc3caf592b",
+          "seed": 101,
+          "score": 70.397,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "2d1a0ae7-d756-473d-8aa6-4974d33a6bdb",
+          "seed": 202,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "991facdf-1cad-44c9-a34f-696839759f52",
+      "selected": {
+        "run_id": "991facdf-1cad-44c9-a34f-696839759f52",
+        "seed": 42,
+        "score": 72.604,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 140,
+        "diagnostics": {
+          "decision_count": 140,
+          "mean_latency_ms": 11881.63047857143,
+          "calls": 140,
+          "requests_started": 140,
+          "requests_completed": 140,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 140
+          },
+          "duration_s": 69.69166666666666
+        },
+        "started_at": "2026-10-23T12:23:42.177456+00:00",
+        "finished_at": "2026-10-23T12:51:28.127209+00:00",
+        "cost_lower_bound_usd": 4.96549,
+        "input_tokens": 331324,
+        "output_tokens": 33045,
+        "cost_usd": 4.96549,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "mode": "lockstep",
+      "reasoning_effort": "low",
+      "trials": [
+        {
+          "run_id": "9ef746c0-ddba-43f9-9260-8dea0fdaf2b7",
+          "seed": 42,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "fb0ea731-3f50-4d40-ad75-cb68a1e5fe79",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "f5eadd0a-e9fb-44ba-9b37-3c3a0aa2e874",
+          "seed": 202,
+          "score": 77.402,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "f5eadd0a-e9fb-44ba-9b37-3c3a0aa2e874",
+      "selected": {
+        "run_id": "f5eadd0a-e9fb-44ba-9b37-3c3a0aa2e874",
+        "seed": 202,
+        "score": 77.402,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 128,
+        "diagnostics": {
+          "decision_count": 128,
+          "mean_latency_ms": 2247.529578125,
+          "calls": 128,
+          "requests_started": 128,
+          "requests_completed": 128,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 128
+          },
+          "duration_s": 63.608333333333334
+        },
+        "started_at": "2026-10-25T18:00:59.562697+00:00",
+        "finished_at": "2026-10-25T18:05:49.285042+00:00",
+        "cost_lower_bound_usd": 0.033110400000000005,
+        "input_tokens": 302479,
+        "output_tokens": 5725,
+        "cost_usd": 0.033110400000000005,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "mode": "lockstep",
+      "reasoning_effort": "medium",
+      "trials": [
+        {
+          "run_id": "34af0551-41b3-494c-b703-45c1e449ee45",
+          "seed": 42,
+          "score": 58.488,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "a5065169-cdbf-408c-99cd-d0992971159c",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "c1d76777-d97a-46f0-b18a-d84fe23e3abb",
+          "seed": 202,
+          "score": 76.552,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "c1d76777-d97a-46f0-b18a-d84fe23e3abb",
+      "selected": {
+        "run_id": "c1d76777-d97a-46f0-b18a-d84fe23e3abb",
+        "seed": 202,
+        "score": 76.552,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 136,
+        "diagnostics": {
+          "decision_count": 136,
+          "mean_latency_ms": 2761.9745147058825,
+          "calls": 136,
+          "requests_started": 136,
+          "requests_completed": 136,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 136
+          },
+          "duration_s": 67.90833333333333
+        },
+        "started_at": "2026-10-25T18:05:50.460916+00:00",
+        "finished_at": "2026-10-25T18:12:08.551806+00:00",
+        "cost_lower_bound_usd": 0.0415156,
+        "input_tokens": 321391,
+        "output_tokens": 18753,
+        "cost_usd": 0.0415156,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "mode": "lockstep",
+      "reasoning_effort": "high",
+      "trials": [
+        {
+          "run_id": "0d6ce355-55ab-488b-b2bf-fc8ac1a6299a",
+          "seed": 42,
+          "score": 78.507,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "0d6ce355-55ab-488b-b2bf-fc8ac1a6299a",
+      "selected": {
+        "run_id": "0d6ce355-55ab-488b-b2bf-fc8ac1a6299a",
+        "seed": 42,
+        "score": 78.507,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 138,
+        "diagnostics": {
+          "decision_count": 138,
+          "mean_latency_ms": 6413.827355072463,
+          "calls": 138,
+          "requests_started": 138,
+          "requests_completed": 138,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 138
+          },
+          "duration_s": 68.725
+        },
+        "started_at": "2026-10-26T14:28:24.659270+00:00",
+        "finished_at": "2026-10-26T14:43:12.338040+00:00",
+        "cost_lower_bound_usd": 0.056920700000000005,
+        "input_tokens": 326287,
+        "output_tokens": 48584,
+        "cost_usd": 0.056920700000000005,
+        "full_actual_usage": true
+      },
+      "selection": "user-selected successful seed42 retry",
+      "attempt_evidence": "leaderboard/campaigns/2026-10-26-realtime/",
+      "attempt_history": {
+        "date_basis": "UTC timestamps; directory date Europe/Istanbul",
+        "attempts": [
+          {
+            "slug": "jev-1-13-0-realtime",
+            "model": "jev-1.13.0",
+            "mode": "realtime",
+            "effort": null,
+            "seed": 42,
+            "started_at": "2026-10-25T23:09:48.219049+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "jev",
+              "--model",
+              "jev-1.13.0",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-13-0-realtime/metadata.json",
+              "--modes",
+              "realtime",
+              "--seeds",
+              "42",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-13-0-realtime/trials/42"
+            ],
+            "status": "recorded",
+            "exit_code": 0,
+            "finished_at": "2026-10-25T23:10:50.377132+00:00",
+            "outcome": {
+              "success": false,
+              "quality": 0.0,
+              "status": "runway_excursion",
+              "touchdown": {
+                "along_track_m": 511.1973247274241,
+                "cross_track_m": 26.338,
+                "sink_rate_mps": -3.3182489920021334,
+                "airspeed_mps": 25.423454602810683,
+                "heading_error_deg": 16.864568327570055,
+                "roll_deg": 7.25774454354031,
+                "pitch_deg": 0.09776735799754786
+              }
+            },
+            "applied": 108
+          },
+          {
+            "slug": "jev-1-13-0-realtime",
+            "model": "jev-1.13.0",
+            "mode": "realtime",
+            "effort": null,
+            "seed": 101,
+            "started_at": "2026-10-25T23:10:50.430828+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "jev",
+              "--model",
+              "jev-1.13.0",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-13-0-realtime/metadata.json",
+              "--modes",
+              "realtime",
+              "--seeds",
+              "101",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-13-0-realtime/trials/101"
+            ],
+            "status": "recorded",
+            "exit_code": 0,
+            "finished_at": "2026-10-25T23:11:48.560801+00:00",
+            "outcome": {
+              "success": false,
+              "quality": 0.0,
+              "status": "runway_excursion",
+              "touchdown": {
+                "along_track_m": 386.3980246709482,
+                "cross_track_m": -73.3034,
+                "sink_rate_mps": -2.365645933843906,
+                "airspeed_mps": 26.8496583152192,
+                "heading_error_deg": 4.3436735682203675,
+                "roll_deg": 3.2030316528038068,
+                "pitch_deg": -0.873116809661508
+              }
+            },
+            "applied": 113
+          },
+          {
+            "slug": "jev-1-13-0-realtime",
+            "model": "jev-1.13.0",
+            "mode": "realtime",
+            "effort": null,
+            "seed": 202,
+            "started_at": "2026-10-25T23:11:48.610823+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "jev",
+              "--model",
+              "jev-1.13.0",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-13-0-realtime/metadata.json",
+              "--modes",
+              "realtime",
+              "--seeds",
+              "202",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-13-0-realtime/trials/202"
+            ],
+            "status": "recorded",
+            "exit_code": 0,
+            "finished_at": "2026-10-25T23:12:48.741268+00:00",
+            "outcome": {
+              "success": false,
+              "quality": 0.0,
+              "status": "runway_excursion",
+              "touchdown": {
+                "along_track_m": 468.37054994155847,
+                "cross_track_m": -17.3183,
+                "sink_rate_mps": -1.1810822987203,
+                "airspeed_mps": 27.152035621558603,
+                "heading_error_deg": 2.7429157193665787,
+                "roll_deg": 4.329240211234954,
+                "pitch_deg": 3.5040408582286875
+              }
+            },
+            "applied": 117
+          },
+          {
+            "slug": "jev-1-14-0-realtime",
+            "model": "jev-1.14.0",
+            "mode": "realtime",
+            "effort": null,
+            "seed": 42,
+            "started_at": "2026-10-25T23:12:48.903484+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "jev",
+              "--model",
+              "jev-1.14.0",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-14-0-realtime/metadata.json",
+              "--modes",
+              "realtime",
+              "--seeds",
+              "42",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-14-0-realtime/trials/42"
+            ],
+            "status": "recorded",
+            "exit_code": 0,
+            "finished_at": "2026-10-25T23:13:57.057107+00:00",
+            "outcome": {
+              "success": true,
+              "quality": 66.719,
+              "status": "landed",
+              "touchdown": {
+                "along_track_m": 456.7130052533555,
+                "cross_track_m": 10.194,
+                "sink_rate_mps": -2.270945571133762,
+                "airspeed_mps": 26.621286543616403,
+                "heading_error_deg": 1.63092680708138,
+                "roll_deg": 2.0446384613432826,
+                "pitch_deg": -0.5278319199948752
+              }
+            },
+            "applied": 133
+          },
+          {
+            "slug": "jev-1-14-0-realtime",
+            "model": "jev-1.14.0",
+            "mode": "realtime",
+            "effort": null,
+            "seed": 101,
+            "started_at": "2026-10-25T23:13:57.102404+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "jev",
+              "--model",
+              "jev-1.14.0",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-14-0-realtime/metadata.json",
+              "--modes",
+              "realtime",
+              "--seeds",
+              "101",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-14-0-realtime/trials/101"
+            ],
+            "status": "recorded",
+            "exit_code": 0,
+            "finished_at": "2026-10-25T23:15:05.259641+00:00",
+            "outcome": {
+              "success": true,
+              "quality": 64.825,
+              "status": "landed",
+              "touchdown": {
+                "along_track_m": 422.53233711062717,
+                "cross_track_m": 4.1381,
+                "sink_rate_mps": -1.0552413710607789,
+                "airspeed_mps": 26.89519266045349,
+                "heading_error_deg": 3.671379922459039,
+                "roll_deg": 3.6018304357250512,
+                "pitch_deg": 3.6780912599105196
+              }
+            },
+            "applied": 131
+          },
+          {
+            "slug": "jev-1-14-0-realtime",
+            "model": "jev-1.14.0",
+            "mode": "realtime",
+            "effort": null,
+            "seed": 202,
+            "started_at": "2026-10-25T23:15:05.313678+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "jev",
+              "--model",
+              "jev-1.14.0",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-14-0-realtime/metadata.json",
+              "--modes",
+              "realtime",
+              "--seeds",
+              "202",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/jev-1-14-0-realtime/trials/202"
+            ],
+            "status": "recorded",
+            "exit_code": 0,
+            "finished_at": "2026-10-25T23:16:09.456676+00:00",
+            "outcome": {
+              "success": false,
+              "quality": 0.0,
+              "status": "runway_excursion",
+              "touchdown": {
+                "along_track_m": 560.251348815385,
+                "cross_track_m": 26.684,
+                "sink_rate_mps": -1.7052570071068158,
+                "airspeed_mps": 26.886461360515916,
+                "heading_error_deg": 3.0068614025402667,
+                "roll_deg": 0.2817724850163712,
+                "pitch_deg": 2.1777213443294885
+              }
+            },
+            "applied": 124
+          },
+          {
+            "slug": "gpt-6-luna-high-landing-retry",
+            "model": "openai-codex/gpt-6-luna",
+            "mode": "lockstep",
+            "effort": "high",
+            "seed": 303,
+            "started_at": "2026-10-25T23:16:09.635356+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "codex",
+              "--model",
+              "openai-codex/gpt-6-luna",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/metadata.json",
+              "--modes",
+              "lockstep",
+              "--seeds",
+              "303",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/trials/303",
+              "--reasoning-effort",
+              "high"
+            ],
+            "status": "recorded",
+            "exit_code": 0,
+            "finished_at": "2026-10-25T23:16:15.655129+00:00",
+            "outcome": {
+              "success": false,
+              "quality": 0.0,
+              "status": "controller_error",
+              "touchdown": null
+            },
+            "applied": 0
+          },
+          {
+            "slug": "gpt-6-luna-high-landing-retry",
+            "model": "openai-codex/gpt-6-luna",
+            "mode": "lockstep",
+            "effort": "high",
+            "seed": 42,
+            "started_at": "2026-10-26T13:45:31.876919+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "codex",
+              "--model",
+              "openai-codex/gpt-6-luna",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/metadata.json",
+              "--modes",
+              "lockstep",
+              "--seeds",
+              "42",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/trials/42",
+              "--reasoning-effort",
+              "high"
+            ],
+            "status": "recorded",
+            "exit_code": 0,
+            "finished_at": "2026-10-26T14:06:05.755817+00:00",
+            "outcome": {
+              "success": false,
+              "quality": 0.0,
+              "status": "runway_excursion",
+              "touchdown": {
+                "along_track_m": 494.3503056612776,
+                "cross_track_m": 10.0805,
+                "sink_rate_mps": -1.870516746653696,
+                "airspeed_mps": 27.579895438009842,
+                "heading_error_deg": 3.150316186790235,
+                "roll_deg": 0.9649625085573293,
+                "pitch_deg": 1.8887104249123188
+              }
+            },
+            "applied": 129
+          },
+          {
+            "slug": "gpt-6-luna-high-landing-retry",
+            "model": "openai-codex/gpt-6-luna",
+            "mode": "lockstep",
+            "effort": "high",
+            "seed": 42,
+            "started_at": "2026-10-26T14:06:05.788095+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "codex",
+              "--model",
+              "openai-codex/gpt-6-luna",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/metadata.json",
+              "--modes",
+              "lockstep",
+              "--seeds",
+              "42",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/trials/42",
+              "--reasoning-effort",
+              "high"
+            ],
+            "status": "recorded",
+            "cleanup": "terminated already-exported process with residual provider work",
+            "exit_code": -15,
+            "finished_at": "2026-10-26T14:26:22.286317+00:00",
+            "outcome": {
+              "success": false,
+              "quality": 0.0,
+              "status": "controller_timeout",
+              "touchdown": {
+                "along_track_m": 542.9797462208712,
+                "cross_track_m": 9.8775,
+                "sink_rate_mps": -0.5569207528878123,
+                "airspeed_mps": 27.91495714370509,
+                "heading_error_deg": 2.1860913973648053,
+                "roll_deg": 1.1231697611477955,
+                "pitch_deg": 2.8125205284215595
+              }
+            },
+            "applied": 138
+          },
+          {
+            "slug": "gpt-6-luna-high-landing-retry",
+            "model": "openai-codex/gpt-6-luna",
+            "mode": "lockstep",
+            "effort": "high",
+            "seed": 42,
+            "started_at": "2026-10-26T14:28:24.371466+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "codex",
+              "--model",
+              "openai-codex/gpt-6-luna",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/metadata.json",
+              "--modes",
+              "lockstep",
+              "--seeds",
+              "42",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/trials/42",
+              "--reasoning-effort",
+              "high"
+            ],
+            "status": "recorded",
+            "exit_code": 0,
+            "finished_at": "2026-10-26T14:43:14.285371+00:00",
+            "outcome": {
+              "success": true,
+              "quality": 78.507,
+              "status": "landed",
+              "touchdown": {
+                "along_track_m": 519.0116540462163,
+                "cross_track_m": 4.9287,
+                "sink_rate_mps": -1.1830775278168808,
+                "airspeed_mps": 27.474005901825855,
+                "heading_error_deg": 2.2466899256920954,
+                "roll_deg": 3.210428653837557,
+                "pitch_deg": 3.3102869124020478
+              }
+            },
+            "applied": 138
+          },
+          {
+            "slug": "gpt-6-luna-high-landing-retry",
+            "model": "openai-codex/gpt-6-luna",
+            "mode": "lockstep",
+            "effort": "high",
+            "seed": 101,
+            "started_at": "2026-10-26T14:43:14.307838+00:00",
+            "command": [
+              "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+              "-u",
+              "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/scoring-v2-realtime-2026-10-26/diagnostic_entry.py",
+              "eval",
+              "--controller",
+              "codex",
+              "--model",
+              "openai-codex/gpt-6-luna",
+              "--metadata",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/metadata.json",
+              "--modes",
+              "lockstep",
+              "--seeds",
+              "101",
+              "--jobs",
+              "1",
+              "--decision-hz",
+              "2",
+              "--time-scale",
+              "1.0",
+              "--realtime-response-policy",
+              "apply-on-arrival",
+              "--timeout",
+              "300",
+              "--output-dir",
+              "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/trials/101",
+              "--reasoning-effort",
+              "high"
+            ],
+            "status": "cancelled_by_user",
+            "finished_at": "2026-10-26T14:50:26.122678+00:00",
+            "reason": "User selected successful seed42 and explicitly cancelled remaining seed101/202 retries; no final episode export exists for this interrupted trial."
+          }
+        ],
+        "original_luna_high": "../2026-10-22-scoring-v2/submissions/gpt-6-luna-high",
+        "user_selection": "successful seed42 retry; remaining retries cancelled; not best of three"
+      },
+      "superseded_trials": [
+        {
+          "run_id": "3c187eed-26b8-49ef-88df-32e559260677",
+          "seed": 42,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "0d7262e8-a9c6-4395-aa90-66290190a4c2",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "12531435-7da6-4bae-a938-1a33c30c06e4",
+          "seed": 202,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        }
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "mode": "lockstep",
+      "reasoning_effort": "xhigh",
+      "trials": [
+        {
+          "run_id": "49b66704-445c-479e-acea-a21b121cf05f",
+          "seed": 42,
+          "score": 77.306,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "d81f0fdb-8847-4b86-99a8-5ec5b3844adc",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "09a0381d-beb7-4ae5-b0e9-0d9867f650a6",
+          "seed": 202,
+          "score": 75.65,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "49b66704-445c-479e-acea-a21b121cf05f",
+      "selected": {
+        "run_id": "49b66704-445c-479e-acea-a21b121cf05f",
+        "seed": 42,
+        "score": 77.306,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 140,
+        "diagnostics": {
+          "decision_count": 140,
+          "mean_latency_ms": 7629.090207142857,
+          "calls": 140,
+          "requests_started": 140,
+          "requests_completed": 140,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 140
+          },
+          "duration_s": 69.75833333333334
+        },
+        "started_at": "2026-10-23T18:46:02.396649+00:00",
+        "finished_at": "2026-10-23T19:03:53.282890+00:00",
+        "cost_lower_bound_usd": 0.0781247,
+        "input_tokens": 331302,
+        "output_tokens": 89989,
+        "cost_usd": 0.0781247,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "mode": "lockstep",
+      "reasoning_effort": null,
+      "trials": [
+        {
+          "run_id": "c56803c5-54ea-4630-b694-745e300a2a96",
+          "seed": 42,
+          "score": 24.406,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "1833b732-6e41-469f-a3f5-58ae60b84b70",
+          "seed": 101,
+          "score": 78.426,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "e6a41ac1-551e-4188-ac7d-f6ae7d8c46f1",
+          "seed": 202,
+          "score": 40.918,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "1833b732-6e41-469f-a3f5-58ae60b84b70",
+      "selected": {
+        "run_id": "1833b732-6e41-469f-a3f5-58ae60b84b70",
+        "seed": 101,
+        "score": 78.426,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 130,
+        "diagnostics": {
+          "decision_count": 130,
+          "mean_latency_ms": 211.7116,
+          "calls": 130,
+          "requests_started": 130,
+          "requests_completed": 130,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 130
+          },
+          "duration_s": 64.70833333333333
+        },
+        "started_at": "2026-10-26T14:51:07.877307+00:00",
+        "finished_at": "2026-10-26T14:51:35.860205+00:00",
+        "cost_lower_bound_usd": 0.014666778,
+        "input_tokens": 349209,
+        "output_tokens": null,
+        "cost_usd": 0.014666778,
+        "full_actual_usage": true
+      },
+      "selection": "best of new three-flight repeat; previous cohort archived",
+      "superseded_trials": [
+        {
+          "run_id": "2a0cab52-1b8f-4c9b-90e5-a9278208ca3f",
+          "seed": 42,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "161c0921-0081-4749-85d2-d312bf78c249",
+          "seed": 101,
+          "score": 41.201,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "6f260529-254e-4fac-b1bc-fc4b3888f234",
+          "seed": 202,
+          "score": 19.904,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ]
+    },
+    {
+      "model": "jev-1.14.0",
+      "mode": "lockstep",
+      "reasoning_effort": null,
+      "trials": [
+        {
+          "run_id": "14322a3c-0dcb-4303-94eb-5153c47589ea",
+          "seed": 42,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "7ddaf644-a71b-4a1f-8fcb-7ff18a309ad1",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "e5c31ba7-0217-4a48-bfc1-d030f92ae5ac",
+          "seed": 202,
+          "score": 80.462,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "e5c31ba7-0217-4a48-bfc1-d030f92ae5ac",
+      "selected": {
+        "run_id": "e5c31ba7-0217-4a48-bfc1-d030f92ae5ac",
+        "seed": 202,
+        "score": 80.462,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 133,
+        "diagnostics": {
+          "decision_count": 133,
+          "mean_latency_ms": 239.45937593984962,
+          "calls": 133,
+          "requests_started": 133,
+          "requests_completed": 133,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 133
+          },
+          "duration_s": 66.39166666666667
+        },
+        "started_at": "2026-10-24T18:53:51.327720+00:00",
+        "finished_at": "2026-10-24T18:54:23.980057+00:00",
+        "cost_lower_bound_usd": 0.014994966,
+        "input_tokens": 357023,
+        "output_tokens": null,
+        "cost_usd": 0.014994966,
+        "full_actual_usage": true
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "mode": "realtime",
+      "reasoning_effort": null,
+      "trials": [
+        {
+          "run_id": "9519e545-f76c-4985-8974-3ae901e0bda9",
+          "seed": 42,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "fb314192-0671-4454-9ac8-e97c49823622",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "db2b35e4-c149-4914-8fc4-316fc74647cd",
+          "seed": 202,
+          "score": 38.577,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "db2b35e4-c149-4914-8fc4-316fc74647cd",
+      "selected": {
+        "run_id": "db2b35e4-c149-4914-8fc4-316fc74647cd",
+        "seed": 202,
+        "score": 38.577,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 130,
+        "diagnostics": {
+          "decision_count": 130,
+          "mean_latency_ms": 228.86663846153846,
+          "calls": 130,
+          "requests_started": 130,
+          "requests_completed": 130,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 1,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 130
+          },
+          "duration_s": 65.49166666666666
+        },
+        "started_at": "2026-10-26T20:41:37.073028+00:00",
+        "finished_at": "2026-10-26T20:42:42.686712+00:00",
+        "cost_lower_bound_usd": 0.014681058,
+        "input_tokens": 349549,
+        "output_tokens": null,
+        "cost_usd": 0.014681058,
+        "full_actual_usage": true
+      },
+      "selection": "best of new three-flight repeat; previous cohort archived",
+      "superseded_trials": [
+        {
+          "run_id": "d4eb958e-1bf1-4901-9e16-1c8c59beb920",
+          "seed": 42,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "b46a8cfb-5e53-4a3f-9181-87f9457eb667",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "565629f2-b5bc-4f1b-9f81-cb25665aa3e7",
+          "seed": 202,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        }
+      ],
+      "repeat_campaign": "2026-10-26-realtime-repeat2"
+    },
+    {
+      "model": "jev-1.14.0",
+      "mode": "realtime",
+      "reasoning_effort": null,
+      "trials": [
+        {
+          "run_id": "c53d0fc2-8519-44a8-8065-a9597bc8a1ac",
+          "seed": 42,
+          "score": 66.719,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "b0749258-ee30-4086-9db9-805b95f3a254",
+          "seed": 101,
+          "score": 64.825,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "2e46830b-3608-4cfe-aada-3c6d56835d22",
+          "seed": 202,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "c53d0fc2-8519-44a8-8065-a9597bc8a1ac",
+      "selected": {
+        "run_id": "c53d0fc2-8519-44a8-8065-a9597bc8a1ac",
+        "seed": 42,
+        "score": 66.719,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 133,
+        "diagnostics": {
+          "decision_count": 133,
+          "mean_latency_ms": 215.30898496240602,
+          "calls": 133,
+          "requests_started": 134,
+          "requests_completed": 133,
+          "requests_cancel_requested": 1,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 1,
+          "residual_work": true,
+          "usage_unknown_requests": 1,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 133
+          },
+          "duration_s": 66.50833333333334
+        },
+        "started_at": "2026-10-25T23:12:49.098605+00:00",
+        "finished_at": "2026-10-25T23:13:55.666502+00:00",
+        "cost_lower_bound_usd": 0.015014118,
+        "input_tokens": 357479,
+        "output_tokens": null,
+        "cost_usd": null,
+        "full_actual_usage": false
+      }
+    }
+  ],
+  "attempt_history": {
+    "campaign": "2026-10-22-scoring-v2",
+    "selection_policy": "Three completed campaign trials per group (42,101,202); controller/infrastructure-interrupted attempts archived and excluded. Completed poor landings retained, never retried.",
+    "excluded_attempts": [
+      {
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "xhigh",
+        "seed": 42,
+        "run_id": "1fb6ecf0-3bba-4fd6-b7a1-61976b4cca7b",
+        "status": "controller_timeout",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/trial-42"
+      },
+      {
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "xhigh",
+        "seed": 101,
+        "run_id": null,
+        "status": "model_unavailable_before_export",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/gpt-6-1-sol-xhigh-101.log"
+      },
+      {
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "xhigh",
+        "seed": 101,
+        "run_id": "e0c627f5-9e12-4586-8d59-6983405e32d8",
+        "status": "controller_error",
+        "cause": "unknown; sanitized export; fresh diagnostic decision succeeded",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T064959Z/trial-101",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T064959Z/resume.json"
+      },
+      {
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "max",
+        "seed": 42,
+        "run_id": "3954afd7-7187-45df-b4c8-1df9e82432c6",
+        "status": "controller_error",
+        "cause": "unknown; sanitized export",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T110903Z/trial-42",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T110903Z/resume.json"
+      },
+      {
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "max",
+        "seed": 42,
+        "run_id": "64b4d67a-ef61-458e-aa42-fe4af1f41671",
+        "status": "controller_timeout",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T125435Z/trial-42",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T125435Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "low",
+        "seed": 42,
+        "run_id": "aa4fbd95-bf6d-40e6-83d0-639f9b0c22de",
+        "status": "controller_error",
+        "cause": "unknown; sanitized export",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T131402Z/trial-42",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T131402Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "low",
+        "seed": 101,
+        "run_id": "05dc1b1b-1b71-42b3-aeee-be32eada763c",
+        "status": "controller_error",
+        "cause": "unknown; sanitized export",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T140033Z/trial-101",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T140033Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "low",
+        "seed": 101,
+        "run_id": "d1314bdc-ed43-48b6-b539-33620162e0ce",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T160852Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T160852Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "medium",
+        "seed": 101,
+        "run_id": "7e3105cc-c7ed-4e5c-a26f-4c3ccbc085f4",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T190102Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T190102Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "xhigh",
+        "seed": 42,
+        "run_id": "d7ea0513-cb09-4a76-bb1e-42fd202ea90b",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T122341Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T122341Z/resume.json"
+      },
+      {
+        "model": "gpt-6-luna",
+        "reasoning_effort": "high",
+        "seed": 42,
+        "run_id": "772e0130-f0b9-49ed-b5ab-f28d9a067990",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T182418Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T182418Z/resume.json"
+      },
+      {
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "max",
+        "seed": 42,
+        "run_id": "1a1a8deb-a176-441b-8b48-d4011b120a83",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T234057Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T234057Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "max",
+        "seed": 42,
+        "run_id": "000ee814-b29a-4aa4-a689-031fa44ad920",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T044944Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T044944Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "max",
+        "seed": 101,
+        "run_id": "648833ac-1be8-4eeb-b64d-b94525b2cc56",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T102350Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T102350Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "max",
+        "seed": 101,
+        "run_id": "53327ddc-c9d1-429c-95fb-254523af4a89",
+        "status": "controller_timeout",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T114802Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T114802Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "max",
+        "seed": 101,
+        "run_id": "9acf1925-f748-4dd4-b638-afdcea9a8ded",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T182251Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T182251Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "medium",
+        "seed": 202,
+        "run_id": "2c54f9fc-fd01-4700-947f-f6bf77f4a99e",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T123511Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T123511Z/resume.json"
+      },
+      {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "xhigh",
+        "seed": 202,
+        "run_id": "c0fc0a19-5986-40e6-ba13-6649a3d7a574",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T173638Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T173638Z/resume.json"
+      },
+      {
+        "model": "gpt-6-sol",
+        "reasoning_effort": "xhigh",
+        "seed": 202,
+        "run_id": "27debff8-5d12-4f30-bd56-8a979b39aa75",
+        "status": "controller_error",
+        "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T223720Z",
+        "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+        "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T223720Z/resume.json"
+      }
+    ],
+    "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/resume.json"
+  }
+}

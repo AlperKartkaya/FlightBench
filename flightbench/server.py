@@ -9,6 +9,7 @@ import os
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
+from threading import Event
 from time import perf_counter
 from typing import Any
 from urllib.parse import urlparse
@@ -154,6 +155,11 @@ class Session:
     latency_ms: float | None = None
     decision_info: dict | None = None
     calls_count: int = 0
+    requests_started: int = 0
+    requests_completed: int = 0
+    requests_cancel_requested: int = 0
+    requests_cancelled_before_start: int = 0
+    requests_outstanding: int = 0
     late_decisions: int = 0
     stale_decisions: int = 0
     api_errors: int = 0
@@ -167,6 +173,7 @@ class Session:
     state_age_ms: float | None = None
     decision_hz: int = 2
     time_scale: float = 1.0
+    realtime_response_policy: str = "discard-stale"
     effective_decision_count: int = 0
     controller: Any = None
     run_id: str | None = None
@@ -295,6 +302,16 @@ class Session:
                 "decision_count": self.decision_count,
                 "mean_latency_ms": self.avg_latency_ms,
                 "calls": self.calls_count,
+                "requests_started": self.requests_started,
+                "requests_completed": self.requests_completed,
+                "requests_cancel_requested": self.requests_cancel_requested,
+                "requests_cancelled_before_start": self.requests_cancelled_before_start,
+                "requests_outstanding": self.requests_outstanding,
+                "residual_work": self.requests_outstanding > 0,
+                "usage_unknown_requests": max(
+                    0,
+                    self.requests_started - self.calls_count - self.requests_cancelled_before_start,
+                ),
                 "late_decisions": self.late_decisions,
                 "stale_decisions": self.stale_decisions,
                 "api_errors": self.api_errors,
@@ -338,6 +355,7 @@ class Session:
         scenario = settings.scenario
         decision_hz = settings.decision_hz
         time_scale = settings.time_scale if mode == "realtime" else 1.0
+        realtime_response_policy = settings.realtime_response_policy
         human_assistance = settings.human_assistance.model_dump()
         if controller_name == "human" and mode != "realtime":
             raise ValueError("human controller requires realtime mode")
@@ -349,6 +367,7 @@ class Session:
                     controller_name,
                     seed=seed,
                     model=model,
+                    reasoning_effort=settings.reasoning_effort,
                     decision_hz=decision_hz,
                 )
             except Exception:  # noqa: BLE001
@@ -363,6 +382,7 @@ class Session:
         self.scenario = scenario
         self.decision_hz = decision_hz
         self.time_scale = time_scale
+        self.realtime_response_policy = realtime_response_policy
         self.human_assistance = human_assistance
         self.controller = controller
 
@@ -387,6 +407,11 @@ class Session:
         self.latency_ms = None
         self.decision_info = None
         self.calls_count = 0
+        self.requests_started = 0
+        self.requests_completed = 0
+        self.requests_cancel_requested = 0
+        self.requests_cancelled_before_start = 0
+        self.requests_outstanding = 0
         self.late_decisions = 0
         self.stale_decisions = 0
         self.api_errors = 0
@@ -438,16 +463,40 @@ class Session:
         timeout = (
             CODEX_CONTROLLER_TIMEOUT_S if self.controller_name == "codex" else CONTROLLER_TIMEOUT_S
         )
+        work_finished = Event()
+
+        def decide():
+            try:
+                return controller.decide(observation)
+            finally:
+                work_finished.set()
+
+        work = asyncio.get_running_loop().run_in_executor(None, decide)
+        self.requests_started += 1
         try:
-            result = await asyncio.wait_for(
-                asyncio.to_thread(controller.decide, observation),
-                timeout=timeout,
-            )
+            result = await asyncio.wait_for(asyncio.shield(work), timeout=timeout)
+            self.requests_completed += 1
             decision_info = getattr(controller, "last_decision", None)
             return result, (perf_counter() - started) * 1000, None, decision_info
         except TimeoutError:
+            self.requests_cancel_requested += 1
+            work.cancel()
+            # Cancelling an asyncio wrapper does not prove the queued thread was cancelled.
+            if not work_finished.is_set():
+                self.requests_outstanding += 1
+            else:
+                self.requests_completed += 1
             return None, timeout * 1000, "controller_timeout", None
+        except asyncio.CancelledError:
+            self.requests_cancel_requested += 1
+            work.cancel()
+            if not work_finished.is_set():
+                self.requests_outstanding += 1
+            else:
+                self.requests_completed += 1
+            raise
         except Exception:  # noqa: BLE001 - provider failures are an external trust boundary
+            self.requests_completed += 1
             logger.warning("Controller decision failed")
             return None, (perf_counter() - started) * 1000, "controller_error", None
 
@@ -544,7 +593,8 @@ class Session:
                         * 1000,
                     )
                     stale = (
-                        self.state_age_ms
+                        self.realtime_response_policy == "discard-stale"
+                        and self.state_age_ms
                         > 2 * getattr(self.env, "decision_interval_s", 1 / self.decision_hz) * 1000
                     )
                     if decision_info is not None:
@@ -619,6 +669,10 @@ class Session:
         finally:
             if pending:
                 pending.cancel()
+                try:
+                    await pending
+                except asyncio.CancelledError:
+                    pass
 
 
 @app.websocket("/ws")

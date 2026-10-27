@@ -1,10 +1,176 @@
 [
   {
+    "controller": "Clef-Flash 9B Q4_K_M",
+    "model": "clef-flash-q4",
+    "source": "https://huggingface.co/Cloudflare/clef-flash",
+    "verification": "community",
+    "submission": "submissions/clef-flash-9b-q4-serial-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 31.67,
+      "median_score": 31.67,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 14173.587271523178,
+      "p50_latency_ms": 13833.063,
+      "p95_latency_ms": 16296.733,
+      "max_latency_ms": 17423.893,
+      "effective_decisions_per_second": 2.002873880844479,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 151,
+        "recorded": 151,
+        "started": 151,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 151,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.002873880844479,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 16080.406500000001,
+      "p50_latency_ms": 15652.082,
+      "p95_latency_ms": 16508.731,
+      "max_latency_ms": 16508.731,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 2,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 2,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 2,
+        "recorded": 2,
+        "started": 3,
+        "outstanding": 1,
+        "errors": 0,
+        "applied": 0,
+        "stale": 2,
+        "late": 2,
+        "zero_applied_runs": 1,
+        "effective_applied_rate_hz": 0.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "44d23f9d-8a13-4b9a-a162-ac1efbb3d842",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 31.67,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:d14828045a1bf827d239b0c467185a02083efc76e917d893cfca08e10acb3cc3"
+    }
+  },
+  {
     "controller": "Decider 2B v11 Q4_K_M",
     "model": "decider-2b-v11",
     "source": "https://github.com/Mapika/decider",
     "verification": "community",
     "submission": "submissions/decider-2b-v11-q4/submission.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "6b1163942ed8e98c342a518900214464f7dce6da",
+      "source_hash": "sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 2,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8|Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
     "lockstep": {
       "total_runs": 5,
       "successful_landings": 0,
@@ -26,7 +192,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 315,
+        "recorded": 315,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 315,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.0257234726688105,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "realtime": {
       "total_runs": 5,
@@ -49,7 +228,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 34,
+        "recorded": 34,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 0,
+        "stale": 34,
+        "late": 34,
+        "zero_applied_runs": 5,
+        "effective_applied_rate_hz": 0.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "best": {
       "run_id": "748e8646-8170-4a5a-a0d2-da41d30f44b6",
@@ -62,11 +254,859 @@
     }
   },
   {
+    "controller": "Decider 2B v11 Q4_K_M",
+    "model": "decider-2b-v11",
+    "source": "https://github.com/Mapika/decider",
+    "verification": "community",
+    "submission": "submissions/decider-2b-v11-q4-serial-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 4447.045746031746,
+      "p50_latency_ms": 4227.46,
+      "p95_latency_ms": 5946.168,
+      "max_latency_ms": 6627.001,
+      "effective_decisions_per_second": 2.02572347266881,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 63,
+        "recorded": 63,
+        "started": 63,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 63,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.02572347266881,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 4155.597857142857,
+      "p50_latency_ms": 4216.047,
+      "p95_latency_ms": 4241.598,
+      "max_latency_ms": 4241.598,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 7,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 7,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 7,
+        "recorded": 7,
+        "started": 8,
+        "outstanding": 1,
+        "errors": 0,
+        "applied": 0,
+        "stale": 7,
+        "late": 7,
+        "zero_applied_runs": 1,
+        "effective_applied_rate_hz": 0.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "4883215a-dd52-4bae-b36c-829e100f41bc",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:ccb192bdab97d305359d68bff84f5a5ec86564deb8508b533a5b6de635f3e604"
+    }
+  },
+  {
+    "controller": "GPT 6.1 Sol high",
+    "model": "openai-codex/gpt-6.1-sol",
+    "source": "https://openai.com/",
+    "verification": "community",
+    "submission": "submissions/gpt-6-1-sol-high-20261021/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0
+      },
+      "realtime_response_policy": "apply-on-arrival"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:b227256aeebf1f7fa49bdcb510496b0a9028085741db2c725966c949442e8d10",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Darwin/arm64",
+      "model_parallelism": null,
+      "per_model_episode_jobs": null,
+      "label": "Darwin/arm64; parallel load not declared",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:b227256aeebf1f7fa49bdcb510496b0a9028085741db2c725966c949442e8d10|Darwin/arm64; parallel load not declared|easy|2|apply-on-arrival|lockstep:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; apply-on-arrival; lockstep 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 1,
+      "success_rate": 1.0,
+      "mean_score": 61.239,
+      "median_score": 61.239,
+      "terminal_outcomes": {
+        "landed": 1
+      },
+      "mean_latency_ms": 5909.53865034965,
+      "p50_latency_ms": 5193.995,
+      "p95_latency_ms": 10574.931,
+      "max_latency_ms": 18504.601,
+      "effective_decisions_per_second": 2.005610098176718,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 143,
+        "recorded": 143,
+        "started": 143,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 143,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.005610098176718,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": null,
+    "best": {
+      "run_id": "33983aa1-7606-4ab0-bf61-b6e1aee88715",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": true,
+      "score": 61.239,
+      "terminal_outcome": "landed",
+      "artifact_sha256": "sha256:ac6a85e4786dd52980c990ff4dca52650c11756464c2cf08932a49c454a7ee38"
+    }
+  },
+  {
+    "controller": "openai-codex/gpt-6.1-sol",
+    "model": "openai-codex/gpt-6.1-sol",
+    "source": "https://openai.com/",
+    "verification": "community",
+    "submission": "submissions/gpt-6-1-sol-repeat-20261020/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0
+      },
+      "realtime_response_policy": "apply-on-arrival"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|apply-on-arrival|lockstep:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; apply-on-arrival; lockstep 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "controller_timeout": 1
+      },
+      "mean_latency_ms": 4523.180098901099,
+      "p50_latency_ms": 3035.502,
+      "p95_latency_ms": 4835.307,
+      "max_latency_ms": 120001.141,
+      "effective_decisions_per_second": 2.0,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 90,
+        "recorded": 91,
+        "started": 91,
+        "outstanding": 1,
+        "errors": 1,
+        "applied": 90,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": null,
+    "best": null
+  },
+  {
+    "controller": "jev-1.13.0",
+    "model": "jev-1.13.0",
+    "source": "https://docs.typesafe.ai/models",
+    "verification": "community",
+    "submission": "submissions/jev-1-13-0-arrival-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "apply-on-arrival"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|apply-on-arrival|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; apply-on-arrival; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 49.0,
+      "median_score": 49.0,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 300.9564453125,
+      "p50_latency_ms": 288.367,
+      "p95_latency_ms": 384.723,
+      "max_latency_ms": 467.438,
+      "effective_decisions_per_second": 2.0023464998044584,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 128,
+        "recorded": 128,
+        "started": 128,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 128,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.0023464998044584,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 318.48925217391303,
+      "p50_latency_ms": 306.345,
+      "p95_latency_ms": 389.588,
+      "max_latency_ms": 608.291,
+      "effective_decisions_per_second": 1.9759450171821304,
+      "deadline_misses": 1,
+      "deadline_miss_rate": 0.008695652173913044,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 115,
+        "recorded": 115,
+        "started": 116,
+        "outstanding": 1,
+        "errors": 0,
+        "applied": 115,
+        "stale": 0,
+        "late": 1,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 1.9759450171821304,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "031e896a-afb1-400d-b4bb-b89d835b75c6",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 49.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:926880c4e513fecc5eec7d903909b95006c1533a58719619f6c33a84038b805b"
+    }
+  },
+  {
+    "controller": "jev-1.13.0",
+    "model": "jev-1.13.0",
+    "source": "https://docs.typesafe.ai/models",
+    "verification": "community",
+    "submission": "submissions/jev-1-13-0-repeat-20261020/submission.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "apply-on-arrival"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|apply-on-arrival|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; apply-on-arrival; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 2,
+      "success_rate": 0.4,
+      "mean_score": 52.9734,
+      "median_score": 49.0,
+      "terminal_outcomes": {
+        "landed": 2,
+        "runway_excursion": 3
+      },
+      "mean_latency_ms": 324.01876377952755,
+      "p50_latency_ms": 304.618,
+      "p95_latency_ms": 413.641,
+      "max_latency_ms": 684.004,
+      "effective_decisions_per_second": 2.0090168472672625,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 635,
+        "recorded": 635,
+        "started": 635,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 635,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.0090168472672625,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 36.681400000000004,
+      "median_score": 45.274,
+      "terminal_outcomes": {
+        "runway_excursion": 4,
+        "controller_error": 1
+      },
+      "mean_latency_ms": 351.4636147368421,
+      "p50_latency_ms": 316.3,
+      "p95_latency_ms": 416.54,
+      "max_latency_ms": 10006.676,
+      "effective_decisions_per_second": 1.8771657701065971,
+      "deadline_misses": 11,
+      "deadline_miss_rate": 0.023157894736842106,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 475,
+        "recorded": 475,
+        "started": 478,
+        "outstanding": 3,
+        "errors": 1,
+        "applied": 474,
+        "stale": 0,
+        "late": 11,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 1.8771657701065971,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "2e394e38-7feb-4b0b-bdb0-d571ebcdc3a4",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": true,
+      "score": 62.614,
+      "terminal_outcome": "landed",
+      "artifact_sha256": "sha256:4a0ef7e937daef9ecc03622e1df7106a68d692f002a845551046e55bc6abdb30"
+    }
+  },
+  {
+    "controller": "jev-1.14.0",
+    "model": "jev-1.14.0",
+    "source": "https://docs.typesafe.ai/models",
+    "verification": "community",
+    "submission": "submissions/jev-1-14-0-arrival-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "apply-on-arrival"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|apply-on-arrival|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; apply-on-arrival; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 1,
+      "success_rate": 1.0,
+      "mean_score": 66.109,
+      "median_score": 66.109,
+      "terminal_outcomes": {
+        "landed": 1
+      },
+      "mean_latency_ms": 306.74458955223884,
+      "p50_latency_ms": 295.686,
+      "p95_latency_ms": 389.425,
+      "max_latency_ms": 726.111,
+      "effective_decisions_per_second": 2.0062383031815343,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 134,
+        "recorded": 134,
+        "started": 134,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 134,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.0062383031815343,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 49.0,
+      "median_score": 49.0,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 329.35444144144145,
+      "p50_latency_ms": 306.685,
+      "p95_latency_ms": 478.59,
+      "max_latency_ms": 565.56,
+      "effective_decisions_per_second": 1.8952760387023335,
+      "deadline_misses": 6,
+      "deadline_miss_rate": 0.05405405405405406,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 111,
+        "recorded": 111,
+        "started": 112,
+        "outstanding": 1,
+        "errors": 0,
+        "applied": 111,
+        "stale": 0,
+        "late": 6,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 1.8952760387023335,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "0eaffc25-c5b0-4575-8f30-e00a8f620791",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": true,
+      "score": 66.109,
+      "terminal_outcome": "landed",
+      "artifact_sha256": "sha256:6b44b2525ec4de5d86aa0000150f5a8212dca299663da96891d83f60ce73707c"
+    }
+  },
+  {
+    "controller": "jev-1.14.0",
+    "model": "jev-1.14.0",
+    "source": "https://docs.typesafe.ai/models",
+    "verification": "community",
+    "submission": "submissions/jev-1-14-0-repeat-20261020/submission.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "apply-on-arrival"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|apply-on-arrival|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; apply-on-arrival; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 1,
+      "success_rate": 0.2,
+      "mean_score": 42.7918,
+      "median_score": 49.0,
+      "terminal_outcomes": {
+        "runway_excursion": 3,
+        "landed": 1,
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 326.65044788273616,
+      "p50_latency_ms": 306.021,
+      "p95_latency_ms": 418.316,
+      "max_latency_ms": 606.697,
+      "effective_decisions_per_second": 2.0086693383495544,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 614,
+        "recorded": 614,
+        "started": 614,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 614,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.0086693383495544,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 5,
+      "successful_landings": 2,
+      "success_rate": 0.4,
+      "mean_score": 43.5254,
+      "median_score": 49.0,
+      "terminal_outcomes": {
+        "runway_excursion": 2,
+        "landed": 2,
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 334.9918177257525,
+      "p50_latency_ms": 323.578,
+      "p95_latency_ms": 427.342,
+      "max_latency_ms": 832.156,
+      "effective_decisions_per_second": 1.947089947089947,
+      "deadline_misses": 15,
+      "deadline_miss_rate": 0.02508361204013378,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 599,
+        "recorded": 598,
+        "started": 601,
+        "outstanding": 2,
+        "errors": 0,
+        "applied": 598,
+        "stale": 0,
+        "late": 15,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 1.947089947089947,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "dd2dc266-f431-4363-b27c-9edd13bb2f33",
+      "seed": 202,
+      "mode": "realtime",
+      "success": true,
+      "score": 67.857,
+      "terminal_outcome": "landed",
+      "artifact_sha256": "sha256:cbbf86172fb7040c52355ebebee87b84b8475cc766a7179cdde4bbfd1a21aac7"
+    }
+  },
+  {
     "controller": "Kev 0.8B v1.0",
     "model": "kev-0.8b-v1.0",
     "source": "https://github.com/jaredpalmer/kev",
     "verification": "community",
     "submission": "submissions/kev-0.8b-v1/submission.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "6b1163942ed8e98c342a518900214464f7dce6da",
+      "source_hash": "sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 2,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8|Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
     "lockstep": {
       "total_runs": 5,
       "successful_landings": 0,
@@ -88,7 +1128,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 255,
+        "recorded": 255,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 255,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.02113606340819,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "realtime": {
       "total_runs": 5,
@@ -111,7 +1164,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 63,
+        "recorded": 63,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 0,
+        "stale": 63,
+        "late": 63,
+        "zero_applied_runs": 5,
+        "effective_applied_rate_hz": 0.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "best": {
       "run_id": "8fcc33bf-f8f9-4dfa-b6ee-54ba102491a9",
@@ -124,11 +1190,302 @@
     }
   },
   {
+    "controller": "Kev 0.8B v1.0",
+    "model": "kev-0.8b-v1.0",
+    "source": "https://github.com/jaredpalmer/kev",
+    "verification": "community",
+    "submission": "submissions/kev-0.8b-v1-arrival-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "apply-on-arrival"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|apply-on-arrival|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; apply-on-arrival; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 1199.8150196078432,
+      "p50_latency_ms": 1200.484,
+      "p95_latency_ms": 1257.588,
+      "max_latency_ms": 1321.965,
+      "effective_decisions_per_second": 2.02113606340819,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 51,
+        "recorded": 51,
+        "started": 51,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 51,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.02113606340819,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 1212.3220000000001,
+      "p50_latency_ms": 1216.644,
+      "p95_latency_ms": 1249.342,
+      "max_latency_ms": 1274.074,
+      "effective_decisions_per_second": 0.6708907938874394,
+      "deadline_misses": 15,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 15,
+        "recorded": 15,
+        "started": 15,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 15,
+        "stale": 0,
+        "late": 15,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 0.6708907938874394,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "a6903941-0952-4291-84eb-3222b2d54165",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:1c8a782279df4ab892b87b1729a47776f6021b25118290a126f7107f149ce8dc"
+    }
+  },
+  {
+    "controller": "Kev 0.8B v1.0",
+    "model": "kev-0.8b-v1.0",
+    "source": "https://github.com/jaredpalmer/kev",
+    "verification": "community",
+    "submission": "submissions/kev-0.8b-v1-serial-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 1175.0516666666667,
+      "p50_latency_ms": 1174.402,
+      "p95_latency_ms": 1208.053,
+      "max_latency_ms": 1232.81,
+      "effective_decisions_per_second": 2.02113606340819,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 51,
+        "recorded": 51,
+        "started": 51,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 51,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.02113606340819,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 1209.527304347826,
+      "p50_latency_ms": 1216.03,
+      "p95_latency_ms": 1240.828,
+      "max_latency_ms": 1242.156,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 23,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 23,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 23,
+        "recorded": 23,
+        "started": 23,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 0,
+        "stale": 23,
+        "late": 23,
+        "zero_applied_runs": 1,
+        "effective_applied_rate_hz": 0.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "5bc13c6d-ddf6-4b89-9f57-2dac35958cbc",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:bb77f78898588acccdc961e5587403e06bb359ae36f988e3d285cdb5b4db223e"
+    }
+  },
+  {
     "controller": "Bespoke Nimble 9B Q4_K_M",
     "model": "nimble:9b-q4_K_M",
     "source": "https://ollama.com/library/nimble",
     "verification": "community",
     "submission": "submissions/nimble-9b-q4/submission.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "6b1163942ed8e98c342a518900214464f7dce6da",
+      "source_hash": "sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 2,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8|Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
     "lockstep": {
       "total_runs": 5,
       "successful_landings": 0,
@@ -150,7 +1507,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 790,
+        "recorded": 790,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 790,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.009965016431676,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "realtime": {
       "total_runs": 5,
@@ -173,7 +1543,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 10,
+        "recorded": 10,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 0,
+        "stale": 10,
+        "late": 10,
+        "zero_applied_runs": 5,
+        "effective_applied_rate_hz": 0.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "best": {
       "run_id": "30dc7b40-a96d-4728-a10a-c6b1108713a4",
@@ -186,11 +1569,177 @@
     }
   },
   {
+    "controller": "Bespoke Nimble 9B Q4_K_M",
+    "model": "nimble:9b-q4_K_M",
+    "source": "https://ollama.com/library/nimble",
+    "verification": "community",
+    "submission": "submissions/nimble-9b-q4-serial-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 23.414,
+      "median_score": 23.414,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 13475.346816455696,
+      "p50_latency_ms": 12849.213,
+      "p95_latency_ms": 15965.72,
+      "max_latency_ms": 16657.275,
+      "effective_decisions_per_second": 2.009965016431676,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 158,
+        "recorded": 158,
+        "started": 158,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 158,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.009965016431676,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 12537.127,
+      "p50_latency_ms": 12284.916,
+      "p95_latency_ms": 12789.338,
+      "max_latency_ms": 12789.338,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 2,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 2,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 2,
+        "recorded": 2,
+        "started": 3,
+        "outstanding": 1,
+        "errors": 0,
+        "applied": 0,
+        "stale": 2,
+        "late": 2,
+        "zero_applied_runs": 1,
+        "effective_applied_rate_hz": 0.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "2368a889-31f9-42e2-94bf-98eafb9ac973",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 23.414,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:36fd93d865900800a45bc5289441487a5eedd534f5ba48570ae9a7d3bc770ea0"
+    }
+  },
+  {
     "controller": "OpenThai-SystemOne v0.3 Q8",
     "model": "iapp/openthai-systemone:0.8b-q8_0",
     "source": "https://huggingface.co/iapp/OpenThai-SystemOne-Ollama",
     "verification": "community",
     "submission": "submissions/openthai-v0.3-q8/submission.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "6b1163942ed8e98c342a518900214464f7dce6da",
+      "source_hash": "sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 2,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8|Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
     "lockstep": {
       "total_runs": 5,
       "successful_landings": 0,
@@ -212,7 +1761,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 265,
+        "recorded": 265,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 265,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.026122969098439,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "realtime": {
       "total_runs": 5,
@@ -235,7 +1797,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 56,
+        "recorded": 56,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 6,
+        "stale": 50,
+        "late": 52,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 0.0718132854578097,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "best": {
       "run_id": "117ae2d8-b2f1-4d6b-b272-e605c52d7531",
@@ -248,11 +1823,302 @@
     }
   },
   {
+    "controller": "OpenThai-SystemOne v0.3 Q8",
+    "model": "iapp/openthai-systemone:0.8b-q8_0",
+    "source": "https://huggingface.co/iapp/OpenThai-SystemOne-Ollama",
+    "verification": "community",
+    "submission": "submissions/openthai-v0.3-q8-arrival-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "apply-on-arrival"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|apply-on-arrival|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; apply-on-arrival; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 1283.4453773584905,
+      "p50_latency_ms": 1292.895,
+      "p95_latency_ms": 1373.182,
+      "max_latency_ms": 1429.914,
+      "effective_decisions_per_second": 2.026122969098439,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 53,
+        "recorded": 53,
+        "started": 53,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 53,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.026122969098439,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 1302.6897272727272,
+      "p50_latency_ms": 1375.003,
+      "p95_latency_ms": 1472.418,
+      "max_latency_ms": 1472.418,
+      "effective_decisions_per_second": 0.6613226452905812,
+      "deadline_misses": 10,
+      "deadline_miss_rate": 0.9090909090909091,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 11,
+        "recorded": 11,
+        "started": 12,
+        "outstanding": 1,
+        "errors": 0,
+        "applied": 11,
+        "stale": 0,
+        "late": 10,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 0.6613226452905812,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "3d4b98b7-15d6-48a6-98d5-d42441b671d0",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:8ffa4c00b90817b223d0300a7db818cad746f88acbee7e74f3b6d752e0b5ea82"
+    }
+  },
+  {
+    "controller": "OpenThai-SystemOne v0.3 Q8",
+    "model": "iapp/openthai-systemone:0.8b-q8_0",
+    "source": "https://huggingface.co/iapp/OpenThai-SystemOne-Ollama",
+    "verification": "community",
+    "submission": "submissions/openthai-v0.3-q8-serial-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 1352.975113207547,
+      "p50_latency_ms": 1347.22,
+      "p95_latency_ms": 1550.107,
+      "max_latency_ms": 1744.825,
+      "effective_decisions_per_second": 2.026122969098439,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 53,
+        "recorded": 53,
+        "started": 53,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 53,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.026122969098439,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 1295.4658181818181,
+      "p50_latency_ms": 1366.506,
+      "p95_latency_ms": 1465.646,
+      "max_latency_ms": 1465.646,
+      "effective_decisions_per_second": 0.06003001500750375,
+      "deadline_misses": 10,
+      "deadline_miss_rate": 0.9090909090909091,
+      "stale_decisions": 10,
+      "stale_decision_rate": 0.9090909090909091,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 11,
+        "recorded": 11,
+        "started": 12,
+        "outstanding": 1,
+        "errors": 0,
+        "applied": 1,
+        "stale": 10,
+        "late": 10,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 0.06003001500750375,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "7383436d-658f-4c1a-9f25-ba4a6a7696e5",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:c720a1979ad17f7f55f854b2b057d4e619545640e09ab1d1ab2551e4aef1e85b"
+    }
+  },
+  {
     "controller": "Von 1.3",
     "model": "von-1.3.0",
     "source": "https://github.com/wfzyx/von",
     "verification": "community",
     "submission": "submissions/von-1.3/submission.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "6b1163942ed8e98c342a518900214464f7dce6da",
+      "source_hash": "sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 2,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8|Apple M1 Pro 16GB unified memory; up to 2 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
     "lockstep": {
       "total_runs": 5,
       "successful_landings": 0,
@@ -274,7 +2140,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 70,
+        "recorded": 70,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 70,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.066420664206642,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "realtime": {
       "total_runs": 5,
@@ -297,7 +2176,20 @@
       "total_cost_usd": 0.0,
       "cost_per_run_usd": 0.0,
       "cost_per_100_decisions_usd": 0.0,
-      "cost_per_success_usd": null
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 34,
+        "recorded": 34,
+        "started": null,
+        "outstanding": null,
+        "errors": 0,
+        "applied": 0,
+        "stale": 34,
+        "late": 34,
+        "zero_applied_runs": 5,
+        "effective_applied_rate_hz": 0.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
     },
     "best": {
       "run_id": "bb91fdb0-1b71-42cd-9217-7bf0bd81478a",
@@ -310,11 +2202,288 @@
     }
   },
   {
+    "controller": "Von 1.3",
+    "model": "von-1.3.0",
+    "source": "https://github.com/wfzyx/von",
+    "verification": "community",
+    "submission": "submissions/von-1.3-arrival-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "apply-on-arrival"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|apply-on-arrival|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; apply-on-arrival; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "crash": 1
+      },
+      "mean_latency_ms": 1107.6725,
+      "p50_latency_ms": 1105.995,
+      "p95_latency_ms": 1127.341,
+      "max_latency_ms": 1177.876,
+      "effective_decisions_per_second": 2.066420664206642,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 14,
+        "recorded": 14,
+        "started": 14,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 14,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.066420664206642,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "crash": 1
+      },
+      "mean_latency_ms": 1147.1599999999999,
+      "p50_latency_ms": 1166.848,
+      "p95_latency_ms": 1199.561,
+      "max_latency_ms": 1199.561,
+      "effective_decisions_per_second": 0.6479481641468683,
+      "deadline_misses": 5,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 5,
+        "recorded": 5,
+        "started": 6,
+        "outstanding": 1,
+        "errors": 0,
+        "applied": 5,
+        "stale": 0,
+        "late": 5,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 0.6479481641468683,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "329d7011-0fe6-4b38-a170-fab00c95a879",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:9c46b819ebb924d7b88a9d6eb7e1f03173f4bd39ba2f41451048638a9298e716"
+    }
+  },
+  {
+    "controller": "Von 1.3",
+    "model": "von-1.3.0",
+    "source": "https://github.com/wfzyx/von",
+    "verification": "community",
+    "submission": "submissions/von-1.3-serial-s42/submission.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "lockstep",
+        "realtime"
+      ],
+      "scenario": "easy",
+      "decision_hz": 2,
+      "time_scale_by_mode": {
+        "lockstep": 1.0,
+        "realtime": 1.0
+      },
+      "realtime_response_policy": "discard-stale"
+    },
+    "protocol": "flightbench-v1",
+    "source_identity": {
+      "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+      "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+      "action_space_version": "flightbench-action-space-v1",
+      "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+    },
+    "execution_cohort": {
+      "hardware": "Apple M1 Pro 16GB unified memory",
+      "model_parallelism": 1,
+      "per_model_episode_jobs": 1,
+      "label": "Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model",
+      "paths": [
+        "cli"
+      ]
+    },
+    "comparison_cohort": {
+      "id": "flightbench-v1|flightbench-action-space-v1|sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4|Apple M1 Pro 16GB unified memory; up to 1 model jobs; 1 episode job/model|easy|2|discard-stale|lockstep:1|realtime:1|cli",
+      "label": "flightbench-v1; easy; 2 Hz; discard-stale; lockstep 1x, realtime 1x",
+      "comparable": true
+    },
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "crash": 1
+      },
+      "mean_latency_ms": 1364.2342142857142,
+      "p50_latency_ms": 1391.295,
+      "p95_latency_ms": 1444.874,
+      "max_latency_ms": 1449.226,
+      "effective_decisions_per_second": 2.066420664206642,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 14,
+        "recorded": 14,
+        "started": 14,
+        "outstanding": 0,
+        "errors": 0,
+        "applied": 14,
+        "stale": 0,
+        "late": 0,
+        "zero_applied_runs": 0,
+        "effective_applied_rate_hz": 2.066420664206642,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 1574.376117647059,
+      "p50_latency_ms": 1574.714,
+      "p95_latency_ms": 1648.014,
+      "max_latency_ms": 1659.21,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 17,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 17,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null,
+      "decision_flow": {
+        "completed": 17,
+        "recorded": 17,
+        "started": 18,
+        "outstanding": 1,
+        "errors": 0,
+        "applied": 0,
+        "stale": 17,
+        "late": 17,
+        "zero_applied_runs": 1,
+        "effective_applied_rate_hz": 0.0,
+        "rate_basis": "applied decisions / simulation seconds"
+      }
+    },
+    "best": {
+      "run_id": "e5f19866-7949-4668-b630-7a75f36ab791",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:6db2181206a78ea668cf7b88575ae4850e15e821f3b05ab9e59b3c1cb18f9bfc"
+    }
+  },
+  {
     "controller": "Jev",
     "model": "jev-1.13.0",
     "source": "https://github.com/AlperKartkaya/FlightBench",
     "verification": "legacy/reference (not v1)",
     "submission": "historical/manifest.json",
+    "evaluation": {
+      "seeds": [
+        42
+      ],
+      "modes": [
+        "realtime"
+      ],
+      "scenario": "not recorded",
+      "decision_hz": [
+        5
+      ],
+      "time_scale_by_mode": "not recorded"
+    },
+    "protocol": "pre-v1 / not declared",
+    "source_identity": {
+      "source_hashes": [
+        "sha256:938ccf5f3c72a8ed61a18ca2bad1556337a34bea67605b852c7db34e5c9aa45c"
+      ]
+    },
+    "execution_cohort": {
+      "label": "legacy curated records; execution conditions were not normalized"
+    },
+    "comparison_cohort": {
+      "id": "legacy-reference",
+      "label": "legacy/reference (pre-v1; not comparable to canonical v1)",
+      "comparable": false
+    },
     "lockstep": null,
     "realtime": {
       "total_runs": 1,
@@ -323,7 +2492,8 @@
       "median_score": 56.123,
       "p50_latency_ms": 301.0149170004297,
       "p95_latency_ms": 374.34333299461287,
-      "cost_per_run_usd": 0.01223804
+      "cost_per_run_usd": 0.01223804,
+      "decision_flow": null
     },
     "best": {
       "run_id": "05716196-e32b-4e34-94d3-8a06d4bb7baa",
@@ -340,6 +2510,39 @@
     "source": "https://github.com/AlperKartkaya/FlightBench",
     "verification": "legacy/reference (not v1)",
     "submission": "historical/manifest.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep"
+      ],
+      "scenario": "not recorded",
+      "decision_hz": [
+        2
+      ],
+      "time_scale_by_mode": "not recorded"
+    },
+    "protocol": "pre-v1 / not declared",
+    "source_identity": {
+      "source_hashes": [
+        "sha256:087c1934b6bfde10f7600fb24b1aac26920ca476b2e24050a89b3152fa058c2e",
+        "sha256:36ca47eb480b281e9231cd1f12393fa029d594c50240be51ab3d5746616fda69",
+        "sha256:6ea8ca8a6baf570cb4f429cf5d41a55aab42aa777111e259b76257f22f8aba57"
+      ]
+    },
+    "execution_cohort": {
+      "label": "legacy curated records; execution conditions were not normalized"
+    },
+    "comparison_cohort": {
+      "id": "legacy-reference",
+      "label": "legacy/reference (pre-v1; not comparable to canonical v1)",
+      "comparable": false
+    },
     "lockstep": {
       "total_runs": 5,
       "successful_landings": 0,
@@ -347,7 +2550,8 @@
       "median_score": 0.0,
       "p50_latency_ms": 2020.367,
       "p95_latency_ms": 6337.035,
-      "cost_per_run_usd": 0.00644746
+      "cost_per_run_usd": 0.00644746,
+      "decision_flow": null
     },
     "realtime": null,
     "best": {
@@ -365,6 +2569,39 @@
     "source": "https://github.com/AlperKartkaya/FlightBench",
     "verification": "legacy/reference (not v1)",
     "submission": "historical/manifest.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep"
+      ],
+      "scenario": "not recorded",
+      "decision_hz": [
+        2
+      ],
+      "time_scale_by_mode": "not recorded"
+    },
+    "protocol": "pre-v1 / not declared",
+    "source_identity": {
+      "source_hashes": [
+        "sha256:087c1934b6bfde10f7600fb24b1aac26920ca476b2e24050a89b3152fa058c2e",
+        "sha256:36ca47eb480b281e9231cd1f12393fa029d594c50240be51ab3d5746616fda69",
+        "sha256:6ea8ca8a6baf570cb4f429cf5d41a55aab42aa777111e259b76257f22f8aba57"
+      ]
+    },
+    "execution_cohort": {
+      "label": "legacy curated records; execution conditions were not normalized"
+    },
+    "comparison_cohort": {
+      "id": "legacy-reference",
+      "label": "legacy/reference (pre-v1; not comparable to canonical v1)",
+      "comparable": false
+    },
     "lockstep": {
       "total_runs": 5,
       "successful_landings": 0,
@@ -372,7 +2609,8 @@
       "median_score": 49.0,
       "p50_latency_ms": 4240.161,
       "p95_latency_ms": 8157.344,
-      "cost_per_run_usd": 0.3540756
+      "cost_per_run_usd": 0.3540756,
+      "decision_flow": null
     },
     "realtime": null,
     "best": {
@@ -390,6 +2628,38 @@
     "source": "https://github.com/AlperKartkaya/FlightBench",
     "verification": "legacy/reference (not v1)",
     "submission": "historical/manifest.json",
+    "evaluation": {
+      "seeds": [
+        42,
+        101,
+        202,
+        303,
+        404
+      ],
+      "modes": [
+        "lockstep"
+      ],
+      "scenario": "not recorded",
+      "decision_hz": [
+        2
+      ],
+      "time_scale_by_mode": "not recorded"
+    },
+    "protocol": "pre-v1 / not declared",
+    "source_identity": {
+      "source_hashes": [
+        "sha256:36ca47eb480b281e9231cd1f12393fa029d594c50240be51ab3d5746616fda69",
+        "sha256:6ea8ca8a6baf570cb4f429cf5d41a55aab42aa777111e259b76257f22f8aba57"
+      ]
+    },
+    "execution_cohort": {
+      "label": "legacy curated records; execution conditions were not normalized"
+    },
+    "comparison_cohort": {
+      "id": "legacy-reference",
+      "label": "legacy/reference (pre-v1; not comparable to canonical v1)",
+      "comparable": false
+    },
     "lockstep": {
       "total_runs": 5,
       "successful_landings": 0,
@@ -397,7 +2667,8 @@
       "median_score": 49.0,
       "p50_latency_ms": 4401.165,
       "p95_latency_ms": 6796.968,
-      "cost_per_run_usd": 1.7491940000000001
+      "cost_per_run_usd": 1.7491940000000001,
+      "decision_flow": null
     },
     "realtime": null,
     "best": {

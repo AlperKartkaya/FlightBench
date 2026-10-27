@@ -3,7 +3,7 @@ import sys
 from types import SimpleNamespace
 
 import pytest
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from flightbench import controllers
 from flightbench.controllers import (
@@ -81,7 +81,8 @@ def test_baseline_corrects_right_offset_and_low_airspeed():
     assert command.throttle > 0.5
 
 
-def test_codex_discovery_and_structured_decision(monkeypatch):
+@pytest.mark.parametrize("effort", ["low", "medium", "high", "xhigh", "max"])
+def test_codex_discovery_and_structured_decision(monkeypatch, effort):
     request = {}
     response = SimpleNamespace(
         text=lambda: '{"aileron":"0","elevator":"4","rudder":"2","throttle":"5"}',
@@ -98,13 +99,13 @@ def test_codex_discovery_and_structured_decision(monkeypatch):
             SimpleNamespace(model_id="openai-codex/z"),
             SimpleNamespace(model_id="openai-codex/a"),
         ],
-        get_model=lambda model: SimpleNamespace(prompt=prompt),
+        get_model=lambda model: SimpleNamespace(prompt=prompt, Options=BaseModel),
     )
     monkeypatch.setitem(sys.modules, "llm", fake_llm)
     monkeypatch.setattr(controllers, "_codex_authenticated", lambda: True)
 
     assert discover_models() == ["openai-codex/a", "openai-codex/z"]
-    controller = CodexController()
+    controller = CodexController(**({} if effort == "low" else {"reasoning_effort": effort}))
     assert controller.model_id == "openai-codex/a"
     assert controller.decide(OBSERVATION).model_dump() == {
         "aileron": -0.35,
@@ -113,10 +114,21 @@ def test_codex_discovery_and_structured_decision(monkeypatch):
         "throttle": 0.8,
     }
     assert controller.last_decision["usage"] == {"input_tokens": 100, "output_tokens": 20}
-    assert controller.last_decision["reasoning_effort"] == "low"
+    assert controller.last_decision["reasoning_effort"] == effort
+    assert controller.last_decision["action_ids"] == {
+        "aileron": "0",
+        "elevator": "4",
+        "rudder": "2",
+        "throttle": "5",
+    }
     assert request["schema"] is SharedActionDecision
-    assert request["reasoning_effort"] == "low"
+    assert request["reasoning_effort"] == effort
     assert all(axis in request["system"] for axis in ("aileron", "elevator", "rudder", "throttle"))
     assert "absolute" in request["system"] and "FlightBench" in request["system"]
     assert json.loads(request["payload"]) == canonical_observation(OBSERVATION)
     assert protocol_metadata().items() <= controller.last_decision.items()
+
+
+def test_codex_rejects_unknown_effort():
+    with pytest.raises(ValueError, match="reasoning effort"):
+        CodexController(reasoning_effort="invalid")

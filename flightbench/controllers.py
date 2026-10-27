@@ -7,9 +7,9 @@ import random
 import shutil
 import subprocess
 from collections.abc import Mapping
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 
 try:
     from dotenv import load_dotenv
@@ -192,7 +192,12 @@ def discover_models() -> list[str]:
 
 
 class CodexController:
-    def __init__(self, model: str | None = None) -> None:
+    reasoning_effort = "low"
+
+    def __init__(self, model: str | None = None, *, reasoning_effort: str = "low") -> None:
+        if reasoning_effort not in {"low", "medium", "high", "xhigh", "max"}:
+            raise ValueError("Codex reasoning effort must be low, medium, high, xhigh, or max")
+        self.reasoning_effort = reasoning_effort
         llm = _import_llm()
         available = discover_models()
         if not available:
@@ -208,6 +213,13 @@ class CodexController:
             raise ValueError(f"Codex model is unavailable: {model}")
         self.model_id = model
         self._model = llm.get_model(model)
+        if reasoning_effort == "max":
+            # Installed plugin predates literal max; preserve its other option validation.
+            self._model.Options = create_model(
+                "CodexMaxOptions",
+                __base__=self._model.Options,
+                reasoning_effort=(Literal["low", "medium", "high", "xhigh", "max"] | None, None),
+            )
 
     def decide(self, observation: Mapping[str, Any] | BaseModel) -> ControlCommand:
         payload = canonical_observation(observation)
@@ -215,7 +227,7 @@ class CodexController:
             json.dumps(payload, separators=(",", ":")),
             system=build_llm_control_prompt(payload["phase"]),
             schema=SharedActionDecision,
-            reasoning_effort="low",
+            reasoning_effort=self.reasoning_effort,
         )
         decision = SharedActionDecision.model_validate_json(response.text())
         action = command_from_action_ids(decision)
@@ -225,8 +237,9 @@ class CodexController:
         self.last_decision = {
             "controller": "codex",
             "model": self.model_id,
-            "reasoning_effort": "low",
+            "reasoning_effort": self.reasoning_effort,
             "usage": usage,
+            "action_ids": ids,
             "input": payload,
             "policy": "direct-categorical",
             "choices": {
@@ -244,6 +257,7 @@ class CodexController:
 
 
 JEV_MODEL = "jev-1.13.0"
+JEV_MODELS = (JEV_MODEL, "jev-1.14.0")
 
 
 class JevController:
@@ -258,9 +272,9 @@ class JevController:
     ) -> None:
         from typesafe_sdk import Choice, RetryPolicy, TypeSafeClient
 
-        if model not in (None, JEV_MODEL):
-            raise ValueError(f"Jev uses one pinned model: {JEV_MODEL}")
-        self._model = JEV_MODEL
+        if model is not None and model not in JEV_MODELS:
+            raise ValueError(f"Jev requires a pinned model: {JEV_MODELS}")
+        self._model = model or JEV_MODEL
         _, self._decision_interval_s = decision_timing(decision_hz)
         self._client = TypeSafeClient() if api_key is None else TypeSafeClient(api_key=api_key)
         self._retry = RetryPolicy(max_retries=0)
@@ -290,6 +304,10 @@ class JevController:
             retry=self._retry,
             timeout=10,
         )
+        resolved_model = getattr(response, "model", None)
+        if resolved_model != self._model:
+            raise ValueError("Jev response model does not match the requested pinned version")
+        usage = getattr(response, "usage", None)
         raw_choices = {
             axis: getattr(answer, "choice", None) for axis, answer in response.choices.items()
         }
@@ -318,6 +336,12 @@ class JevController:
         self.last_decision = {
             "controller": "jev",
             "model": self._model,
+            "resolved_model": resolved_model,
+            "usage": {
+                "input_tokens": getattr(usage, "input_tokens", None),
+                "output_tokens": getattr(usage, "output_tokens", None),
+            },
+            "action_ids": selected,
             "input": state,
             "policy": "direct-categorical",
             "experimental": True,
@@ -337,7 +361,11 @@ class JevController:
 
 
 def make_controller(
-    name: str, seed: int | None = None, model: str | None = None, decision_hz: int = 2
+    name: str,
+    seed: int | None = None,
+    model: str | None = None,
+    decision_hz: int = 2,
+    reasoning_effort: str = "low",
 ) -> Controller:
     key = name.strip().lower()
     if key == "human":
@@ -349,7 +377,7 @@ def make_controller(
     if key == "baseline":
         return BaselineController()
     if key == "codex":
-        return CodexController(model)
+        return CodexController(model, reasoning_effort=reasoning_effort)
     if key == "jev":
         return JevController(model=model, decision_hz=decision_hz)
     if key == "ollama":

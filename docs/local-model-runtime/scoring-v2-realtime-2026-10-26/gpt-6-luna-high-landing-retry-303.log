@@ -1,0 +1,10 @@
+
+
+     JSBSim Flight Dynamics Model v1.3.1 [GitHub build 1837/commit 3b25f25e49b42d0489c04ac805674fc1450ca579] May 17 2026 14:38:05
+            [JSBSim-ML v2.0]
+
+JSBSim startup beginning ...
+
+CONTROLLER_DIAGNOSTIC {"exception_type": "RateLimitError", "http_status": 429, "limit_indicated": true}
+{"run_id": "cfa9187b-4a53-48ce-a085-14b8a1ef5122", "seed": 303, "mode": "lockstep", "success": false, "quality": 0.0, "status": "controller_error", "touchdown": null}
+/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime/submissions/gpt-6-luna-high-landing-retry/trials/303/submission.json

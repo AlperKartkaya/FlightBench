@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "jev-1.13.0 realtime",
+    "slug": "jev-1-13-0-realtime",
+    "type": "ai",
+    "provider": "TypeSafe",
+    "model": "jev-1.13.0",
+    "source_url": "https://docs.typesafe.ai/models",
+    "license": "proprietary hosted API",
+    "local": false,
+    "cost_kind": "unknown",
+    "parameter_count": null,
+    "quantization": null,
+    "metadata": {
+      "pricing_date": "2026-10-26",
+      "cost_methodology": "Selected-flight actual token usage at dated Standard short-context API-equivalent rates; not subscription billing. Jev $0.042/M input, output free.",
+      "campaign": {
+        "id": "2026-10-26-jev113-repeat",
+        "scoring_version": "v2",
+        "seeds": [
+          42,
+          101,
+          202
+        ],
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "request_timeout_s": 300,
+        "scenario": "easy: repeated physical initialization",
+        "selection": "highest score of the new three completed trials in this mode; supersedes previous publication group; all previous evidence retained",
+        "provider_hardware": "undisclosed remote",
+        "warmup": "none",
+        "response_policy": "apply-on-arrival"
+      }
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:ebbaf763d742e79e847f43f8f64f701ec923160f770960b0d6cecfe3c81fa128",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42,
+      101,
+      202
+    ],
+    "modes": [
+      "realtime"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "realtime": 1.0
+    },
+    "realtime_response_policy": "apply-on-arrival",
+    "scoring_version": "v2",
+    "scoring_config_sha256": "82684d68cfb2dc37bd08ee8a1e0072d88d31a3190483eb89b39e523a0b8a7b80"
+  },
+  "results": {
+    "realtime": {
+      "total_runs": 3,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "runway_excursion": 3
+      },
+      "mean_latency_ms": 240.64421169916434,
+      "p50_latency_ms": 207.711,
+      "p95_latency_ms": 333.091,
+      "max_latency_ms": 2048.437,
+      "effective_decisions_per_second": 1.9069540967641982,
+      "deadline_misses": 10,
+      "deadline_miss_rate": 0.027855153203342618,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "d4eb958e-1bf1-4901-9e16-1c8c59beb920",
+      "seed": 42,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:af2f9b7d5a0f8eab02fd6f2dbb3545c36c419942049ae021d911faccbd557731"
+    },
+    {
+      "run_id": "b46a8cfb-5e53-4a3f-9181-87f9457eb667",
+      "seed": 101,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:72e696f80fadd04f32d41e114f2a3072e01bd650b3a0df91b7aab9a4382f33db"
+    },
+    {
+      "run_id": "565629f2-b5bc-4f1b-9f81-cb25665aa3e7",
+      "seed": 202,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:87da6300878f81e7b917a35aed4284eceaad91e8c77027ca717ec166d9cf961c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "trials/42/d4eb958e-1bf1-4901-9e16-1c8c59beb920.json.gz",
+      "sha256": "sha256:af2f9b7d5a0f8eab02fd6f2dbb3545c36c419942049ae021d911faccbd557731",
+      "bytes": 97510,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "trials/101/b46a8cfb-5e53-4a3f-9181-87f9457eb667.json.gz",
+      "sha256": "sha256:72e696f80fadd04f32d41e114f2a3072e01bd650b3a0df91b7aab9a4382f33db",
+      "bytes": 96629,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "trials/202/565629f2-b5bc-4f1b-9f81-cb25665aa3e7.json.gz",
+      "sha256": "sha256:87da6300878f81e7b917a35aed4284eceaad91e8c77027ca717ec166d9cf961c",
+      "bytes": 91611,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-26T15:00:25.470442Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": "2026-10-26",
+    "cost_methodology": "Selected-flight actual token usage at dated Standard short-context API-equivalent rates; not subscription billing. Jev $0.042/M input, output free."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

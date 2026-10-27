@@ -1,0 +1,79 @@
+[
+  {
+    "model": "kev",
+    "started_at": "2026-10-20T16:50:19.486637+00:00",
+    "status": "complete",
+    "command": [
+      "/Users/alperkartkaya/Documents/FlightBench/scratch/kev-runtime/.venv/bin/python",
+      "-m",
+      "kev.serve",
+      "--run",
+      "jaredpalmer/kev-0.8b@bf75a6a8848ea6960ff2ed108d9ed44c2941174f",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "11436"
+    ],
+    "environment": {
+      "HF_HOME": "/Users/alperkartkaya/Documents/FlightBench/scratch/huggingface",
+      "KEV_BACKEND": "mlx",
+      "KEV_DATE_FACTS": "0",
+      "KEV_TRUNCATE_STATES": "0",
+      "KEV_PREFIX_CACHE": "4",
+      "FLIGHTBENCH_SYSTEMONE_URL": "http://127.0.0.1:11436",
+      "FLIGHTBENCH_LOCAL_METADATA": "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/arrival-2026-10-20/kev-metadata.json"
+    },
+    "submission": "leaderboard/submissions/kev-0.8b-v1-arrival-s42/submission.json",
+    "finished_at": "2026-10-20T16:51:58.665031+00:00"
+  },
+  {
+    "model": "openthai",
+    "started_at": "2026-10-20T16:51:58.900162+00:00",
+    "status": "complete",
+    "command": [
+      "/Users/alperkartkaya/Documents/FlightBench/scratch/ollama-0.35.0/ollama",
+      "serve"
+    ],
+    "environment": {
+      "OLLAMA_HOST": "127.0.0.1:11435",
+      "OLLAMA_NO_CLOUD": "1",
+      "OLLAMA_NUM_PARALLEL": "1",
+      "OLLAMA_MAX_LOADED_MODELS": "1",
+      "OLLAMA_CONTEXT_LENGTH": "8192",
+      "OLLAMA_KV_CACHE_TYPE": "q8_0",
+      "OLLAMA_FLASH_ATTENTION": "1",
+      "FLIGHTBENCH_SYSTEMONE_URL": "http://127.0.0.1:11435",
+      "FLIGHTBENCH_LOCAL_METADATA": "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/arrival-2026-10-20/openthai-metadata.json"
+    },
+    "submission": "leaderboard/submissions/openthai-v0.3-q8-arrival-s42/submission.json",
+    "finished_at": "2026-10-20T16:53:28.315424+00:00"
+  },
+  {
+    "model": "von",
+    "started_at": "2026-10-20T16:53:28.665905+00:00",
+    "status": "complete",
+    "command": [
+      "/Users/alperkartkaya/Documents/FlightBench/scratch/von-runtime/.venv/bin/von",
+      "serve",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "11437",
+      "--model",
+      "von-1.3",
+      "--device",
+      "mps",
+      "--on-overflow",
+      "refuse",
+      "--no-chains"
+    ],
+    "environment": {
+      "VON_CHECKPOINT_DIR": "/Users/alperkartkaya/Documents/FlightBench/scratch/von-runtime/model",
+      "HF_HOME": "/Users/alperkartkaya/Documents/FlightBench/scratch/von-runtime/hf-home",
+      "FLIGHTBENCH_SYSTEMONE_URL": "http://127.0.0.1:11437",
+      "FLIGHTBENCH_LOCAL_METADATA": "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/arrival-2026-10-20/von-metadata.json"
+    },
+    "submission": "leaderboard/submissions/von-1.3-arrival-s42/submission.json",
+    "finished_at": "2026-10-20T16:54:05.292004+00:00"
+  }
+]

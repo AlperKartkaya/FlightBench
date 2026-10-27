@@ -93,9 +93,14 @@ class Evaluation(BaseModel):
     scenario: Literal["easy", "medium"]
     decision_hz: Literal[2, 5, 10]
     time_scale_by_mode: dict[Literal["lockstep", "realtime"], float]
+    realtime_response_policy: Literal["discard-stale", "apply-on-arrival"] = "discard-stale"
+    scoring_version: Literal["v1", "v2"] = "v1"
+    scoring_config_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
 
     @model_validator(mode="after")
     def unique_values(self) -> Evaluation:
+        if self.scoring_version == "v2" and self.scoring_config_sha256 is None:
+            raise ValueError("V2 requires a full scoring configuration hash")
         if len(self.seeds) != len(set(self.seeds)):
             raise ValueError("evaluation seeds must be unique")
         if any(seed < 0 or seed > 4294967295 for seed in self.seeds):
@@ -308,10 +313,20 @@ def _bind_controller(controller: ControllerMetadata, episodes: Sequence[Mapping]
             continue
         if config.get("protocol_participant") is not True:
             raise ValueError("AI evidence must participate in the categorical protocol")
+        if config.get("controller") == "codex" and "reasoning_effort" in config:
+            claimed = controller.metadata.get("reasoning_effort", config["reasoning_effort"])
+            if claimed != config["reasoning_effort"]:
+                raise ValueError("reasoning effort does not match evidence")
         for decision in record.get("decisions", []):
             if decision.get("error"):
                 continue
             info = decision.get("decision_info") or {}
+            if (
+                config.get("controller") == "codex"
+                and "reasoning_effort" in config
+                and info.get("reasoning_effort") != config["reasoning_effort"]
+            ):
+                raise ValueError("decision reasoning effort does not match run config")
             command = command_from_action_ids(info.get("action_ids", {})).model_dump()
             if info.get("command") != command:
                 raise ValueError("AI decision command does not match canonical action IDs")
@@ -319,11 +334,124 @@ def _bind_controller(controller: ControllerMetadata, episodes: Sequence[Mapping]
                 raise ValueError("AI applied command does not match canonical action IDs")
 
 
+def scoring_config_hash(record: Mapping) -> str | None:
+    if record["config"].get("scoring_version", "v1") == "v1":
+        return None
+    config = record.get("final_state", {}).get("result", {}).get("scoring")
+    if not config:
+        raise ValueError("V2 requires recorded scoring configuration")
+    return hashlib.sha256(
+        json.dumps(config, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def _validate_scoring(record: Mapping) -> None:
+    """Keep legacy scores intact; recompute V2 from its recorded physics integrals."""
+    if record["config"].get("scoring_version", "v1") != "v2":
+        return
+    from .scoring import ScoringConfig, evaluate
+
+    result = record.get("final_state", {}).get("result", {})
+    if result.get("scoring_version") != "v2" or result.get("scoring", {}).get("version") != "v2":
+        raise ValueError("V2 evidence must include its scoring configuration")
+    calculated = evaluate(
+        result.get("touchdown"),
+        result.get("success", False),
+        result.get("reason", "unknown"),
+        ScoringConfig(**result["scoring"]),
+        result.get("trajectory_error_integrals"),
+    )
+    if any(
+        result.get(k) != calculated[k] for k in ("quality", "raw_quality", "components", "success")
+    ):
+        raise ValueError("V2 score does not match recorded trajectory integrals")
+    outcome = record["outcome"]
+    if outcome.get("status") not in {
+        "controller_error",
+        "controller_timeout",
+        "interrupted",
+        "error",
+    } and (
+        outcome.get("quality") != calculated["quality"]
+        or outcome.get("success") != calculated["success"]
+    ):
+        raise ValueError("V2 outcome does not match final scoring result")
+
+
+def _validated_diagnostics(episode: Mapping) -> Mapping:
+    """Reject counters that disagree with the raw v1 episode evidence."""
+    config, _, diagnostics = _episode_fields(episode)
+    decisions = episode.get("decisions")
+    if not isinstance(decisions, list):
+        raise ValueError("current v1 evidence must include raw decisions")  # noqa: TRY004
+    expected = {
+        "calls": len(decisions),
+        "decision_count": sum(
+            decision.get("applied", True) and not decision.get("error") for decision in decisions
+        ),
+        "api_errors": sum(bool(decision.get("error")) for decision in decisions),
+        "stale_decisions": sum(
+            decision.get("discard_reason") == "stale_observation"
+            or (decision.get("decision_info") or {}).get("timing", {}).get("discard_reason")
+            == "stale_observation"
+            for decision in decisions
+        ),
+        "late_decisions": (
+            sum(
+                float(decision.get("latency_ms", 0))
+                > 1000 / (float(config["decision_hz"]) * float(config["time_scale"]))
+                for decision in decisions
+            )
+            if config.get("mode") == "realtime"
+            else 0
+        ),
+    }
+    duration = (episode.get("final_state") or {}).get("observation", {}).get("time_s")
+    if duration is None:
+        raise ValueError("current v1 evidence must include final state duration")
+    expected["duration_s"] = duration
+    for key, value in expected.items():
+        if diagnostics.get(key) != value:
+            raise ValueError(f"evidence diagnostics do not match raw decisions: {key}")
+    request_keys = {
+        "requests_started",
+        "requests_completed",
+        "requests_cancel_requested",
+        "requests_cancelled_before_start",
+        "requests_outstanding",
+        "residual_work",
+        "usage_unknown_requests",
+    }
+    if request_keys & diagnostics.keys():
+        if not request_keys <= diagnostics.keys():
+            raise ValueError("request diagnostics must include every accounting field")
+        counts = {key: diagnostics[key] for key in request_keys - {"residual_work"}}
+        if any(type(value) is not int or value < 0 for value in counts.values()):
+            raise ValueError("request diagnostic counts must be non-negative integers")
+        started = counts["requests_started"]
+        completed = counts["requests_completed"]
+        cancelled = counts["requests_cancelled_before_start"]
+        cancel_requested = counts["requests_cancel_requested"]
+        outstanding = counts["requests_outstanding"]
+        if (
+            started != completed + cancelled + outstanding
+            or not cancelled + outstanding <= cancel_requested <= started
+        ):
+            raise ValueError("request diagnostics are internally inconsistent")
+        if diagnostics["residual_work"] is not (outstanding > 0):
+            raise ValueError("residual_work does not match outstanding requests")
+        if counts["usage_unknown_requests"] != max(
+            0, started - int(diagnostics["calls"]) - cancelled
+        ):
+            raise ValueError("unknown usage does not match outstanding requests")
+    return diagnostics
+
+
 def _mode_metrics(
     episodes: Sequence[Mapping], default_episode_cost: float | None = None
 ) -> ModeMetrics:
     outcomes = [_episode_fields(episode)[1] for episode in episodes]
-    diagnostics = [_episode_fields(episode)[2] for episode in episodes]
+    diagnostics = [_validated_diagnostics(episode) for episode in episodes]
     latencies = [
         float(decision.get("latency_ms", 0))
         for episode in episodes
@@ -339,6 +467,12 @@ def _mode_metrics(
     stale = sum(int(row.get("stale_decisions", 0)) for row in diagnostics)
     costs = []
     for episode in episodes:
+        # Recorded provider charges are only a lower bound when a request escaped collection.
+        if default_episode_cost is None and (
+            _episode_fields(episode)[2].get("usage_unknown_requests", 0)
+            or any(decision.get("error") for decision in episode.get("decisions", []))
+        ):
+            continue
         diagnostics_cost = _episode_fields(episode)[2].get("cost_usd")
         value = episode.get("cost_usd") if episode.get("cost_usd") is not None else diagnostics_cost
         if value is None:
@@ -430,12 +564,25 @@ def build_submission(
     configs = [_episode_fields(episode)[0] for episode in episodes]
     scenarios = {row.get("scenario") for row in configs}
     rates = {row.get("decision_hz") for row in configs}
+    response_policies = {row.get("realtime_response_policy", "discard-stale") for row in configs}
+    scoring_versions = {row.get("scoring_version", "v1") for row in configs}
+    scoring_hashes = {scoring_config_hash(episode) for episode in episodes}
+    if len(scoring_hashes) != 1:
+        raise ValueError("episodes must share complete scoring configuration")
     source_hashes = {
         (episode.get("source_identity") or {}).get("source_hash") for episode in episodes
     }
     commits = {(episode.get("source_identity") or {}).get("git_commit") for episode in episodes}
     if any(
-        len(values) != 1 or None in values for values in (scenarios, rates, source_hashes, commits)
+        len(values) != 1 or None in values
+        for values in (
+            scenarios,
+            rates,
+            response_policies,
+            scoring_versions,
+            source_hashes,
+            commits,
+        )
     ):
         raise ValueError("episodes must share scenario, decision rate, source hash, and git commit")
     for config in configs:
@@ -524,6 +671,9 @@ def build_submission(
             scenario=scenarios.pop(),
             decision_hz=rates.pop(),
             time_scale_by_mode={mode: scales_by_mode[mode].pop() for mode in by_mode},
+            realtime_response_policy=response_policies.pop(),
+            scoring_version=scoring_versions.pop(),
+            scoring_config_sha256=scoring_hashes.pop(),
         ),
         results={
             mode: _mode_metrics(rows, 0.0 if controller.cost_kind == "local_provider_fee" else None)
@@ -605,6 +755,19 @@ def validate_submission(data: Mapping, base_dir: Path | None = None) -> Submissi
                 != submission.flightbench.commit
             ):
                 raise ValueError(f"run provenance does not match submission: {run.run_id}")
+            if (
+                config.get("scoring_version", "v1") != submission.evaluation.scoring_version
+                or config.get("scenario") != submission.evaluation.scenario
+                or config.get("decision_hz") != submission.evaluation.decision_hz
+                or config.get("time_scale") != submission.evaluation.time_scale_by_mode[run.mode]
+                or config.get("realtime_response_policy", "discard-stale")
+                != submission.evaluation.realtime_response_policy
+            ):
+                raise ValueError(f"run evaluation config does not match submission: {run.run_id}")
+            if scoring_config_hash(record) != submission.evaluation.scoring_config_sha256:
+                raise ValueError("scoring config hash does not match evidence")
+            _validate_scoring(record)
+            _validated_diagnostics(record)
             evidence_episodes.append(record)
         _bind_controller(submission.controller, evidence_episodes)
         if submission.provenance.cost_methodology != submission.controller.metadata.get(
@@ -655,10 +818,116 @@ def _display_rows(submissions: Sequence[tuple[Path, Submission]], verified: Mapp
             "submission": "/".join(path.parts[path.parts.index("submissions") :])
             if "submissions" in path.parts
             else path.name,
+            "evaluation": submission.evaluation.model_dump(mode="json"),
+            "protocol": submission.flightbench.benchmark_protocol,
+            "source_identity": {
+                "commit": submission.flightbench.commit,
+                "source_hash": submission.flightbench.source_hash,
+                "action_space_version": submission.flightbench.action_space_version,
+                "action_space_sha256": submission.flightbench.action_space_sha256,
+            },
         }
+        campaign = submission.controller.metadata.get("campaign", {})
+        hardware = campaign.get("shared_hardware") or "/".join(
+            str(value) for value in submission.provenance.hardware.values()
+        )
+        parallelism = campaign.get("model_parallelism")
+        jobs = campaign.get("per_model_episode_jobs")
+        row["execution_cohort"] = {
+            "hardware": hardware or "not declared",
+            "model_parallelism": parallelism,
+            "per_model_episode_jobs": jobs,
+            "label": (
+                f"{hardware or 'hardware not declared'}; "
+                + (
+                    f"up to {parallelism} model jobs"
+                    if parallelism
+                    else "parallel load not declared"
+                )
+                + (f"; {jobs} episode job/model" if jobs else "")
+            ),
+        }
+        scales = submission.evaluation.time_scale_by_mode
+        row["comparison_cohort"] = {
+            "id": "|".join(
+                [
+                    submission.flightbench.benchmark_protocol,
+                    submission.evaluation.scoring_version,
+                    submission.evaluation.scoring_config_sha256 or "legacy-default",
+                    submission.flightbench.action_space_version,
+                    submission.flightbench.source_hash,
+                    row["execution_cohort"]["label"],
+                    submission.evaluation.scenario,
+                    str(submission.evaluation.decision_hz),
+                    submission.evaluation.realtime_response_policy,
+                    *(f"{mode}:{scales[mode]:g}" for mode in sorted(scales)),
+                ]
+            ),
+            "label": (
+                f"{submission.flightbench.benchmark_protocol}; scoring {submission.evaluation.scoring_version}; {submission.evaluation.scenario}; "
+                f"{submission.evaluation.decision_hz} Hz; "
+                f"{submission.evaluation.realtime_response_policy}; "
+                + ", ".join(f"{mode} {scale:g}x" for mode, scale in scales.items())
+            ),
+            "comparable": True,
+        }
+        records = {
+            run.run_id: _read_artifact(path.parent / artifact.path)
+            for run in submission.runs
+            for artifact in submission.artifacts
+            if run.artifact_sha256 == artifact.sha256
+        }
+        execution_paths = sorted({record.get("source", "unknown") for record in records.values()})
+        row["execution_cohort"]["paths"] = execution_paths
+        row["comparison_cohort"]["id"] += "|" + ",".join(execution_paths)
         for mode in ("lockstep", "realtime"):
             metrics = submission.results.get(mode)
             row[mode] = metrics.model_dump(mode="json") if metrics else None
+            selected = [records[run.run_id] for run in submission.runs if run.mode == mode]
+            if row[mode]:
+                decisions = [
+                    decision for record in selected for decision in record.get("decisions", [])
+                ]
+                applied_by_run = [
+                    sum(
+                        bool(decision.get("applied", True)) and not decision.get("error")
+                        for decision in record.get("decisions", [])
+                    )
+                    for record in selected
+                ]
+                row[mode]["decision_flow"] = {
+                    "completed": sum(
+                        record["diagnostics"].get(
+                            "requests_completed",
+                            sum(
+                                d.get("error") != "controller_timeout" for d in record["decisions"]
+                            ),
+                        )
+                        for record in selected
+                    ),
+                    "recorded": len(decisions),
+                    "started": sum(record["diagnostics"]["requests_started"] for record in selected)
+                    if all("requests_started" in record["diagnostics"] for record in selected)
+                    else None,
+                    "outstanding": sum(
+                        record["diagnostics"]["requests_outstanding"] for record in selected
+                    )
+                    if all("requests_outstanding" in record["diagnostics"] for record in selected)
+                    else None,
+                    "errors": sum(bool(d.get("error")) for d in decisions),
+                    "applied": sum(applied_by_run),
+                    "stale": sum(
+                        int(_episode_fields(record)[2].get("stale_decisions", 0))
+                        for record in selected
+                    ),
+                    "late": sum(
+                        int(_episode_fields(record)[2].get("late_decisions", 0))
+                        for record in selected
+                    ),
+                    "zero_applied_runs": sum(value == 0 for value in applied_by_run),
+                    "effective_applied_rate_hz": metrics.effective_decisions_per_second,
+                    "rate_basis": "applied decisions / simulation seconds",
+                }
         completed = [
             run
             for run in submission.runs
@@ -726,6 +995,25 @@ def _historical_rows(path: Path | None) -> list[dict]:
             "submission": "historical/manifest.json"
             if manifest.get("schema_version") == "legacy-reference-1"
             else "../" + Path(path).as_posix(),
+            "evaluation": {
+                "seeds": sorted({run["seed"] for run in runs}),
+                "modes": sorted({run["mode"] for run in runs}),
+                "scenario": "not recorded",
+                "decision_hz": sorted({run["decision_hz"] for run in runs}),
+                "time_scale_by_mode": "not recorded",
+            },
+            "protocol": manifest.get("benchmark_protocol", "pre-v1 / not declared"),
+            "source_identity": {
+                "source_hashes": sorted({run["source_hash"] for run in runs}),
+            },
+            "execution_cohort": {
+                "label": "legacy curated records; execution conditions were not normalized"
+            },
+            "comparison_cohort": {
+                "id": "legacy-reference",
+                "label": "legacy/reference (pre-v1; not comparable to canonical v1)",
+                "comparable": False,
+            },
         }
         for mode in ("lockstep", "realtime"):
             selected = [run for run in runs if run["mode"] == mode]
@@ -742,6 +1030,7 @@ def _historical_rows(path: Path | None) -> list[dict]:
                     "p50_latency_ms": _percentile(latencies, 0.50) if latencies else None,
                     "p95_latency_ms": _percentile(latencies, 0.95) if latencies else None,
                     "cost_per_run_usd": mean(costs) if all(x is not None for x in costs) else None,
+                    "decision_flow": None,
                 }
                 if selected
                 else None
@@ -764,30 +1053,89 @@ def _markdown(rows: Sequence[dict]) -> str:
     lines = [
         "# FlightBench community leaderboard",
         "",
-        "Realtime and lockstep are evaluation modes over the same architecture-neutral controller roster. Community results are self-reported until independently reproduced.",
-        "",
-        "| Controller | Status | Lockstep success / score | Realtime success / score | p50 / p95 realtime latency | Evidence |",
-        "| --- | --- | ---: | ---: | ---: | --- |",
+        "Results are grouped by evaluation cohort. Tables and graphs are descriptive within one named cohort, not a cross-cohort capability ranking. Community results are self-reported until independently reproduced.",
     ]
+    cohorts = []
     for row in rows:
-        controller_name = html.escape(row["controller"]).replace("|", "\\|")
-        values = []
-        for mode in ("lockstep", "realtime"):
-            metrics = row[mode]
-            values.append(
-                f"{metrics['successful_landings']}/{metrics['total_runs']} ({metrics['success_rate']:.0%}) / {metrics['median_score']:.2f}"
-                if metrics
-                else "—"
+        cohort = row["comparison_cohort"]
+        if cohort["id"] not in [item["id"] for item in cohorts]:
+            cohorts.append(cohort)
+    for cohort in cohorts:
+        selected = [row for row in rows if row["comparison_cohort"]["id"] == cohort["id"]]
+        lines.extend(["", f"## {cohort['label']}", ""])
+        if cohort["comparable"]:
+            first = selected[0]
+            evaluation = first["evaluation"]
+            source = first["source_identity"]
+            lines.extend(
+                [
+                    f"**Protocol:** `{first['protocol']}` · **Scenario:** `{evaluation['scenario']}` · **Nominal rate:** {evaluation['decision_hz']} Hz · **Mode scales:** "
+                    + ", ".join(
+                        f"{mode} {scale:g}x"
+                        for mode, scale in evaluation["time_scale_by_mode"].items()
+                    ),
+                    f"**Realtime response policy:** `{evaluation.get('realtime_response_policy', 'discard-stale')}`",
+                    f"**Source:** `{source['source_hash']}` at `{source['commit']}` · **Seed meaning:** repeated executions of the same physical initialization for `easy`, not five physical scenarios.",
+                    "",
+                ]
             )
-        rt = row["realtime"]
-        latency = (
-            f"{rt['p50_latency_ms']:.1f} / {rt['p95_latency_ms']:.1f} ms"
-            if rt and rt.get("p50_latency_ms") is not None and rt.get("p95_latency_ms") is not None
-            else "—"
+        else:
+            lines.extend(
+                [
+                    "Pre-v1 records are listed separately. Scenario, time scale, execution conditions, and decision-flow counters are not inferred where they were not recorded.",
+                    "",
+                ]
+            )
+        lines.extend(
+            [
+                "| Controller | Status | Conditions / execution cohort | Lockstep result | Realtime result | Realtime decision flow | Evidence |",
+                "| --- | --- | --- | ---: | ---: | --- | --- |",
+            ]
         )
-        lines.append(
-            f"| [{controller_name}]({row['source']}) | {row['verification']} | {values[0]} | {values[1]} | {latency} | [submission]({row['submission']}) |"
-        )
+        for row in selected:
+            controller_name = html.escape(row["controller"]).replace("|", "\\|")
+            values = []
+            for mode in ("lockstep", "realtime"):
+                metrics = row[mode]
+                values.append(
+                    f"{metrics['successful_landings']}/{metrics['total_runs']} ({metrics['success_rate']:.0%}) / {metrics['median_score']:.2f}"
+                    + (" — no successful landing" if metrics["successful_landings"] == 0 else "")
+                    if metrics
+                    else "—"
+                )
+            evaluation = row["evaluation"]
+            rates = evaluation["decision_hz"]
+            scales = evaluation["time_scale_by_mode"]
+            scale_text = (
+                ", ".join(f"{mode} {scale:g}x" for mode, scale in scales.items())
+                if isinstance(scales, dict)
+                else "mode scales not recorded"
+            )
+            conditions = (
+                f"{evaluation['scenario']}; {rates if isinstance(rates, int) else '/'.join(map(str, rates))} Hz; "
+                f"{scale_text}; {evaluation.get('realtime_response_policy', 'discard-stale')}; {row['protocol']}; source "
+                + "/".join(
+                    value.removeprefix("sha256:")[:12]
+                    for value in (
+                        [row["source_identity"]["source_hash"]]
+                        if "source_hash" in row["source_identity"]
+                        else row["source_identity"]["source_hashes"]
+                    )
+                )
+                + f"; {row['execution_cohort']['label']}"
+            )
+            flow = row["realtime"]["decision_flow"] if row["realtime"] else None
+            flow_text = (
+                f"started {flow.get('started') if flow.get('started') is not None else 'unknown'}; "
+                f"completed {flow['completed']}; applied {flow['applied']}; stale {flow['stale']}; "
+                f"late {flow['late']}; zero-applied runs {flow['zero_applied_runs']}; "
+                f"{flow['effective_applied_rate_hz']:.3f} applied Hz (simulation-time basis)"
+                if flow
+                else "not recorded"
+            )
+            lines.append(
+                f"| [{controller_name}]({row['source']}) | {row['verification']} | {conditions} | {values[0]} | {values[1]} | {flow_text} | [submission]({row['submission']}) |"
+            )
     lines.extend(
         [
             "",
@@ -800,10 +1148,12 @@ def _markdown(rows: Sequence[dict]) -> str:
             "",
             "[Mode delta](mode-delta.svg) · [Best completed trial per controller](best-of.svg)",
             "",
-            "![Best completed trial, successful landing preferred](best-of.svg)",
+            "![Selected completed trial in the plotted cohort](best-of.svg)",
             "",
-            "A failed trial is not a successful landing. Legacy Jev/Codex references retain their original protocols and rates; absent mode evidence is never invented. Historical Codex costs are API-price equivalents, not subscription charges; Jev uses a logged-character token estimate.",
+            "SVGs plot only the first comparable canonical cohort and list other cohorts as unplotted context. This prevents legacy or differently configured evidence from becoming an implied ranking.",
+            "A failed trial is labeled `no successful landing`, not a best landing. Effective applied rate is applied decisions divided by simulation seconds; it is not wall-time throughput. Legacy Jev/Codex references retain their original protocols and rates; absent evidence is never invented. Historical Codex costs are API-price equivalents, not subscription charges; Jev uses a logged-character token estimate.",
             "Historical references are curated records, not a new evaluation cohort. In particular, Jev contributes one selected successful run: 1/1 here is not its overall historical success rate.",
+            "For fixed-state native-model replay and semantic diagnostics, see [decision diagnostics](../docs/decision-diagnostics.md).",
             "",
             "## Submit a result",
             "",
@@ -841,15 +1191,48 @@ def _status(row: Mapping) -> str:
     return "legacy/reference" if "legacy" in row["verification"] else row["verification"]
 
 
+def _plotted_cohort(rows: Sequence[dict]) -> str | None:
+    return next(
+        (row["comparison_cohort"]["id"] for row in rows if row["comparison_cohort"]["comparable"]),
+        None,
+    )
+
+
+def _condition_summary(row: Mapping) -> str:
+    evaluation = row["evaluation"]
+    rate = evaluation["decision_hz"]
+    rate = str(rate) if isinstance(rate, int) else "/".join(map(str, rate))
+    scales = evaluation["time_scale_by_mode"]
+    scales = (
+        ", ".join(f"{mode} {scale:g}x" for mode, scale in scales.items())
+        if isinstance(scales, dict)
+        else "mode scales not recorded"
+    )
+    hashes = (
+        [row["source_identity"]["source_hash"]]
+        if "source_hash" in row["source_identity"]
+        else row["source_identity"]["source_hashes"]
+    )
+    return (
+        f"{row['protocol']} · {evaluation['scenario']} · {rate} Hz · {scales} · "
+        f"{evaluation.get('realtime_response_policy', 'discard-stale')} · source "
+        + "/".join(value.removeprefix("sha256:")[:12] for value in hashes)
+        + f" · {row['execution_cohort']['label']}"
+    )
+
+
 def _svg_scatter(rows: Sequence[dict], mode: str, x_key: str, title: str, x_label: str) -> str:
+    plotted_cohort = _plotted_cohort(rows)
     points = [
         (index, row, float(row[mode][x_key]), float(row[mode]["median_score"]))
         for index, row in enumerate(rows)
-        if row.get(mode) and row[mode].get(x_key) is not None
+        if row["comparison_cohort"]["id"] == plotted_cohort
+        and row.get(mode)
+        and row[mode].get(x_key) is not None
     ]
     width, height, left, right, top, bottom = (
-        1040,
-        max(460, 150 + len(rows) * 42),
+        1320,
+        max(520, 180 + len(rows) * 62),
         75,
         680,
         55,
@@ -888,9 +1271,9 @@ def _svg_scatter(rows: Sequence[dict], mode: str, x_key: str, title: str, x_labe
             f'<text x="{(left + right) / 2}" y="{height - 18}" text-anchor="middle">{html.escape(x_label)}</text>',
             f'<text transform="translate(20 {(top + height - bottom) / 2}) rotate(-90)" text-anchor="middle">Median landing score (0–100)</text>',
             f'<text x="{right + 28}" y="52" font-weight="700">Controller · evidence status</text>',
-            f'<text x="{right + 28}" y="{height - 40}" fill="#475569">Square = legacy/reference · circle = v1</text>',
-            f'<text x="{right + 28}" y="{height - 24}" fill="#475569">Missing evidence is not plotted or inferred.</text>',
-            f'<text x="{right + 28}" y="{height - 8}" fill="#475569">Coincident points use concentric outlines.</text>',
+            f'<text x="{right + 28}" y="{height - 40}" fill="#475569">Only the named canonical cohort is plotted; other cohorts remain listed context.</text>',
+            f'<text x="{right + 28}" y="{height - 24}" fill="#475569">Effective applied rate uses simulation time, not wall time.</text>',
+            f'<text x="{right + 28}" y="{height - 8}" fill="#475569">Missing evidence is not plotted or inferred.</text>',
         ]
     )
     if not points:
@@ -901,46 +1284,50 @@ def _svg_scatter(rows: Sequence[dict], mode: str, x_key: str, title: str, x_labe
         color = _COLORS[row_index % len(_COLORS)]
         x = left + 6 + x_value / max_x * (right - left - 12)
         y = top + 6 + (100 - score) / 100 * (plot_height - 12)
-        legacy = "legacy" in row["verification"]
-        marker = (
-            f'<rect x="{x - 6:.1f}" y="{y - 6:.1f}" width="12" height="12" fill="{color}"/>'
-            if legacy
-            else f'<circle cx="{x:.1f}" cy="{y:.1f}" r="6" fill="{color}"/>'
-        )
+        marker = f'<circle cx="{x:.1f}" cy="{y:.1f}" r="6" fill="{color}"/>'
         if coincident[x_value, score] > 1:
             radius = 4 + rings[x_value, score] * 2
             rings[x_value, score] += 1
-            marker = (
-                f'<rect x="{x - radius:.1f}" y="{y - radius:.1f}" width="{radius * 2}" height="{radius * 2}" fill="none" stroke="{color}" stroke-width="2"/>'
-                if legacy
-                else f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{radius}" fill="none" stroke="{color}" stroke-width="2"/>'
-            )
+            marker = f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{radius}" fill="none" stroke="{color}" stroke-width="2"/>'
         elements.append(
             marker
             + f"<title>{html.escape(row['controller'])}: {x_value:.4g}, score {score:.2f}</title>"
         )
     for row_index, row in enumerate(rows):
         color = _COLORS[row_index % len(_COLORS)]
-        legacy = "legacy" in row["verification"]
-        legend_y = 78 + row_index * 42
+        plotted = row["comparison_cohort"]["id"] == plotted_cohort
+        legend_y = 78 + row_index * 62
         legend_marker = (
-            f'<rect x="{right + 28}" y="{legend_y - 9}" width="11" height="11" fill="{color}"/>'
-            if legacy
-            else f'<circle cx="{right + 34}" cy="{legend_y - 3}" r="6" fill="{color}"/>'
+            f'<circle cx="{right + 34}" cy="{legend_y - 3}" r="6" fill="{color}"/>'
+            if plotted
+            else f'<rect x="{right + 28}" y="{legend_y - 9}" width="11" height="11" fill="none" stroke="{color}"/>'
         )
         full = f"{row['controller']} · {_status(row)}"
         metrics = row.get(mode)
         value = metrics.get(x_key) if metrics else None
         detail = (
             f"{value:.4g} {'USD' if 'cost' in x_key else 'ms'} · score {metrics['median_score']:.2f}"
-            if value is not None
-            else "No recorded evidence for this axis/mode"
+            if plotted and value is not None
+            else (
+                "Not plotted: different/legacy cohort"
+                if not plotted
+                else "No recorded evidence for this axis/mode"
+            )
         )
+        flow = metrics.get("decision_flow") if metrics else None
+        flow_detail = (
+            f"completed {flow['completed']} · applied {flow['applied']} · stale {flow['stale']} · late {flow['late']} · zero-applied runs {flow['zero_applied_runs']}"
+            if flow
+            else "decision flow not recorded"
+        )
+        context = _condition_summary(row)
         elements.extend(
             [
                 legend_marker,
-                f'<text x="{right + 48}" y="{legend_y}"><title>{html.escape(full)}</title>{html.escape(_short(full, 38))}</text>',
+                f'<text x="{right + 48}" y="{legend_y}"><title>{html.escape(full)}</title>{html.escape(_short(full, 52))}</text>',
                 f'<text x="{right + 48}" y="{legend_y + 16}" style="font-size:11px">{html.escape(detail)}</text>',
+                f'<text x="{right + 48}" y="{legend_y + 31}" style="font-size:11px"><title>{html.escape(context)}</title>{html.escape(_short(context, 88))}</text>',
+                f'<text x="{right + 48}" y="{legend_y + 46}" style="font-size:11px">{html.escape(flow_detail)}</text>',
             ]
         )
     elements.append("</svg>\n")
@@ -948,10 +1335,15 @@ def _svg_scatter(rows: Sequence[dict], mode: str, x_key: str, title: str, x_labe
 
 
 def _svg_delta(rows: Sequence[dict]) -> str:
-    paired = [row for row in rows if row["lockstep"] and row["realtime"]]
+    plotted_cohort = _plotted_cohort(rows)
+    paired = [
+        row
+        for row in rows
+        if row["comparison_cohort"]["id"] == plotted_cohort and row["lockstep"] and row["realtime"]
+    ]
     width, height, left, right, top, bottom = (
-        1040,
-        max(420, 150 + len(rows) * 42),
+        1320,
+        max(480, 170 + len(rows) * 58),
         205,
         700,
         75,
@@ -977,7 +1369,7 @@ def _svg_delta(rows: Sequence[dict]) -> str:
             f'<path class="axis" d="M{left} {height - bottom}H{right}"/>',
             f'<text x="{(left + right) / 2}" y="{height - 18}" text-anchor="middle">Median landing score (0–100)</text>',
             f'<text x="{right + 28}" y="52" font-weight="700">Controller · evidence status</text>',
-            f'<text x="{right + 28}" y="{height - 36}" fill="#475569">Legend labels include v1 or legacy/reference.</text>',
+            f'<text x="{right + 28}" y="{height - 36}" fill="#475569">Only the named canonical cohort is plotted; legacy remains unplotted context.</text>',
             f'<text x="{right + 28}" y="{height - 20}" fill="#475569">Missing mode pairs are omitted, never inferred.</text>',
         ]
     )
@@ -987,14 +1379,15 @@ def _svg_delta(rows: Sequence[dict]) -> str:
         )
     for index, row in enumerate(rows):
         color = _COLORS[index % len(_COLORS)]
-        y = top + 24 + index * 42
+        y = top + 24 + index * 58
         full = f"{row['controller']} · {_status(row)}"
+        context = _condition_summary(row)
         elements.append(
-            f'<rect x="{right + 28}" y="{y - 8}" width="12" height="12" fill="{color}"/><text x="{right + 48}" y="{y + 3}"><title>{html.escape(full)}</title>{html.escape(_short(full, 38))}</text>'
+            f'<rect x="{right + 28}" y="{y - 8}" width="12" height="12" fill="{color}"/><text x="{right + 48}" y="{y + 3}"><title>{html.escape(full)}</title>{html.escape(_short(full, 52))}</text><text x="{right + 48}" y="{y + 19}" style="font-size:11px"><title>{html.escape(context)}</title>{html.escape(_short(context, 88))}</text>'
         )
         if row not in paired:
             elements.append(
-                f'<text x="{right + 48}" y="{y + 18}" style="font-size:11px">No paired mode evidence</text>'
+                f'<text x="{right + 48}" y="{y + 35}" style="font-size:11px">Not plotted: different/legacy cohort or no paired evidence</text>'
             )
             continue
         x1 = left + row["lockstep"]["median_score"] / 100 * (right - left)
@@ -1012,21 +1405,22 @@ def _svg_delta(rows: Sequence[dict]) -> str:
 
 
 def _svg_best(rows: Sequence[dict]) -> str:
-    ranked = sorted(
-        (row for row in rows if row["best"]), key=lambda row: row["best"]["score"], reverse=True
-    )
+    plotted_cohort = _plotted_cohort(rows)
+    plotted = [
+        row for row in rows if row["comparison_cohort"]["id"] == plotted_cohort and row["best"]
+    ]
     width, height, left, right, top, bottom = (
-        1080,
-        max(440, 140 + len(ranked) * 38),
+        1320,
+        max(480, 180 + max(len(plotted), len(rows)) * 54),
         210,
         710,
         60,
         65,
     )
     elements = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img" aria-label="Best completed trial per controller, successful landing preferred">',
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img" aria-label="Selected completed trial per controller in one comparable cohort">',
         "<style>text{font:13px system-ui,sans-serif;fill:#0f172a}.grid{stroke:#cbd5e1}.axis{stroke:#334155;stroke-width:1.5}</style>",
-        f'<text x="{right / 2}" y="24" text-anchor="middle" font-weight="700">Best completed trial per controller (successful landing preferred)</text>',
+        f'<text x="{right / 2}" y="24" text-anchor="middle" font-weight="700">Selected completed trial (one canonical cohort; not a cross-cohort ranking)</text>',
     ]
     for score in range(0, 101, 25):
         x = left + score / 100 * (right - left)
@@ -1039,22 +1433,38 @@ def _svg_best(rows: Sequence[dict]) -> str:
     elements.extend(
         [
             f'<path class="axis" d="M{left} {height - bottom}H{right}"/>',
-            f'<text x="{(left + right) / 2}" y="{height - 18}" text-anchor="middle">Best completed trial score (0–100)</text>',
-            f'<text x="{right + 30}" y="52" font-weight="700">Controller · evidence status</text>',
+            f'<text x="{(left + right) / 2}" y="{height - 18}" text-anchor="middle">Selected completed trial score (0–100)</text>',
+            f'<text x="{right + 30}" y="52" font-weight="700">All controllers · evidence status and cohort context</text>',
         ]
     )
-    for index, row in enumerate(ranked):
+    for index, row in enumerate(plotted):
         color = _COLORS[rows.index(row) % len(_COLORS)]
         score, mode = row["best"]["score"], row["best"]["mode"]
         outcome = row["best"]["terminal_outcome"]
-        y = top + 22 + index * 38
-        full = f"{row['controller']} · {_status(row)}"
+        y = top + 22 + index * 54
+        landing = outcome if row["best"]["success"] else f"no successful landing; failed {outcome}"
+        full = f"{row['controller']} · {_status(row)} · {_condition_summary(row)}"
+        label = f"{score:.2f} · {mode} · {landing}"
         elements.extend(
             [
                 f'<text x="{left - 12}" y="{y + 15}" text-anchor="end"><title>{html.escape(full)}</title>{html.escape(_short(row["controller"], 25))}</text>',
-                f'<rect x="{left}" y="{y}" width="{score / 100 * (right - left):.1f}" height="22" fill="{color}"><title>{html.escape(full)}: {score:.2f} ({mode}, {html.escape(outcome)})</title></rect>',
-                f'<text x="{left + score / 100 * (right - left) + 8:.1f}" y="{y + 15}">{score:.2f} · {mode} · {html.escape(outcome)}</text>',
-                f'<rect x="{right + 30}" y="{y + 5}" width="12" height="12" fill="{color}"/><text x="{right + 50}" y="{y + 16}"><title>{html.escape(full)}</title>{html.escape(_short(full, 40))}</text>',
+                f'<rect x="{left}" y="{y}" width="{score / 100 * (right - left):.1f}" height="22" fill="{color}"><title>{html.escape(full)}: {score:.2f} ({mode}, {html.escape(landing)})</title></rect>',
+                f'<text class="outcome-label" x="{left + 8}" y="{y + 38}"><title>{html.escape(label)}</title>{html.escape(_short(label, 70))}</text>',
+            ]
+        )
+    for index, row in enumerate(rows):
+        color = _COLORS[index % len(_COLORS)]
+        y = 82 + index * 54
+        full = f"{row['controller']} · {_status(row)}"
+        context = _condition_summary(row)
+        state = (
+            "plotted canonical cohort" if row in plotted else "not plotted: different/legacy cohort"
+        )
+        elements.extend(
+            [
+                f'<rect x="{right + 30}" y="{y}" width="12" height="12" fill="{color}"/><text x="{right + 50}" y="{y + 11}"><title>{html.escape(full)}</title>{html.escape(_short(full, 52))}</text>',
+                f'<text x="{right + 50}" y="{y + 27}" style="font-size:11px"><title>{html.escape(context)}</title>{html.escape(_short(context, 88))}</text>',
+                f'<text x="{right + 50}" y="{y + 42}" style="font-size:11px">{state}</text>',
             ]
         )
     elements.append("</svg>\n")

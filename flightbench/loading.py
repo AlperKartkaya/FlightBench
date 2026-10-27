@@ -42,7 +42,7 @@ class ExternalController:
         if self.metadata["controller_type"] not in {"ai", "classical", "human", "reference"}:
             raise ValueError("Unknown controller_type")
         self.metadata["adapter_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
-        self.model_id = self.metadata.get("model", reference)
+        self.model_id = self.metadata.get("model", class_name)
 
     def decide(self, observation):
         ai = self.metadata["controller_type"] == "ai"

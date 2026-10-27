@@ -1,0 +1,197 @@
+{
+  "campaign": "2026-10-22-scoring-v2",
+  "selection_policy": "Three completed campaign trials per group (42,101,202); controller/infrastructure-interrupted attempts archived and excluded. Completed poor landings retained, never retried.",
+  "excluded_attempts": [
+    {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "xhigh",
+      "seed": 42,
+      "run_id": "1fb6ecf0-3bba-4fd6-b7a1-61976b4cca7b",
+      "status": "controller_timeout",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/trial-42"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "xhigh",
+      "seed": 101,
+      "run_id": null,
+      "status": "model_unavailable_before_export",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/gpt-6-1-sol-xhigh-101.log"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "xhigh",
+      "seed": 101,
+      "run_id": "e0c627f5-9e12-4586-8d59-6983405e32d8",
+      "status": "controller_error",
+      "cause": "unknown; sanitized export; fresh diagnostic decision succeeded",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T064959Z/trial-101",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T064959Z/resume.json"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "max",
+      "seed": 42,
+      "run_id": "3954afd7-7187-45df-b4c8-1df9e82432c6",
+      "status": "controller_error",
+      "cause": "unknown; sanitized export",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T110903Z/trial-42",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T110903Z/resume.json"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "max",
+      "seed": 42,
+      "run_id": "64b4d67a-ef61-458e-aa42-fe4af1f41671",
+      "status": "controller_timeout",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T125435Z/trial-42",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T125435Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "low",
+      "seed": 42,
+      "run_id": "aa4fbd95-bf6d-40e6-83d0-639f9b0c22de",
+      "status": "controller_error",
+      "cause": "unknown; sanitized export",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T131402Z/trial-42",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T131402Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "low",
+      "seed": 101,
+      "run_id": "05dc1b1b-1b71-42b3-aeee-be32eada763c",
+      "status": "controller_error",
+      "cause": "unknown; sanitized export",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T140033Z/trial-101",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T140033Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "low",
+      "seed": 101,
+      "run_id": "d1314bdc-ed43-48b6-b539-33620162e0ce",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T160852Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T160852Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "seed": 101,
+      "run_id": "7e3105cc-c7ed-4e5c-a26f-4c3ccbc085f4",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T190102Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T190102Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "xhigh",
+      "seed": 42,
+      "run_id": "d7ea0513-cb09-4a76-bb1e-42fd202ea90b",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T122341Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T122341Z/resume.json"
+    },
+    {
+      "model": "gpt-6-luna",
+      "reasoning_effort": "high",
+      "seed": 42,
+      "run_id": "772e0130-f0b9-49ed-b5ab-f28d9a067990",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T182418Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T182418Z/resume.json"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "max",
+      "seed": 42,
+      "run_id": "1a1a8deb-a176-441b-8b48-d4011b120a83",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T234057Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261023T234057Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "max",
+      "seed": 42,
+      "run_id": "000ee814-b29a-4aa4-a689-031fa44ad920",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T044944Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T044944Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "max",
+      "seed": 101,
+      "run_id": "648833ac-1be8-4eeb-b64d-b94525b2cc56",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T102350Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T102350Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "max",
+      "seed": 101,
+      "run_id": "53327ddc-c9d1-429c-95fb-254523af4a89",
+      "status": "controller_timeout",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T114802Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T114802Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "max",
+      "seed": 101,
+      "run_id": "9acf1925-f748-4dd4-b638-afdcea9a8ded",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T182251Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261024T182251Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "medium",
+      "seed": 202,
+      "run_id": "2c54f9fc-fd01-4700-947f-f6bf77f4a99e",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T123511Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T123511Z/resume.json"
+    },
+    {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "xhigh",
+      "seed": 202,
+      "run_id": "c0fc0a19-5986-40e6-ba13-6649a3d7a574",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T173638Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T173638Z/resume.json"
+    },
+    {
+      "model": "gpt-6-sol",
+      "reasoning_effort": "xhigh",
+      "seed": 202,
+      "run_id": "27debff8-5d12-4f30-bd56-8a979b39aa75",
+      "status": "controller_error",
+      "archive": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T223720Z",
+      "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/attempt-provenance.json",
+      "resume_event_path": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261025T223720Z/resume.json"
+    }
+  ],
+  "resume_manifest": "docs/local-model-runtime/scoring-v2-2026-10-22/interrupted-attempts/20261022T055926Z/resume.json"
+}

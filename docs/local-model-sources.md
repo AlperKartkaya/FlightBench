@@ -6,6 +6,31 @@ five most popular models worldwide. The local decision-model ecosystem is new,
 and Ollama pulls, Hugging Face downloads/likes, and GitHub stars measure
 different things and change over time.
 
+## 7 October update: sequential runs and Clef-Flash
+
+The five existing models have a retained sequential one-seed evidence archive dated 2026-10-07.
+The original two-model scheduling guidance below describes the earlier campaign, not that archive.
+Kev's checkpoint/loader checks were satisfied by the pinned [runtime manifests](local-model-runtime/README.md);
+the earlier conditional blocking language is not a current execution blocker.
+
+**Clef-Flash is no longer excluded for lack of a native local scoring runtime.** Upstream
+[llama.cpp added native System One support](https://github.com/ggml-org/llama.cpp/pull/29831),
+and [ggml-org publishes the Q4_K_M artifact](https://huggingface.co/ggml-org/Clef-Flash-GGUF/tree/4a192915ef971886004b5b13294f2b4c7a7fc39d)
+derived from [Cloudflare's Apache-2.0 model](https://huggingface.co/Cloudflare/clef-flash).
+We selected that pinned 6.49 GB artifact and the official macOS ARM64 llama.cpp
+`b11429` runtime, not an invented Ollama tag or a third-party chat conversion.
+Artifact SHA-256 and release-binary SHA-256 are checked before execution; no remote Python
+model code or new project dependency is required. See its
+[retained provenance](local-model-runtime/clef-flash-serial-2026-10-07/metadata.json).
+
+Cloudflare's published hardware-specific latency claims motivated testing; they are not
+an M1 Pro latency guarantee or independent FlightBench accuracy evidence. Local measurements
+must remain separate. Other researched candidates were not downloaded: Kai-0.6B has a
+1024-token native input boundary and a custom-code/Mac-runtime review outstanding;
+Bekko's weight-license finalization and truncation behavior require resolution first.
+Sources: [Kai publisher card](https://huggingface.co/vllm-sr/Decision-1.0-Kai-0.6B),
+[Bekko publisher card](https://huggingface.co/hotchpotch/bekko-system-one-v0-400m).
+
 ## Selection boundary
 
 These five models make typed decisions by scoring caller-supplied alternatives
@@ -305,7 +330,7 @@ pressure into a model-quality confounder.
   still being finalized. It is not eligible for this strict open-source list.
   Sources: [Tev1 4B](https://huggingface.co/togethercomputer/Tev1-4B-experimental),
   [Tev1 0.8B](https://huggingface.co/togethercomputer/Tev1-0.8B-experimental).
-- **Clef / Clef Flash:** the checkpoints are real System One models under
+- **Clef / Clef Flash (historical exclusion, superseded for Clef-Flash above):** the checkpoints are real System One models under
   Apache-2.0, but the Ollama library pages returned 404 on the snapshot date,
   and the official Clef Flash artifact is about 9B BF16 with no verified
   publisher-supported M1 quantized decision runtime. Re-evaluate when an

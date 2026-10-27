@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "openai-codex/gpt-6.1-sol",
+    "slug": "gpt-6-1-sol-repeat-20261020",
+    "type": "ai",
+    "provider": "OpenAI",
+    "model": "openai-codex/gpt-6.1-sol",
+    "source_url": "https://openai.com/",
+    "license": "proprietary hosted API",
+    "local": false,
+    "cost_kind": "unknown",
+    "parameter_count": null,
+    "quantization": null,
+    "metadata": {
+      "pricing_date": "2026-10-20",
+      "cost_methodology": "Subscription marginal cost unknown; recorded usage only.",
+      "campaign": {
+        "id": "repeat-2026-10-20",
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "provider_hardware": "Remote provider hardware not disclosed",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "realtime_response_policy": "apply-on-arrival",
+        "warmup": "No dedicated warmup in this campaign; prior Jev conformance in earlier campaign.",
+        "order": "lockstep then realtime; sequential models",
+        "isolation": "No parallel benchmark model work; other desktop/agent activity possible."
+      }
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42
+    ],
+    "modes": [
+      "lockstep"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0
+    },
+    "realtime_response_policy": "apply-on-arrival"
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "controller_timeout": 1
+      },
+      "mean_latency_ms": 4523.180098901099,
+      "p50_latency_ms": 3035.502,
+      "p95_latency_ms": 4835.307,
+      "max_latency_ms": 120001.141,
+      "effective_decisions_per_second": 2.0,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "74488f33-465c-4400-b133-6e468f92723e",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "controller_timeout",
+      "artifact_sha256": "sha256:a75529338a221b8f8d9ad474b458b3c044cdc5574802cf59819a324d297d0444"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "74488f33-465c-4400-b133-6e468f92723e.json.gz",
+      "sha256": "sha256:a75529338a221b8f8d9ad474b458b3c044cdc5574802cf59819a324d297d0444",
+      "bytes": 46823,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-20T17:23:49.086725Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": "2026-10-20",
+    "cost_methodology": "Subscription marginal cost unknown; recorded usage only."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

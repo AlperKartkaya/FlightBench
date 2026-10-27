@@ -1,0 +1,7 @@
+{
+  "status": "ok",
+  "service": "von-decision-server",
+  "version": "1.3.7",
+  "engine": "von-1.3",
+  "homage": "John von Neumann & Ludwig von Mises"
+}

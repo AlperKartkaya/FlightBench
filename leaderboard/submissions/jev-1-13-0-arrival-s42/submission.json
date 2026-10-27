@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "jev-1.13.0",
+    "slug": "jev-1-13-0-arrival-s42",
+    "type": "ai",
+    "provider": "TypeSafe",
+    "model": "jev-1.13.0",
+    "source_url": "https://docs.typesafe.ai/models",
+    "license": "proprietary hosted API",
+    "local": false,
+    "cost_kind": "unknown",
+    "parameter_count": null,
+    "quantization": null,
+    "metadata": {
+      "pricing_date": "2026-10-20",
+      "cost_methodology": "Recorded provider input/output token counts; USD estimates use $0.042 per million input tokens, output free. Uncollected terminal requests remain unknown.",
+      "campaign": {
+        "id": "arrival-2026-10-20",
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "provider_hardware": "Remote TypeSafe hardware not disclosed",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "realtime_response_policy": "apply-on-arrival",
+        "warmup": "Seven fixed-state live requests in earlier conformance; no local model loading.",
+        "order": "lockstep then realtime; sequential models",
+        "isolation": "No parallel benchmark model work; other desktop/agent activity possible."
+      }
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42
+    ],
+    "modes": [
+      "lockstep",
+      "realtime"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0,
+      "realtime": 1.0
+    },
+    "realtime_response_policy": "apply-on-arrival"
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 49.0,
+      "median_score": 49.0,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 300.9564453125,
+      "p50_latency_ms": 288.367,
+      "p95_latency_ms": 384.723,
+      "max_latency_ms": 467.438,
+      "effective_decisions_per_second": 2.0023464998044584,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 318.48925217391303,
+      "p50_latency_ms": 306.345,
+      "p95_latency_ms": 389.588,
+      "max_latency_ms": 608.291,
+      "effective_decisions_per_second": 1.9759450171821304,
+      "deadline_misses": 1,
+      "deadline_miss_rate": 0.008695652173913044,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "031e896a-afb1-400d-b4bb-b89d835b75c6",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 49.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:926880c4e513fecc5eec7d903909b95006c1533a58719619f6c33a84038b805b"
+    },
+    {
+      "run_id": "25ae6cac-58cf-4cb0-9326-8493480b6b2e",
+      "seed": 42,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:949dd68a032880db509e3cb5d0aeec8711b4a991376d0ccb208fdd50dd8e888b"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "031e896a-afb1-400d-b4bb-b89d835b75c6.json.gz",
+      "sha256": "sha256:926880c4e513fecc5eec7d903909b95006c1533a58719619f6c33a84038b805b",
+      "bytes": 74740,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "25ae6cac-58cf-4cb0-9326-8493480b6b2e.json.gz",
+      "sha256": "sha256:949dd68a032880db509e3cb5d0aeec8711b4a991376d0ccb208fdd50dd8e888b",
+      "bytes": 92218,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-20T16:57:41.484340Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": "2026-10-20",
+    "cost_methodology": "Recorded provider input/output token counts; USD estimates use $0.042 per million input tokens, output free. Uncollected terminal requests remain unknown."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

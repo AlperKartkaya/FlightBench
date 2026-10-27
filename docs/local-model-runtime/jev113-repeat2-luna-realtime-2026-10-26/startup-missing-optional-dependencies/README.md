@@ -1,0 +1,1 @@
+Startup failed before any provider request: shared project virtual environment lacked previously installed optional extras. Restored existing uv.lock-pinned dev, codex and jev extras with uv sync --frozen; no source/lockfile update. Not a model flight outcome.

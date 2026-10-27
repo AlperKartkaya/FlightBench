@@ -1,5 +1,9 @@
 # Campaign runtime manifests
 
+The commands below describe the original five-seed campaign. Later evidence is retained under
+date-stamped directories and mapped to its submission paths in
+[`archive-index.json`](archive-index.json).
+
 These manifests pin the downloaded weights, official inference code and isolated dependencies.
 Weight files and environments stay outside Git under `scratch/`; the benchmark submission includes
 full compressed episode evidence, not redistributed model binaries.
@@ -88,3 +92,43 @@ changed. It is not a completed matrix episode.
 The 50 episodes record that source hash and the original Git commit plus dirty-worktree flag.
 Later submission-validator hardening does not change aircraft physics, prompts, model inference,
 action IDs, scoring, or the original recorded source identity.
+
+## Minimal retained evidence and offline rescoring
+
+Each full episode is retained **once** as `.json.gz`, referenced by a combined
+`submission.json`. Compression is the original run log, not an additional log of
+that log: it contains config, timestamps, observations, every applied command and
+its simulation time, provider usage/errors, outcome and scoring evidence. Keep
+these records, their manifests and frozen measurement source. Small model manifests
+pin weights/runtime; unique interrupted-attempt evidence remains distinguishable
+from completed poor landings.
+
+Redundant per-trial manifests, successful-evaluation stdout, identical historical
+runner copies and 44 metadata sidecars were removed from the publish set. Every
+removed metadata field is preserved in the corresponding submission’s `controller`
+fields or `controller.metadata`; no model/runtime information was discarded. The October 22 status/resume
+snapshots are consolidated into
+[`attempt-provenance.json`](scoring-v2-2026-10-22/attempt-provenance.json), alongside
+the final campaign status. Historical command paths are provenance, not instructions
+to recreate the removed sidecars. Use the standard evaluation CLI for new flights.
+
+To recompute a V2 flight without any model/provider calls:
+
+```sh
+.venv/bin/python examples/rescore_episode.py path/to/run.json.gz \
+  --scoring-config path/to/scoring-config.json --output scratch/rescored.json
+```
+
+The optional config is a JSON object of `ScoringConfig` fields; omit it to use the
+current defaults. The utility replays the recorded commands at their exact physics
+ticks, first verifies the original initial/final state and score, and integrates the
+new trajectory terms at 120 Hz. Existing outputs and original records are never
+overwritten. All 16 currently published flights (lockstep and realtime) reproduced
+the original final states/integrals/scores on the pinned JSBSim 1.3.1 environment.
+
+**Boundary:** logs do not contain every 120 Hz sample. Changed trajectory formulas
+therefore require local simulator replay, not model inference. Replay fails closed
+if simulator behavior differs; use the matching frozen source/environment. V1-only
+and incomplete/infrastructure-interrupted records are not promised exact replay.
+Recorded landing success is retained; stricter new safety checks may disqualify it,
+but this tool does not relabel a recorded failed rollout as a successful landing.

@@ -1,0 +1,43 @@
+{
+  "name": "Clef-Flash 9B Q4_K_M",
+  "slug": "clef-flash-9b-q4-v2-lockstep-s42",
+  "model": "clef-flash-q4",
+  "provider": "Cloudflare / ggml-org / local llama.cpp",
+  "source_url": "https://huggingface.co/Cloudflare/clef-flash",
+  "license": "Apache-2.0",
+  "model_revision": "fde727a287004204b7518dcc983fe64379776712",
+  "quantized_model_source": "ggml-org/Clef-Flash-GGUF",
+  "quantized_model_revision": "4a192915ef971886004b5b13294f2b4c7a7fc39d",
+  "source_revision": "d81235049384534c167caea52b85a694f6103d14",
+  "backend": "llama.cpp b11429 Metal; all requested layers offloaded with -ngl 99; CPU helper threads 2",
+  "quantization": "Q4_K_M",
+  "parameter_count": 9000000000,
+  "n_ctx": 8192,
+  "n_seq_max": 1,
+  "controller_type": "ai",
+  "local": true,
+  "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+  "files": {
+    "Clef-Flash-Q4_K_M.gguf": {
+      "sha256": "fd3e90605e8103307dca37cb5a8cdb036267e2fe3cb2d908d80a8ceb9ec0638c",
+      "bytes": 6486448288
+    },
+    "llama-b11429-bin-macos-arm64.tar.gz": {
+      "sha256": "740288ec6887be94280a5dfa25b5e23a78285cab104519e6c7e218904ee82459",
+      "bytes": 11971406
+    }
+  },
+  "campaign": {
+    "id": "local-v2-lockstep-2026-10-26",
+    "model_parallelism": 1,
+    "per_model_episode_jobs": 1,
+    "shared_hardware": "Apple M1 Pro 16GB unified memory",
+    "scenario": "easy: seed-independent physical initialization",
+    "decision_hz": 2,
+    "time_scale": 1.0,
+    "scoring_version": "v2",
+    "warmup": "One complete canonical initial-state request before the episode; retained separately.",
+    "order": "Lockstep seed 42 only; dedicated fresh server after conformance; host kept awake with caffeinate -i.",
+    "isolation": "Other desktop/agent activity possible; no other benchmark model jobs."
+  }
+}

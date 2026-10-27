@@ -1,0 +1,5 @@
+version: 0.6.0-dev (build 11429, commit d81235049)
+built with AppleClang 21.0.0.21000101 for Darwin arm64
+Available devices:
+  MTL0: Apple M1 Pro (12124 MiB, 12123 MiB free)
+  BLAS: Accelerate (0 MiB, 0 MiB free)
