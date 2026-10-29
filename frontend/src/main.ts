@@ -6,7 +6,10 @@ import { updateHumanControls, defaultControls, adjustControl, centerSurfaces, hu
 import { nextRunState, outcomeLabel, touchdownValues } from "./results.ts";
 import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./results.ts";
 import { isRunwayLightOn } from "./runway-lights.ts";
+import { BrowserRuntime } from "./browser-runtime.ts";
 import "./style.css";
+
+const pagesRuntime = import.meta.env.MODE === "pages";
 
 type Observation = {
   runway: {
@@ -161,7 +164,7 @@ app.innerHTML = `
               <div class="config-group">
                 <div class="config-item"><label for="controller">Controller</label><select id="controller" class="select-input">
                   <option value="human" selected>Human pilot</option><option value="baseline">Baseline · rule-based</option>
-                  <option value="jev">Jev · experimental</option><option value="codex">Codex model</option></select></div>
+                  <option value="jev">Jev</option><option value="codex">Codex model</option></select></div>
                 <div class="config-item" id="modelGroup" hidden><label for="model">Model</label><select id="model" class="select-input"></select></div>
                 <div class="config-item" id="jevModelGroup" hidden><label for="jevModel">Jev version</label><select id="jevModel" class="select-input"><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
                 <div class="config-item" id="reasoningEffortGroup" hidden><label for="reasoningEffort">Reasoning effort</label><select id="reasoningEffort" class="select-input"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh">xhigh</option><option value="max">max</option></select></div>
@@ -799,7 +802,7 @@ aircraft.add(aircraftVisualRoot);
 function loadAircraft() {
   const loader = new GLTFLoader();
   loader.load(
-    "/models/aircraft.glb",
+    `${import.meta.env.BASE_URL}models/aircraft.glb`,
     (gltf) => {
       gltf.scene.name = "aircraftGLB";
       gltf.scene.traverse((object) => {
@@ -936,6 +939,7 @@ addEventListener("keydown", (event) => {
 });
 addEventListener("keyup", (event) => pressed.delete(event.code));
 addEventListener("blur", () => pressed.clear());
+document.addEventListener("visibilitychange", () => { if (document.hidden) pressed.clear(); });
 
 // Interactive Manual Controls
 function setupInteractiveControls() {
@@ -950,24 +954,20 @@ function setupInteractiveControls() {
     "throttle:-1": "KeyF",
   };
 
-  let repeatTimer: number | null = null;
-  let intervalTimer: number | null = null;
-
-  const stopRepeat = () => {
-    if (repeatTimer !== null) { clearTimeout(repeatTimer); repeatTimer = null; }
-    if (intervalTimer !== null) { clearInterval(intervalTimer); intervalTimer = null; }
-  };
-
   document.querySelectorAll<HTMLButtonElement>(".ctrl-btn").forEach((btn) => {
     const axis = btn.dataset.axis as keyof Control | undefined;
     const dir = Number(btn.dataset.dir || 0);
     if (!axis || !dir) return;
 
     const mappedKey = btnKeyMap[`${axis}:${dir}`];
+    let repeatTimer: number | null = null;
+    let intervalTimer: number | null = null;
+    let active = false;
 
     const startAction = (e: Event) => {
       e.preventDefault();
-      if (runState !== "running") return;
+      if (active || runState !== "running" || controllerSelect.value !== "human") return;
+      active = true;
       if (mappedKey) pressed.add(mappedKey);
 
       if (!autoCenterEnabled || axis === "throttle") {
@@ -977,9 +977,9 @@ function setupInteractiveControls() {
         showControls(controls);
         if (controllerSelect.value === "human") send({ type: "action", action: controls });
 
-        stopRepeat();
         repeatTimer = window.setTimeout(() => {
           intervalTimer = window.setInterval(() => {
+            if (runState !== "running" || controllerSelect.value !== "human") { stopAction(); return; }
             adjustControl(controls, axis, continuousDelta);
             showControls(controls);
             if (controllerSelect.value === "human") send({ type: "action", action: controls });
@@ -989,8 +989,10 @@ function setupInteractiveControls() {
     };
 
     const stopAction = () => {
+      active = false;
       if (mappedKey) pressed.delete(mappedKey);
-      stopRepeat();
+      if (repeatTimer !== null) { clearTimeout(repeatTimer); repeatTimer = null; }
+      if (intervalTimer !== null) { clearInterval(intervalTimer); intervalTimer = null; }
     };
 
     btn.addEventListener("keydown", (event) => {
@@ -998,12 +1000,16 @@ function setupInteractiveControls() {
     });
     btn.addEventListener("keyup", stopAction);
     btn.addEventListener("blur", stopAction);
-    btn.addEventListener("mousedown", startAction);
-    btn.addEventListener("touchstart", startAction, { passive: false });
-    btn.addEventListener("mouseup", stopAction);
-    btn.addEventListener("mouseleave", stopAction);
-    btn.addEventListener("touchend", stopAction);
-    btn.addEventListener("touchcancel", stopAction);
+    btn.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || active) return;
+      startAction(event);
+      if (active) btn.setPointerCapture(event.pointerId);
+    });
+    btn.addEventListener("pointerup", stopAction);
+    btn.addEventListener("pointercancel", stopAction);
+    btn.addEventListener("lostpointercapture", stopAction);
+    addEventListener("blur", stopAction);
+    document.addEventListener("visibilitychange", () => { if (document.hidden) stopAction(); });
   });
 
   byId("centerSurfacesBtn")?.addEventListener("click", () => {
@@ -1070,7 +1076,7 @@ function transitionRun(event: RunEvent) {
   for (const id of ["autoCenterToggle", "wingLevelerToggle"]) byId<HTMLInputElement>(id).disabled = busy;
   const text: Record<RunState, string> = {
     offline: "Disconnected", ready: "Ready", starting: "Initializing controller…",
-    running: "In flight", complete: "Saved",
+    running: "In flight", complete: pagesRuntime ? "Completed" : "Saved",
   };
   byId("runStatus").textContent = text[runState];
   byId("flightStatePill").textContent = runState === "running" ? "IN FLIGHT" : runState.toUpperCase();
@@ -1279,7 +1285,7 @@ function updateDecisionCards(info: DecisionInfo | null | undefined, decisionCoun
     document.querySelector<HTMLElement>("#jointDecisionCard .ctrl-card-title")!.textContent = isJev ? "Jev actuator decisions" : "Codex actuator decisions";
     byId("jointCodePill").textContent = isJev ? Object.values(info.choices!).map(c => c.choice).join(" / ") : "4 controls";
     byId("jointConfidenceBadge").textContent = isJev ? "4 independent choices · 1 model request" : "Validated structured response";
-    byId("jointSourceBadge").textContent = isJev ? "MODEL · EXPERIMENTAL" : "CODEX MODEL";
+    byId("jointSourceBadge").textContent = isJev ? "JEV MODEL" : "CODEX MODEL";
     byId("jointStabilityBadge").style.display = "none";
     byId("actionCount").textContent = "4 axes";
     byId("axisMarginalsSection").style.display = "none";
@@ -1626,8 +1632,14 @@ function hideError() {
 
 // WebSocket Connection
 let socket: WebSocket;
+let browserRuntime: BrowserRuntime;
 let reconnectTimer = 0;
 function connect() {
+  if (pagesRuntime) {
+    byId("connectionText").textContent = "LOADING WASM";
+    browserRuntime = new BrowserRuntime(new URL(`${import.meta.env.BASE_URL}wasm/worker.js`, location.origin), receiveMessage);
+    return;
+  }
   const protocol = location.protocol === "https:" ? "wss" : "ws";
   const connection = new WebSocket(`${protocol}://${location.host}/ws`);
   socket = connection;
@@ -1654,32 +1666,46 @@ function connect() {
     if (socket !== connection) return;
     try {
       const message = JSON.parse(data);
-      if (message.type === "error") {
-        transitionRun("error");
-        if (message.code === "storage_error") byId<HTMLButtonElement>("stop").disabled = false;
-        showError(message.message);
-        return;
-      }
-      if (message.type === "run_started") {
-        activeRunId = message.run_id;
-        transitionRun("accepted");
-        return;
-      }
-      if (message.type === "run_finished") {
-        if (message.run_id !== activeRunId) return;
-        activeRunId = null;
-        transitionRun("finished");
-        showOutcomeModal(message.record);
-        return;
-      }
-      if (message.type === "idle") { transitionRun("reset"); return; }
-      if (message.type !== "state" || message.run_id !== activeRunId) return;
-      applyFlightBenchState(message as StateMessage);
+      receiveMessage(message);
     } catch (error) {
       console.error("Failed to process backend telemetry", error);
       showError("Telemetry stream error");
     }
   });
+}
+
+function receiveMessage(message: any) {
+  if (message.type === "ready") {
+    byId("connectionDot").classList.add("online");
+    byId("connectionText").textContent = "WASM · LOCAL PHYSICS";
+    hideError(); transitionRun("connect"); return;
+  }
+  if (message.type === "offline") {
+    byId("connectionDot").classList.remove("online");
+    byId("connectionText").textContent = "OFFLINE";
+    activeRunId = null; transitionRun("disconnect"); showError(message.message); return;
+  }
+  if (message.type === "error") {
+    transitionRun("error");
+    if (message.code === "storage_error") byId<HTMLButtonElement>("stop").disabled = false;
+    showError(message.message);
+    return;
+  }
+  if (message.type === "run_started") {
+    activeRunId = message.run_id;
+    transitionRun("accepted");
+    return;
+  }
+  if (message.type === "run_finished") {
+    if (message.run_id !== activeRunId) return;
+    activeRunId = null;
+    transitionRun("finished");
+    showOutcomeModal(message.record);
+    return;
+  }
+  if (message.type === "idle") { transitionRun("reset"); return; }
+  if (message.type !== "state" || message.run_id !== activeRunId) return;
+  applyFlightBenchState(message as StateMessage);
 }
 
 function applyFlightBenchState(message: StateMessage) {
@@ -1693,8 +1719,9 @@ function applyFlightBenchState(message: StateMessage) {
   }
 }
 function send(message: { type: string; [key: string]: unknown }): boolean {
-  if (socket?.readyState !== WebSocket.OPEN) return false;
   if (message.type === "action" && runState !== "running") return false;
+  if (pagesRuntime) return browserRuntime?.send(message) ?? false;
+  if (socket?.readyState !== WebSocket.OPEN) return false;
   socket.send(JSON.stringify(message));
   return true;
 }
@@ -1723,9 +1750,11 @@ function updateControllerUi() {
   const isCodex = controllerSelect.value === "codex";
   const isHuman = controllerSelect.value === "human";
   const isJevOrAi = controllerSelect.value === "jev" || isCodex;
+  document.querySelector<HTMLElement>(".workspace")!.dataset.controller = controllerSelect.value;
 
   byId("modelGroup").hidden = !isCodex;
   byId("jevModelGroup").hidden = controllerSelect.value !== "jev";
+  if (pagesRuntime) byId("jevProxyGroup").hidden = controllerSelect.value !== "jev";
   byId("reasoningEffortGroup").hidden = !isCodex;
   byId("decisionRateGroup").hidden = isHuman;
   const cadence = isHuman ? "Manual" : `${byId<HTMLSelectElement>("decisionRate").value} Hz`;
@@ -1754,13 +1783,13 @@ function updateControllerUi() {
   const modelTag = byId("ctrlModelTag");
   if (isHuman) {
     if (brandTitle) brandTitle.textContent = "Human Pilot";
-    if (modelTag) modelTag.textContent = "Keyboard Flight Controls";
+    if (modelTag) modelTag.textContent = "Keyboard / touch controls";
   } else if (controllerSelect.value === "baseline") {
     if (brandTitle) brandTitle.textContent = "Baseline Controller";
     if (modelTag) modelTag.textContent = "Rule-Based ILS";
   } else if (controllerSelect.value === "jev") {
     if (brandTitle) brandTitle.textContent = "TypeSafe Jev";
-    if (modelTag) modelTag.textContent = `${jevModelSelect.value} · experimental`;
+    if (modelTag) modelTag.textContent = jevModelSelect.value;
   } else if (isCodex) {
     if (brandTitle) brandTitle.textContent = "Codex Controller";
     if (modelTag) modelTag.textContent = modelSelect.value ? `${modelSelect.value} · ${reasoningEffortSelect.value}` : "Select an authenticated model";
@@ -1776,9 +1805,28 @@ controllerSelect.addEventListener("change", () => { clearDecisionView(); updateC
 for (const select of [byId("decisionRate"), modelSelect, jevModelSelect, reasoningEffortSelect]) {
   select.addEventListener("change", updateControllerUi);
 }
+if (pagesRuntime) {
+  controllerSelect.querySelector('option[value="codex"]')?.remove();
+  for (const [select, value] of [["jevModel", "jev-1.13.0"], ["decisionRate", "2"]]) {
+    const input = byId<HTMLSelectElement>(select);
+    for (const option of [...input.options]) if (option.value !== value) option.remove();
+  }
+  byId<HTMLInputElement>("seed").readOnly = true;
+  byId<HTMLInputElement>("seed").title = "Initial conditions: easy, seed 42.";
+  byId("stop").setAttribute("aria-label", "Stop flight");
+  document.querySelector(".model-credit")?.insertAdjacentHTML("beforeend", `<br><a href="/FlightBench/recordings/">Flight recordings</a>`);
+  byId("experimentSettings").insertAdjacentHTML("beforeend", `
+    <div id="jevProxyGroup" hidden>
+      <label for="jevProxy">Jev endpoint</label>
+      <input id="jevProxy" class="select-input" type="url" value="https://flightbench-jev.alperkartkaya.workers.dev/decide" autocomplete="off" />
+      <label for="jevInvite">Jev access token</label>
+      <input id="jevInvite" class="select-input" type="password" autocomplete="off" minlength="43" maxlength="128" />
+    </div>
+  `);
+}
 updateControllerUi();
 
-fetch("/api/models")
+if (!pagesRuntime) fetch("/api/models")
   .then((res) => (res.ok ? res.json() : Promise.reject()))
   .then(({ models }: { models: string[] }) => {
     modelSelect.replaceChildren(
@@ -1833,6 +1881,12 @@ byId("start").addEventListener("click", () => {
   const seedInput = byId<HTMLInputElement>("seed");
   if (!seedInput.reportValidity()) return;
   if (controllerSelect.value === "codex" && !modelSelect.value) { showError("No Codex model is available. Check local authentication and refresh."); return; }
+  if (pagesRuntime && controllerSelect.value === "jev") {
+    const proxy = byId<HTMLInputElement>("jevProxy"), invite = byId<HTMLInputElement>("jevInvite");
+    if (!proxy.value || !proxy.reportValidity() || invite.value.length < 43) {
+      showError("Enter an HTTPS Jev endpoint ending /decide and a valid access token."); return;
+    }
+  }
   closeDialog("outcomeModal");
   hideError();
   clearDecisionView();
@@ -1841,7 +1895,7 @@ byId("start").addEventListener("click", () => {
   const config: RunConfig = {
     scenario: "easy",
     controller: controllerSelect.value,
-    mode: controllerSelect.value === "codex" ? "lockstep" : "realtime",
+    mode: pagesRuntime || controllerSelect.value === "codex" ? "lockstep" : "realtime",
     seed: Number(seedInput.value),
     decision_hz: Number(byId<HTMLSelectElement>("decisionRate").value),
     time_scale: 1,
@@ -1850,7 +1904,10 @@ byId("start").addEventListener("click", () => {
     model: controllerSelect.value === "codex" ? modelSelect.value : controllerSelect.value === "jev" ? jevModelSelect.value : null,
     reasoning_effort: controllerSelect.value === "codex" ? reasoningEffortSelect.value : "low",
   };
-  if (!send({ type: "start", ...config })) { transitionRun("disconnect"); return; }
+  const proxy = pagesRuntime ? byId<HTMLInputElement>("jevProxy").value : undefined;
+  const invite = pagesRuntime ? byId<HTMLInputElement>("jevInvite").value : undefined;
+  if (pagesRuntime) byId<HTMLInputElement>("jevInvite").value = "";
+  if (!send({ type: "start", ...config, ...(pagesRuntime ? {proxy, invite} : {}) })) { transitionRun("disconnect"); return; }
   transitionRun("start");
 });
 byId("stop").addEventListener("click", () => {

@@ -42,7 +42,13 @@
 
 ## Quick take-off
 
-Requires Python, uv and Node.js on your PATH; the launcher installs project dependencies automatically.
+There are two options to run FlightBench:
+
+### 1. Launch FlightBench in your browser!
+
+No installation required. Just click [here](https://alperkartkaya.github.io/FlightBench/) and start landing!
+
+### 2. Run locally
 
 Clone the repository and change into the cloned directory:
 

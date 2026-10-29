@@ -1,4 +1,4 @@
-name: Deploy FlightBench recordings to GitHub Pages
+name: Deploy FlightBench simulator to GitHub Pages
 
 on:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Create Pages site
+      - name: Preserve recording URLs
         env:
           RELEASE_TAG: ${{ inputs.release_tag }}
           GH_TOKEN: ${{ github.token }}
@@ -214,7 +214,8 @@ jobs:
               </div>
 
               <nav>
-                <a href="../">All recordings</a>
+                <a href="../recordings/">All recordings</a>
+                <a href="../">Fly the simulator</a>
                 <a href="https://github.com/${GITHUB_REPOSITORY}">GitHub repository</a>
                 <a href="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${RELEASE_TAG}">Release ${RELEASE_TAG}</a>
               </nav>
@@ -242,10 +243,54 @@ jobs:
             "The rule-based baseline controller reference run." \
             "FlightBench-Baseline.mp4"
 
+          mkdir -p site/recordings
+          sed 's|href="./|href="../|g' site/index.html > site/recordings/index.html
           touch site/.nojekyll
 
           echo "Pages artifact contents:"
           find site -maxdepth 3 -type f -print
+
+      - name: Set up Python for browser simulator
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv for browser simulator
+        uses: astral-sh/setup-uv@v6
+
+      - name: Build JSBSim WASM (no AI credentials)
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv sync --frozen
+          uv run --frozen python examples/prepare_wasm.py
+          mkdir -p scratch/emsdk
+          git -C scratch/emsdk init
+          git -C scratch/emsdk remote add origin https://github.com/emscripten-core/emsdk.git
+          git -C scratch/emsdk fetch --depth 1 origin d7b4130688bfa348392b921ab04015aa15c4f154
+          git -C scratch/emsdk checkout FETCH_HEAD
+          scratch/emsdk/emsdk install 4.0.18
+          scratch/emsdk/emsdk activate 4.0.18
+          source scratch/emsdk/emsdk_env.sh
+          bash examples/wasm/build.sh
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build the existing 3D UI for /FlightBench/
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix frontend ci
+          npm --prefix frontend test
+          node --test frontend/public/wasm/*.test.js workers/jev-proxy/worker.test.js
+          npm --prefix frontend run build:pages
+          cp -R frontend/dist-pages/. site/
+          rm -f site/wasm/*.test.js
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5

@@ -1,0 +1,314 @@
+[
+  {
+    "touchdown": null,
+    "success": false,
+    "reason": "running",
+    "trajectory": {
+      "lateral": 0.2,
+      "pitch": 0.3,
+      "glide": 0.4
+    },
+    "expected": {
+      "success": false,
+      "quality": 0.0,
+      "raw_quality": 99.642,
+      "reason": "running",
+      "touchdown": null,
+      "touchdown_safe": false,
+      "components": {
+        "lateral_error": 0.0033333333333333335,
+        "pitch_error": 0.005,
+        "glide_error": 0.006666666666666667,
+        "touchdown_error": 0.0,
+        "total_error": 0.0035833333333333338
+      },
+      "scoring_version": "v2",
+      "scoring": {
+        "version": "v2",
+        "runway_length_m": 1000,
+        "runway_width_m": 30,
+        "zone_start_m": 50,
+        "zone_end_m": 350,
+        "max_sink_mps": 3,
+        "max_bank_deg": 10,
+        "max_heading_deg": 15,
+        "min_airspeed_mps": 18,
+        "max_airspeed_mps": 40,
+        "target_airspeed_mps": 28,
+        "failure_cap": 49,
+        "success_floor": 50,
+        "weights": [
+          25,
+          20,
+          25,
+          10,
+          10,
+          10
+        ],
+        "reference_duration_s": 60,
+        "lateral_normalization_m": 10,
+        "approach_pitch_limit_deg": 6,
+        "flare_pitch_limit_deg": 10,
+        "pitch_excess_normalization_deg": 10,
+        "pitch_rate_normalization_deg_s": 10,
+        "flare_altitude_m": 6,
+        "glide_normalization_m": 15,
+        "touchdown_sink_normalization_mps": 3,
+        "touchdown_lateral_normalization_m": 15,
+        "touchdown_target_m": 200,
+        "touchdown_longitudinal_normalization_m": 200
+      },
+      "trajectory_error_integrals": {
+        "lateral": 0.2,
+        "pitch": 0.3,
+        "glide": 0.4
+      }
+    }
+  },
+  {
+    "touchdown": {
+      "along_track_m": 200,
+      "cross_track_m": 0,
+      "sink_rate_mps": -0.8,
+      "airspeed_mps": 28,
+      "heading_error_deg": 0,
+      "roll_deg": 0,
+      "pitch_deg": 3
+    },
+    "success": true,
+    "reason": "landed",
+    "trajectory": {
+      "lateral": 0.2,
+      "pitch": 0.3,
+      "glide": 0.4
+    },
+    "expected": {
+      "success": true,
+      "quality": 98.761,
+      "raw_quality": 98.761,
+      "reason": "landed",
+      "touchdown": {
+        "along_track_m": 200,
+        "cross_track_m": 0,
+        "sink_rate_mps": -0.8,
+        "airspeed_mps": 28,
+        "heading_error_deg": 0,
+        "roll_deg": 0,
+        "pitch_deg": 3
+      },
+      "touchdown_safe": true,
+      "components": {
+        "lateral_error": 0.0033333333333333335,
+        "pitch_error": 0.005,
+        "glide_error": 0.006666666666666667,
+        "touchdown_error": 0.035555555555555556,
+        "total_error": 0.012472222222222223
+      },
+      "scoring_version": "v2",
+      "scoring": {
+        "version": "v2",
+        "runway_length_m": 1000,
+        "runway_width_m": 30,
+        "zone_start_m": 50,
+        "zone_end_m": 350,
+        "max_sink_mps": 3,
+        "max_bank_deg": 10,
+        "max_heading_deg": 15,
+        "min_airspeed_mps": 18,
+        "max_airspeed_mps": 40,
+        "target_airspeed_mps": 28,
+        "failure_cap": 49,
+        "success_floor": 50,
+        "weights": [
+          25,
+          20,
+          25,
+          10,
+          10,
+          10
+        ],
+        "reference_duration_s": 60,
+        "lateral_normalization_m": 10,
+        "approach_pitch_limit_deg": 6,
+        "flare_pitch_limit_deg": 10,
+        "pitch_excess_normalization_deg": 10,
+        "pitch_rate_normalization_deg_s": 10,
+        "flare_altitude_m": 6,
+        "glide_normalization_m": 15,
+        "touchdown_sink_normalization_mps": 3,
+        "touchdown_lateral_normalization_m": 15,
+        "touchdown_target_m": 200,
+        "touchdown_longitudinal_normalization_m": 200
+      },
+      "trajectory_error_integrals": {
+        "lateral": 0.2,
+        "pitch": 0.3,
+        "glide": 0.4
+      }
+    }
+  },
+  {
+    "touchdown": {
+      "along_track_m": 200,
+      "cross_track_m": 0,
+      "sink_rate_mps": -0.8,
+      "airspeed_mps": 28,
+      "heading_error_deg": 0,
+      "roll_deg": 0,
+      "pitch_deg": 3
+    },
+    "success": false,
+    "reason": "runway_excursion",
+    "trajectory": {
+      "lateral": 0.2,
+      "pitch": 0.3,
+      "glide": 0.4
+    },
+    "expected": {
+      "success": false,
+      "quality": 0.0,
+      "raw_quality": 98.761,
+      "reason": "runway_excursion",
+      "touchdown": {
+        "along_track_m": 200,
+        "cross_track_m": 0,
+        "sink_rate_mps": -0.8,
+        "airspeed_mps": 28,
+        "heading_error_deg": 0,
+        "roll_deg": 0,
+        "pitch_deg": 3
+      },
+      "touchdown_safe": true,
+      "components": {
+        "lateral_error": 0.0033333333333333335,
+        "pitch_error": 0.005,
+        "glide_error": 0.006666666666666667,
+        "touchdown_error": 0.035555555555555556,
+        "total_error": 0.012472222222222223
+      },
+      "scoring_version": "v2",
+      "scoring": {
+        "version": "v2",
+        "runway_length_m": 1000,
+        "runway_width_m": 30,
+        "zone_start_m": 50,
+        "zone_end_m": 350,
+        "max_sink_mps": 3,
+        "max_bank_deg": 10,
+        "max_heading_deg": 15,
+        "min_airspeed_mps": 18,
+        "max_airspeed_mps": 40,
+        "target_airspeed_mps": 28,
+        "failure_cap": 49,
+        "success_floor": 50,
+        "weights": [
+          25,
+          20,
+          25,
+          10,
+          10,
+          10
+        ],
+        "reference_duration_s": 60,
+        "lateral_normalization_m": 10,
+        "approach_pitch_limit_deg": 6,
+        "flare_pitch_limit_deg": 10,
+        "pitch_excess_normalization_deg": 10,
+        "pitch_rate_normalization_deg_s": 10,
+        "flare_altitude_m": 6,
+        "glide_normalization_m": 15,
+        "touchdown_sink_normalization_mps": 3,
+        "touchdown_lateral_normalization_m": 15,
+        "touchdown_target_m": 200,
+        "touchdown_longitudinal_normalization_m": 200
+      },
+      "trajectory_error_integrals": {
+        "lateral": 0.2,
+        "pitch": 0.3,
+        "glide": 0.4
+      }
+    }
+  },
+  {
+    "touchdown": {
+      "along_track_m": 200,
+      "cross_track_m": 0,
+      "sink_rate_mps": -3.01,
+      "airspeed_mps": 28,
+      "heading_error_deg": 0,
+      "roll_deg": 0,
+      "pitch_deg": 3
+    },
+    "success": true,
+    "reason": "unsafe_touchdown",
+    "trajectory": {
+      "lateral": 0.2,
+      "pitch": 0.3,
+      "glide": 0.4
+    },
+    "expected": {
+      "success": false,
+      "quality": 0.0,
+      "raw_quality": 87.861,
+      "reason": "unsafe_touchdown",
+      "touchdown": {
+        "along_track_m": 200,
+        "cross_track_m": 0,
+        "sink_rate_mps": -3.01,
+        "airspeed_mps": 28,
+        "heading_error_deg": 0,
+        "roll_deg": 0,
+        "pitch_deg": 3
+      },
+      "touchdown_safe": false,
+      "components": {
+        "lateral_error": 0.0033333333333333335,
+        "pitch_error": 0.005,
+        "glide_error": 0.006666666666666667,
+        "touchdown_error": 0.5033388888888888,
+        "total_error": 0.12941805555555552
+      },
+      "scoring_version": "v2",
+      "scoring": {
+        "version": "v2",
+        "runway_length_m": 1000,
+        "runway_width_m": 30,
+        "zone_start_m": 50,
+        "zone_end_m": 350,
+        "max_sink_mps": 3,
+        "max_bank_deg": 10,
+        "max_heading_deg": 15,
+        "min_airspeed_mps": 18,
+        "max_airspeed_mps": 40,
+        "target_airspeed_mps": 28,
+        "failure_cap": 49,
+        "success_floor": 50,
+        "weights": [
+          25,
+          20,
+          25,
+          10,
+          10,
+          10
+        ],
+        "reference_duration_s": 60,
+        "lateral_normalization_m": 10,
+        "approach_pitch_limit_deg": 6,
+        "flare_pitch_limit_deg": 10,
+        "pitch_excess_normalization_deg": 10,
+        "pitch_rate_normalization_deg_s": 10,
+        "flare_altitude_m": 6,
+        "glide_normalization_m": 15,
+        "touchdown_sink_normalization_mps": 3,
+        "touchdown_lateral_normalization_m": 15,
+        "touchdown_target_m": 200,
+        "touchdown_longitudinal_normalization_m": 200
+      },
+      "trajectory_error_integrals": {
+        "lateral": 0.2,
+        "pitch": 0.3,
+        "glide": 0.4
+      }
+    }
+  }
+]

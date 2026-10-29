@@ -24,3 +24,11 @@ scratch/
 
 # Local browser automation artifacts.
 .playwright-cli/
+.wrangler/
+
+# Generated JSBSim runtime and source distribution.
+/frontend/public/wasm/vendor/
+
+# Separate static build; never overwrite the local Python-backed frontend bundle.
+/frontend/dist-pages/
+/frontend/dist-personal/

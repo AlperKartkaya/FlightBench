@@ -39,6 +39,9 @@ readable muted text and reduced-motion handling. Target WCAG AA basics; no certi
 ## Responsive behavior
 Desktop keeps scene and controller panel side by side without page scrolling.
 Narrow screens stack inside the fixed-height workspace and can scroll that workspace.
+Human mode places compact 44px touch controls first, with the scene sticky above them.
+Phone landscape keeps scene and controls side by side. Pointer capture releases held
+inputs on lift/cancel; distinct buttons support simultaneous fingers.
 ## Interaction states
 Disconnected/ready/starting/running/completed/interrupted/error are distinct.
 Disable start offline or pending; lock experiment settings during a run; explicit stop.
@@ -50,5 +53,14 @@ Keep copy terse. Do not show introductory slogans or quota notices in the workbe
 Vanilla TypeScript + Three.js + CSS, no new dependencies. Local JSON files, no database.
 Test pure result helpers and lifecycle API; verify browser desktop and narrow layout.
 ## Open questions
-None blocking. Full timeline replay, distributed benchmark execution and public hosting
-are intentionally outside this implementation.
+Full timeline replay and distributed benchmark execution remain outside this implementation.
+Pages publication requires the remote workflow to receive the prepared changes.
+
+## Pages simulator (2026-10-29)
+Reuse the same 3D workbench, keyboard/onscreen controls, assistance, cameras and outcome
+dialog. Pages connects it to a Web Worker; default local builds keep Python. Use
+concise product labels, no separate demonstration page or development notices.
+Completed browser sessions are not labeled Saved; persistence remains documented in
+setup instructions. Settings are fixed to easy/seed 42, 2 Hz AI and Jev 1.13; Codex
+remains local only. Jev settings accept an endpoint and a separate access token,
+never a provider API key. Preserve recording links under an archive, not the site root.
