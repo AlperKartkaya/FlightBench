@@ -162,3 +162,32 @@ has not been updated in this step.
 - The owner's root README checksum remains
   `06c195d79ac411c1a44f32a9cefe3f4aff8dd3dd3e27aa4d716a5796fb14fbf5`.
   No real phone/Safari or authenticated TypeSafe call was tested in this step.
+
+## Published release — 2026-10-29
+
+- FlightBench release commit `b0c2e2f` was pushed to `origin/main`. The Linux WASM
+  build and Pages deployment both succeeded:
+  https://github.com/AlperKartkaya/FlightBench/actions/runs/40855399289
+  Public simulator: https://alperkartkaya.github.io/FlightBench/
+- Personal-site commit `376eae7` was pushed to its `origin/main`. Its Pages build
+  and deployment succeeded:
+  https://github.com/AlperKartkaya/alperkartkaya.github.io/actions/runs/40855810403
+  Public copy: https://alperkartkaya.github.io/flightbench/
+  Its `BUILD.txt` pins the source commit and alternate-base build command.
+- Both public URLs passed the same Chromium touch assertions at 390×844, 320×667
+  and 844×390. The public portfolio's mobile Fly FlightBench link also reached a
+  ready simulator. No JavaScript page errors occurred in those touch checks.
+- A full baseline flight on the public `/FlightBench/` deployment completed with
+  **Safe landing, 86.5/100**, IAS 25.9 m/s, sink -1.32 m/s, offset 7.1 m,
+  pitch 2.7° and roll -0.5°. This browser smoke result is not an official saved run
+  and was not added to leaderboard evidence. Screenshot: ignored
+  `scratch/public-baseline-landed.png`.
+- Both tab-icon links returned the exact existing `flightbench-icon.png` bytes,
+  SHA-256 `603bd586beec597297fc361f5fef33a3981757ecda30b2190f5ea06fd2e2c094`.
+  Public WASM responses use `application/wasm`. Original recording pages and all
+  three MP4 URLs still returned HTTP 200. The personal homepage, CV, servicepilot
+  and tebdil URLs also returned HTTP 200; their existing app files were not modified.
+- Root README contents remain the owner's version. No provider key/access token
+  value was read or committed. Actual TypeSafe authorization, physical phones,
+  Safari, Cloudflare CPU/billing and provider credit limits remain unverified.
+  The owner explicitly removed the total quota; only minute-rate abuse limits remain.

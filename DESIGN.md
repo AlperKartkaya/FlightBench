@@ -54,7 +54,8 @@ Vanilla TypeScript + Three.js + CSS, no new dependencies. Local JSON files, no d
 Test pure result helpers and lifecycle API; verify browser desktop and narrow layout.
 ## Open questions
 Full timeline replay and distributed benchmark execution remain outside this implementation.
-Pages publication requires the remote workflow to receive the prepared changes.
+Both Pages URLs are published; live validation and remaining device/provider gaps
+are recorded in docs/wasm/validation.md.
 
 ## Pages simulator (2026-10-29)
 Reuse the same 3D workbench, keyboard/onscreen controls, assistance, cameras and outcome

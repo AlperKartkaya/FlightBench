@@ -234,5 +234,7 @@ execution remains self-only plus WebAssembly compilation.
   credentials or Codex. Existing saved runs and campaigns are untouched.
 - Proxy unit tests use fake keys and mock upstream fetch; they test concurrent rates,
   persistence across object reconstruction, authentication, validation and failure paths.
-  Real TypeSafe, production Cloudflare CPU/concurrency/billing, GitHub Pages deployment,
-  Safari/Firefox/mobile-device execution require separate live validation.
+  Public Pages deployment, desktop baseline and emulated phone touch checks passed;
+  see `validation.md` for release commits and evidence. Real TypeSafe, production
+  Cloudflare CPU/concurrency/billing and Safari/Firefox/physical-device execution
+  still require separate live validation.
