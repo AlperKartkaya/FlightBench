@@ -1638,7 +1638,7 @@ let reconnectTimer = 0;
 function connect() {
   if (pagesRuntime) {
     byId("connectionText").textContent = "LOADING WASM";
-    browserRuntime = new BrowserRuntime(new URL(`${import.meta.env.BASE_URL}wasm/worker.js`, location.origin), receiveMessage);
+    browserRuntime = new BrowserRuntime(new URL(`${import.meta.env.BASE_URL}wasm/worker.js?v=public-jev-2`, location.origin), receiveMessage);
     return;
   }
   const protocol = location.protocol === "https:" ? "wss" : "ws";

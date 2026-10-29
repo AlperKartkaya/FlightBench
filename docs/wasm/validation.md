@@ -231,3 +231,5 @@ has not been updated in this step.
   normal/Pages builds and the four-size local mobile smoke passed. The manual
   `tests/browser_jev_smoke.js` checks two real decisions per version and stops promptly;
   it consumes provider credit and is not an automatic CI test.
+- The physics Worker URL has a new versioned cache key so returning visitors do
+  not reuse a cached private-token-only Worker with the new public frontend.

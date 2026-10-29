@@ -9,6 +9,8 @@ async page => {
   for (const model of ['jev-1.13.0', 'jev-1.14.0']) {
     await page.goto(base);
     await page.waitForFunction(() => !document.querySelector('#start').disabled);
+    assert(page.workers().some(worker => new URL(worker.url()).searchParams.has('v')),
+      'Worker protocol updates need a fresh cache key');
     await page.locator('#configureToggle').click();
     await page.locator('#controller').selectOption('jev');
     await page.locator('#jevModel').selectOption(model);
