@@ -35,6 +35,7 @@ CODEX_RATES = {
     "gpt-6-luna": (0.10, 0.01, 0.125, 0.50),
     "gpt-6-sol": (2.00, 0.20, 2.50, 10.00),
     "gpt-6.1-sol": (2.00, 0.10, 2.50, 10.00),
+    "gpt-6.1-terra": (1.00, 0.05, 1.25, 5.00),
     "gpt-6-astra": (10.00, 1.00, 12.50, 50.00),
 }
 JEV_INPUT_RATE = 0.042  # https://typesafe.ai/blog/introducing-system-one-models-and-jev

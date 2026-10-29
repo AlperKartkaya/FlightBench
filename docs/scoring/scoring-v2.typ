@@ -2,7 +2,7 @@
 #set text(font: "Libertinus Serif", size: 14pt, fill: rgb("182235"))
 #set par(leading: .65em)
 #align(center)[
-  #text(size: 25pt, weight: "bold")[FlightBench · Landing score V2]
+  #text(size: 25pt, weight: "bold")[FlightBench · Landing Score]
   #v(8pt)
   $ S = 100 G_"success" exp(-E) $
   $ E = 0.30 E_"lateral" + 0.25 E_"pitch" + 0.20 E_"glide" + 0.25 E_"touchdown" $
@@ -24,15 +24,16 @@ $ E_"touchdown" = 0.50 (abs(v_"sink")/3)^2 + 0.25 (abs(z_"TD")/15)^2 + 0.25 (abs
 *Definitions and units*
 
 $G_"success"=1$ only after safe touchdown and completed rollout; otherwise $0$.
-$T_"ref"=60$ s is fixed; $T_"TD"$ is first main-gear contact. Longer flights cannot dilute error.
+
+$T_"ref"=60$ s is fixed; $T_"TD"$ is first main-gear contact.
 
 $z$: actual centerline offset (m). $theta$: pitch (degrees). $q$: pitch rate (degrees/s).
+
 $theta_"lim"=6 degree$ above 6 m AGL; $10 degree$ at or below 6 m for the flare.
 
 $h$: altitude AGL (m). $h_"target"=15+d tan(3 degree)$, with $d$ the signed distance before the threshold (m).
-Glide error is accumulated only above 6 m AGL. $v_"sink"$: touchdown vertical speed (m/s).
-$x_"TD"$: distance along runway (m); $z_"TD"$: lateral touchdown offset (m).
+Glide error is accumulated only above 6 m AGL.
+
+$v_"sink"$: touchdown vertical speed (m/s). $x_"TD"$: distance along runway (m); $z_"TD"$: lateral touchdown offset (m).
 
 *Integration:* every 120 Hz physics step, until first main-gear touchdown. All four errors are dimensionless and nonnegative. API delay, tokens, cost and decision count do not enter the score.
-
-#text(size: 11pt, fill: rgb("54657b"))[Pitch limits are configurable benchmark tolerances, not certified flight limits. V2 has no 50-point success threshold: use the recorded success flag.]

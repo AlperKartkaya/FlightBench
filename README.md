@@ -38,111 +38,52 @@
   >
 </a>
 
-**[Watch my flight!](https://alperkartkaya.github.io/FlightBench/human-flight/)** My archived V1 record is **70.1/100** (not comparable with scoring V2). Try the same setup and beat my score, then [send me your run or recording](mailto:alperkartkaya@gmail.com)! You can also [watch the baseline controller](https://alperkartkaya.github.io/FlightBench/baseline-flight/).
+**[Watch my flight!](https://alperkartkaya.github.io/FlightBench/human-flight/)** My best record is **70.1/100**. Try the same setup and beat my score, then [send me your run or recording](mailto:alperkartkaya@gmail.com)! You can also [watch the baseline controller](https://alperkartkaya.github.io/FlightBench/baseline-flight/).
 
 ## Quick take-off
 
-### Requirements
+Requires Python, uv and Node.js on your PATH; the launcher installs project dependencies automatically.
 
-- Python 3.11–3.13 and [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- [Node.js](https://nodejs.org/en/download) 20.19+ (20.x) or 22.12+, with npm
-
+Clone the repository and change into the cloned directory:
 
 ```sh
-uv sync
-uv run uvicorn flightbench.server:app --host 127.0.0.1 --port 8000
-
-# In another terminal:
-cd frontend && npm ci && npm run dev -- --host 127.0.0.1
+git clone https://github.com/AlperKartkaya/FlightBench.git
+cd FlightBench
 ```
 
-Open <http://127.0.0.1:5173>, choose a controller, and select **Start flight**.
-
-Human-pilot and baseline modes require neither an API key nor a Codex account. For Jev, run `uv sync --extra jev` and set `TYPESAFE_API_KEY`. For Codex, run `uv sync --extra codex`, install the Codex CLI, then authenticate with `codex login` and check `codex login status`; this connection uses a [ChatGPT plan (free, plus, or pro) with Codex CLI access](https://learn.chatgpt.com/docs/pricing), not an API key. See [llm-openai-via-codex](https://github.com/simonw/llm-openai-via-codex).
-
-
-## Canonical protocol and community leaderboard
-
-Jev, Codex, and local decision models now share the frozen `flightbench-v1` observation,
-categorical action IDs, instructions, and phase criteria. Every new run records the action-space
-SHA-256 and source identity. See [the protocol](docs/benchmark-protocol.md).
-
-Evaluate a trusted local controller and generate the leaderboard from its evidence:
+On macOS or Linux, install dependencies and start both servers with one command:
 
 ```sh
-uv run flightbench eval --controller examples/controllers/categorical.py:ExampleController \
-  --modes lockstep,realtime --seeds 42,101,202,303,404 \
-  --output-dir leaderboard/submissions/example
-uv run flightbench leaderboard build --output-dir scratch/leaderboard-preview
+./scripts/dev.sh
 ```
 
-[Controller API and submission guide](docs/controllers.md) ·
-[Local model sources and license checks](docs/local-model-sources.md) ·
-[Issue closure evidence](docs/issue-closure.md)
+On Windows (PowerShell), use:
 
-## Historical benchmark results and estimated API cost
+```powershell
+python scripts/dev.py
+```
 
-Legacy/reference results below predate the canonical protocol and scoring V2. They are retained, not ranked against the new measurements. The original table format and recorded numbers are preserved (the excluded model row is removed).
+You are all set! Choose a controller and select **Start flight**.
 
-| Controller | Score and result | Sim time and wall time (s) | Calls | Mean latency per call (s) | Latency vs Jev | Input / output tokens | Est. API cost | Cost vs Jev |
-| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **Jev · TypeSafe API** | **56 · landed** | 71 / 71 (realtime) | 168 (~2.4 Hz) | **0.33** | **1.0×** | ~291k / — | **$0.0122** | **1.0×** |
-| GPT-6 Luna (low) · Codex | 0 · nose-first contact | 39 / 202 (lockstep) | 79 (~0.4 Hz) | 2.53 | 7.7× | 78k / 5k | ≈$0.0153† | ≈1.3×† |
-| GPT-6 Astra (low) · Codex | 49 · runway excursion | 61 / 558 (lockstep) | 123 (~0.2 Hz) | 4.50 | 13.8× | 122k / 11k | $1.758 | ≈143× |
-
-† Luna's observed 79-call cost is $0.01009. In the table, Luna's run is scaled to **120 calls** to roughly match the number of steps in the other models' runs.
-
-> While **Realtime** means simulation time equals wall clock time, **Lockstep** means the simulation is paused for each step to let the model respond. Hence, simulation and wall time can differ in lockstep.
-
-## Landing score: V2 and the previous V1
-
-New runs use **V2**: accumulated approach error plus touchdown error, with a successful-landing
-and rollout gate. No successful rollout means **0**; score is not an accuracy percentage.
-Errors integrate at the 120 Hz physics rate, independently of model latency and decision rate.
-
-![Landing score V2: formula, variables and default constants](docs/scoring/scoring-v2.png)
-
-Previously, **V1** used only first-touchdown quality: zone, centerline, sink rate, heading,
-bank and airspeed. Successful rollouts had a 50-point floor; failures could score up to 49.
-It did not measure approach tracking or pitch stability.
-
-![Previous V1 touchdown-only score formula](docs/scoring/scoring-v1.png)
-
-[Implementation, calibration sources and configurable constants](docs/scoring/README.md).
-Historical V1 scores are preserved, not compared with V2.
+For Jev and Codex authentication, [see the setup guide](docs/controller-setup/README.md).
 
 ## Benchmark results — landing score and API cost
 
-Highest V2 score of three completed flights per model/effort/mode (seeds 42, 101, 202), **except Luna high: the user-selected successful seed42 retry**. Jev 1.13 uses the latest three-flight cohort in each mode: the first lockstep repeat and second realtime repeat on October 26, not earlier cohorts. The cost belongs to the selected full flight. All seeds share the same easy physical initialization; max is excluded. This is selected performance, not an unbiased accuracy estimate.
+![FlightBench benchmark results (dark theme)](docs/evaluations/2026-10-22-scoring-v2/benchmark-dark.svg#gh-dark-mode-only)
+![FlightBench benchmark results (light theme)](docs/evaluations/2026-10-22-scoring-v2/benchmark-light.svg#gh-light-mode-only)
 
-| Controller | Score and result | Sim time and wall time (s) | Calls | Mean latency per call (s) | Latency vs Jev | Input / output tokens | Est. API cost | Cost vs Jev |
-| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| GPT-6.1 Sol (low) · lockstep | 80.129 · landed | 66.7 / 470.1 (lockstep) | 134 | 3.493 | 14.6× | 316,387 / 6,269 | $0.695464 | 46.4× |
-| GPT-6.1 Sol (medium) · lockstep | 74.731 · landed | 69.9 / 456.3 (lockstep) | 140 | 3.244 | 13.5× | 331,291 / 9,770 | $0.756148 | 50.4× |
-| GPT-6.1 Sol (high) · lockstep | 76.087 · landed | 69.8 / 602.7 (lockstep) | 140 | 4.289 | 17.9× | 331,297 / 17,811 | $0.840704 | 56.1× |
-| GPT-6.1 Sol (xhigh) · lockstep | 76.279 · landed | 69.8 / 1975.4 (lockstep) | 140 | 14.094 | 58.9× | 331,264 / 46,525 | $1.119752 | 74.7× |
-| GPT-6 Astra (low) · lockstep | 74.310 · landed | 69.7 / 731.4 (lockstep) | 140 | 5.209 | 21.8× | 331,023 / 5,997 | $3.610080 | 240.8× |
-| GPT-6 Astra (medium) · lockstep | 72.225 · landed | 71.2 / 601.2 (lockstep) | 143 | 4.182 | 17.5× | 338,196 / 6,120 | $3.687960 | 245.9× |
-| GPT-6 Astra (high) · lockstep | 74.565 · landed | 69.8 / 797.2 (lockstep) | 140 | 5.678 | 23.7× | 330,976 / 10,175 | $3.818510 | 254.7× |
-| GPT-6 Astra (xhigh) · lockstep | 72.604 · landed | 69.7 / 1665.9 (lockstep) | 140 | 11.882 | 49.6× | 331,324 / 33,045 | $4.965490 | 331.1× |
-| GPT-6 Luna (low) · lockstep | 77.402 · landed | 63.6 / 289.7 (lockstep) | 128 | 2.248 | 9.4× | 302,479 / 5,725 | $0.033110 | 2.2× |
-| GPT-6 Luna (medium) · lockstep | 76.552 · landed | 67.9 / 378.1 (lockstep) | 136 | 2.762 | 11.5× | 321,391 / 18,753 | $0.041516 | 2.8× |
-| GPT-6 Luna (high) · lockstep | 78.507 · landed | 68.7 / 887.7 (lockstep) | 138 | 6.414 | 26.8× | 326,287 / 48,584 | $0.056921 | 3.8× |
-| GPT-6 Luna (xhigh) · lockstep | 77.306 · landed | 69.8 / 1070.9 (lockstep) | 140 | 7.629 | 31.9× | 331,302 / 89,989 | $0.078125 | 5.2× |
-| Jev 1.13 · lockstep | 78.426 · landed | 64.7 / 28.0 (lockstep) | 130 | 0.212 | 0.9× | 349,209 / — | $0.014667 | 1.0× |
-| Jev 1.14 · lockstep | 80.462 · landed | 66.4 / 32.7 (lockstep) | 133 | 0.239 | 1.0× | 357,023 / — | $0.014995 | 1.0× |
-| Jev 1.13 · realtime | 38.577 · landed | 65.5 / 65.6 (realtime) | 130 | 0.229 | 1.0× | 349,549 / — | $0.014681 | 1.0× |
-| Jev 1.14 · realtime | 66.719 · landed | 66.5 / 66.6 (realtime) | 133 | 0.215 | 0.9× | 357,479 / — | ≥$0.015014† | ≥1.0× |
+**In our evaluation, all the Codex/LLM controllers failed to achieve a successful realtime landing;
+their results above are lockstep runs.**
 
-† **Lower-bound cost:** a request was still outstanding at terminal cleanup. Its unknown usage is not treated as free; the graph plots the recorded lower bound, and lower-bound cost ratios are marked ≥. Both ratio columns use the complete Jev 1.14 lockstep flight as reference. Codex costs are API-equivalent estimates, not subscription charges; new costs are never scaled.
+> While **Realtime** means simulation time equals wall clock time, **Lockstep** means the simulation is paused for each step to let the model respond. Hence, simulation and wall time can differ in lockstep.
 
-> **Realtime:** simulation follows wall time and commands apply on arrival. **Lockstep:** physics waits for each response. These are labeled separately, not interchangeable conditions.
+## Landing Score vs. Estimated API Cost
 
-## Landing score vs. estimated API cost
+![Landing score versus API-equivalent cost](docs/evaluations/2026-10-22-scoring-v2/landing-score-vs-api-cost.svg)
 
-![Landing score V2 versus API-equivalent cost](docs/evaluations/2026-10-22-scoring-v2/landing-score-vs-api-cost.svg)
+## Landing score calculation
 
-Original symbol/color scheme: Jev navy airplane; Codex gold moon (Luna), sun (6.1 Sol), star (Astra). Text labels distinguish realtime and lockstep. [Results and retry disclosure](docs/evaluations/2026-10-22-scoring-v2/README.md) · [Audited source transition](docs/local-model-runtime/scoring-v2-realtime-2026-10-26/source-transition.md).
+![Landing score: formula, variables and default constants](docs/scoring/scoring-v2.png)
 
 ## How is Jev's API used?
 

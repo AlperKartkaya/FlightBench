@@ -1,0 +1,820 @@
+{
+  "groups": [
+    {
+      "model": "gpt-6.1-terra",
+      "mode": "lockstep",
+      "reasoning_effort": "low",
+      "trials": [
+        {
+          "run_id": "371253b4-9db1-497b-abac-75123cbbbe90",
+          "seed": 42,
+          "score": 73.913,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "242df788-8526-49b8-b0d3-57155d28d6b9",
+          "seed": 101,
+          "score": 58.72,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "7b673769-f711-49ef-bd86-d0cc8370b9ca",
+          "seed": 202,
+          "score": 76.141,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "7b673769-f711-49ef-bd86-d0cc8370b9ca",
+      "selected": {
+        "run_id": "7b673769-f711-49ef-bd86-d0cc8370b9ca",
+        "seed": 202,
+        "score": 76.141,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 139,
+        "diagnostics": {
+          "decision_count": 139,
+          "mean_latency_ms": 2239.03390647482,
+          "calls": 139,
+          "requests_started": 139,
+          "requests_completed": 139,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 139
+          },
+          "duration_s": 69.2
+        },
+        "started_at": "2026-10-28T19:02:09.561234+00:00",
+        "finished_at": "2026-10-28T19:07:23.894807+00:00",
+        "cost_lower_bound_usd": 0.34760800000000003,
+        "input_tokens": 328148,
+        "output_tokens": 3892,
+        "cost_usd": 0.34760800000000003,
+        "full_actual_usage": true
+      },
+      "cohorts": [
+        {
+          "model": "gpt-6.1-terra",
+          "mode": "lockstep",
+          "reasoning_effort": "low",
+          "trials": [
+            {
+              "run_id": "371253b4-9db1-497b-abac-75123cbbbe90",
+              "seed": 42,
+              "score": 73.913,
+              "success": true,
+              "status": "landed",
+              "completed": true
+            },
+            {
+              "run_id": "242df788-8526-49b8-b0d3-57155d28d6b9",
+              "seed": 101,
+              "score": 58.72,
+              "success": true,
+              "status": "landed",
+              "completed": true
+            },
+            {
+              "run_id": "7b673769-f711-49ef-bd86-d0cc8370b9ca",
+              "seed": 202,
+              "score": 76.141,
+              "success": true,
+              "status": "landed",
+              "completed": true
+            }
+          ],
+          "selected_run_id": "7b673769-f711-49ef-bd86-d0cc8370b9ca",
+          "selected": {
+            "run_id": "7b673769-f711-49ef-bd86-d0cc8370b9ca",
+            "seed": 202,
+            "score": 76.141,
+            "success": true,
+            "status": "landed",
+            "completed": true,
+            "calls": 139,
+            "diagnostics": {
+              "decision_count": 139,
+              "mean_latency_ms": 2239.03390647482,
+              "calls": 139,
+              "requests_started": 139,
+              "requests_completed": 139,
+              "requests_cancel_requested": 0,
+              "requests_cancelled_before_start": 0,
+              "requests_outstanding": 0,
+              "residual_work": false,
+              "usage_unknown_requests": 0,
+              "late_decisions": 0,
+              "stale_decisions": 0,
+              "api_errors": 0,
+              "last_api_error": null,
+              "interventions": {
+                "fallback": 0,
+                "stability_hold": 0,
+                "applied": 139
+              },
+              "duration_s": 69.2
+            },
+            "started_at": "2026-10-28T19:02:09.561234+00:00",
+            "finished_at": "2026-10-28T19:07:23.894807+00:00",
+            "cost_lower_bound_usd": 0.34760800000000003,
+            "input_tokens": 328148,
+            "output_tokens": 3892,
+            "cost_usd": 0.34760800000000003,
+            "full_actual_usage": true
+          }
+        }
+      ],
+      "source_hash": "sha256:46016e511b7598025bd9e8c5c5bbc4c684d74fec18aa4898fce6983a1cef0da3",
+      "landing_retries": []
+    },
+    {
+      "model": "gpt-6.1-terra",
+      "mode": "lockstep",
+      "reasoning_effort": "medium",
+      "trials": [
+        {
+          "run_id": "021cb814-f3a6-47f8-98ab-1f5ff8edd378",
+          "seed": 42,
+          "score": 72.55,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "f9a6b589-121e-4a08-bd00-a652ab13256e",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "39e2ecb3-7a54-4ac4-af0e-88e9ca5dce77",
+          "seed": 202,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "021cb814-f3a6-47f8-98ab-1f5ff8edd378",
+      "selected": {
+        "run_id": "021cb814-f3a6-47f8-98ab-1f5ff8edd378",
+        "seed": 42,
+        "score": 72.55,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 140,
+        "diagnostics": {
+          "decision_count": 140,
+          "mean_latency_ms": 2447.5031785714286,
+          "calls": 140,
+          "requests_started": 140,
+          "requests_completed": 140,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 140
+          },
+          "duration_s": 69.63333333333334
+        },
+        "started_at": "2026-10-28T19:07:27.058886+00:00",
+        "finished_at": "2026-10-28T19:13:12.828431+00:00",
+        "cost_lower_bound_usd": 0.357015,
+        "input_tokens": 330140,
+        "output_tokens": 5375,
+        "cost_usd": 0.357015,
+        "full_actual_usage": true
+      },
+      "cohorts": [
+        {
+          "model": "gpt-6.1-terra",
+          "mode": "lockstep",
+          "reasoning_effort": "medium",
+          "trials": [
+            {
+              "run_id": "021cb814-f3a6-47f8-98ab-1f5ff8edd378",
+              "seed": 42,
+              "score": 72.55,
+              "success": true,
+              "status": "landed",
+              "completed": true
+            },
+            {
+              "run_id": "f9a6b589-121e-4a08-bd00-a652ab13256e",
+              "seed": 101,
+              "score": 0.0,
+              "success": false,
+              "status": "runway_excursion",
+              "completed": true
+            },
+            {
+              "run_id": "39e2ecb3-7a54-4ac4-af0e-88e9ca5dce77",
+              "seed": 202,
+              "score": 0.0,
+              "success": false,
+              "status": "runway_excursion",
+              "completed": true
+            }
+          ],
+          "selected_run_id": "021cb814-f3a6-47f8-98ab-1f5ff8edd378",
+          "selected": {
+            "run_id": "021cb814-f3a6-47f8-98ab-1f5ff8edd378",
+            "seed": 42,
+            "score": 72.55,
+            "success": true,
+            "status": "landed",
+            "completed": true,
+            "calls": 140,
+            "diagnostics": {
+              "decision_count": 140,
+              "mean_latency_ms": 2447.5031785714286,
+              "calls": 140,
+              "requests_started": 140,
+              "requests_completed": 140,
+              "requests_cancel_requested": 0,
+              "requests_cancelled_before_start": 0,
+              "requests_outstanding": 0,
+              "residual_work": false,
+              "usage_unknown_requests": 0,
+              "late_decisions": 0,
+              "stale_decisions": 0,
+              "api_errors": 0,
+              "last_api_error": null,
+              "interventions": {
+                "fallback": 0,
+                "stability_hold": 0,
+                "applied": 140
+              },
+              "duration_s": 69.63333333333334
+            },
+            "started_at": "2026-10-28T19:07:27.058886+00:00",
+            "finished_at": "2026-10-28T19:13:12.828431+00:00",
+            "cost_lower_bound_usd": 0.357015,
+            "input_tokens": 330140,
+            "output_tokens": 5375,
+            "cost_usd": 0.357015,
+            "full_actual_usage": true
+          }
+        }
+      ],
+      "source_hash": "sha256:46016e511b7598025bd9e8c5c5bbc4c684d74fec18aa4898fce6983a1cef0da3",
+      "landing_retries": []
+    },
+    {
+      "model": "gpt-6.1-terra",
+      "mode": "lockstep",
+      "reasoning_effort": "high",
+      "trials": [
+        {
+          "run_id": "9db8b9ec-5254-44ce-9459-9b86f59ad125",
+          "seed": 42,
+          "score": 53.163,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        },
+        {
+          "run_id": "69740f0c-9f07-420d-a3c6-76834761541f",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "nose_first_contact",
+          "completed": true
+        },
+        {
+          "run_id": "345c74ef-c399-49ec-af32-61a081f5c117",
+          "seed": 202,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "fd86e85c-a5fb-491e-a218-4544113809da",
+      "selected": {
+        "run_id": "fd86e85c-a5fb-491e-a218-4544113809da",
+        "seed": 202,
+        "score": 57.391,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 146,
+        "diagnostics": {
+          "decision_count": 146,
+          "mean_latency_ms": 2526.2069452054793,
+          "calls": 146,
+          "requests_started": 146,
+          "requests_completed": 146,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 146
+          },
+          "duration_s": 72.76666666666667
+        },
+        "started_at": "2026-10-28T20:16:21.403313+00:00",
+        "finished_at": "2026-10-28T20:22:34.373937+00:00",
+        "cost_lower_bound_usd": 0.392094,
+        "input_tokens": 344269,
+        "output_tokens": 9565,
+        "cost_usd": 0.392094,
+        "full_actual_usage": true
+      },
+      "cohorts": [
+        {
+          "model": "gpt-6.1-terra",
+          "mode": "lockstep",
+          "reasoning_effort": "high",
+          "trials": [
+            {
+              "run_id": "9db8b9ec-5254-44ce-9459-9b86f59ad125",
+              "seed": 42,
+              "score": 53.163,
+              "success": true,
+              "status": "landed",
+              "completed": true
+            },
+            {
+              "run_id": "69740f0c-9f07-420d-a3c6-76834761541f",
+              "seed": 101,
+              "score": 0.0,
+              "success": false,
+              "status": "nose_first_contact",
+              "completed": true
+            },
+            {
+              "run_id": "345c74ef-c399-49ec-af32-61a081f5c117",
+              "seed": 202,
+              "score": 0.0,
+              "success": false,
+              "status": "runway_excursion",
+              "completed": true
+            }
+          ],
+          "selected_run_id": "9db8b9ec-5254-44ce-9459-9b86f59ad125",
+          "selected": {
+            "run_id": "9db8b9ec-5254-44ce-9459-9b86f59ad125",
+            "seed": 42,
+            "score": 53.163,
+            "success": true,
+            "status": "landed",
+            "completed": true,
+            "calls": 147,
+            "diagnostics": {
+              "decision_count": 147,
+              "mean_latency_ms": 2570.2047006802723,
+              "calls": 147,
+              "requests_started": 147,
+              "requests_completed": 147,
+              "requests_cancel_requested": 0,
+              "requests_cancelled_before_start": 0,
+              "requests_outstanding": 0,
+              "residual_work": false,
+              "usage_unknown_requests": 0,
+              "late_decisions": 0,
+              "stale_decisions": 0,
+              "api_errors": 0,
+              "last_api_error": null,
+              "interventions": {
+                "fallback": 0,
+                "stability_hold": 0,
+                "applied": 147
+              },
+              "duration_s": 73.44166666666666
+            },
+            "started_at": "2026-10-28T19:23:14.929347+00:00",
+            "finished_at": "2026-10-28T19:29:36.508394+00:00",
+            "cost_lower_bound_usd": 0.395515,
+            "input_tokens": 346450,
+            "output_tokens": 9813,
+            "cost_usd": 0.395515,
+            "full_actual_usage": true
+          }
+        }
+      ],
+      "source_hash": "sha256:46016e511b7598025bd9e8c5c5bbc4c684d74fec18aa4898fce6983a1cef0da3",
+      "landing_retries": [
+        {
+          "model": "gpt-6.1-terra",
+          "mode": "lockstep",
+          "reasoning_effort": "high",
+          "trials": [
+            {
+              "run_id": "13071296-7c5c-4f51-8162-5ff913b15136",
+              "seed": 101,
+              "score": 0.0,
+              "success": false,
+              "status": "runway_excursion",
+              "completed": true
+            }
+          ],
+          "selected_run_id": "13071296-7c5c-4f51-8162-5ff913b15136",
+          "selected": {
+            "run_id": "13071296-7c5c-4f51-8162-5ff913b15136",
+            "seed": 101,
+            "score": 0.0,
+            "success": false,
+            "status": "runway_excursion",
+            "completed": true,
+            "calls": 129,
+            "diagnostics": {
+              "decision_count": 129,
+              "mean_latency_ms": 2488.680317829457,
+              "calls": 129,
+              "requests_started": 129,
+              "requests_completed": 129,
+              "requests_cancel_requested": 0,
+              "requests_cancelled_before_start": 0,
+              "requests_outstanding": 0,
+              "residual_work": false,
+              "usage_unknown_requests": 0,
+              "late_decisions": 0,
+              "stale_decisions": 0,
+              "api_errors": 0,
+              "last_api_error": null,
+              "interventions": {
+                "fallback": 0,
+                "stability_hold": 0,
+                "applied": 129
+              },
+              "duration_s": 64.25
+            },
+            "started_at": "2026-10-28T20:10:54.964245+00:00",
+            "finished_at": "2026-10-28T20:16:18.877825+00:00",
+            "cost_lower_bound_usd": 0.347662,
+            "input_tokens": 305767,
+            "output_tokens": 8379,
+            "cost_usd": 0.347662,
+            "full_actual_usage": true
+          }
+        },
+        {
+          "model": "gpt-6.1-terra",
+          "mode": "lockstep",
+          "reasoning_effort": "high",
+          "trials": [
+            {
+              "run_id": "fd86e85c-a5fb-491e-a218-4544113809da",
+              "seed": 202,
+              "score": 57.391,
+              "success": true,
+              "status": "landed",
+              "completed": true
+            }
+          ],
+          "selected_run_id": "fd86e85c-a5fb-491e-a218-4544113809da",
+          "selected": {
+            "run_id": "fd86e85c-a5fb-491e-a218-4544113809da",
+            "seed": 202,
+            "score": 57.391,
+            "success": true,
+            "status": "landed",
+            "completed": true,
+            "calls": 146,
+            "diagnostics": {
+              "decision_count": 146,
+              "mean_latency_ms": 2526.2069452054793,
+              "calls": 146,
+              "requests_started": 146,
+              "requests_completed": 146,
+              "requests_cancel_requested": 0,
+              "requests_cancelled_before_start": 0,
+              "requests_outstanding": 0,
+              "residual_work": false,
+              "usage_unknown_requests": 0,
+              "late_decisions": 0,
+              "stale_decisions": 0,
+              "api_errors": 0,
+              "last_api_error": null,
+              "interventions": {
+                "fallback": 0,
+                "stability_hold": 0,
+                "applied": 146
+              },
+              "duration_s": 72.76666666666667
+            },
+            "started_at": "2026-10-28T20:16:21.403313+00:00",
+            "finished_at": "2026-10-28T20:22:34.373937+00:00",
+            "cost_lower_bound_usd": 0.392094,
+            "input_tokens": 344269,
+            "output_tokens": 9565,
+            "cost_usd": 0.392094,
+            "full_actual_usage": true
+          }
+        }
+      ]
+    },
+    {
+      "model": "gpt-6.1-terra",
+      "mode": "lockstep",
+      "reasoning_effort": "xhigh",
+      "trials": [
+        {
+          "run_id": "f27de184-2a5c-4a14-828c-ba2830aba690",
+          "seed": 42,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "bbfdff9c-1afb-438a-943a-fc0a2e3e0d2a",
+          "seed": 101,
+          "score": 0.0,
+          "success": false,
+          "status": "runway_excursion",
+          "completed": true
+        },
+        {
+          "run_id": "8d3607ef-4a93-46c4-9736-a22feb4e28eb",
+          "seed": 202,
+          "score": 58.486,
+          "success": true,
+          "status": "landed",
+          "completed": true
+        }
+      ],
+      "selected_run_id": "8d3607ef-4a93-46c4-9736-a22feb4e28eb",
+      "selected": {
+        "run_id": "8d3607ef-4a93-46c4-9736-a22feb4e28eb",
+        "seed": 202,
+        "score": 58.486,
+        "success": true,
+        "status": "landed",
+        "completed": true,
+        "calls": 141,
+        "diagnostics": {
+          "decision_count": 141,
+          "mean_latency_ms": 2906.8775035460994,
+          "calls": 141,
+          "requests_started": 141,
+          "requests_completed": 141,
+          "requests_cancel_requested": 0,
+          "requests_cancelled_before_start": 0,
+          "requests_outstanding": 0,
+          "residual_work": false,
+          "usage_unknown_requests": 0,
+          "late_decisions": 0,
+          "stale_decisions": 0,
+          "api_errors": 0,
+          "last_api_error": null,
+          "interventions": {
+            "fallback": 0,
+            "stability_hold": 0,
+            "applied": 141
+          },
+          "duration_s": 70.225
+        },
+        "started_at": "2026-10-28T19:54:24.365497+00:00",
+        "finished_at": "2026-10-28T20:01:17.386286+00:00",
+        "cost_lower_bound_usd": 0.402023,
+        "input_tokens": 332933,
+        "output_tokens": 13818,
+        "cost_usd": 0.402023,
+        "full_actual_usage": true
+      },
+      "cohorts": [
+        {
+          "model": "gpt-6.1-terra",
+          "mode": "lockstep",
+          "reasoning_effort": "xhigh",
+          "trials": [
+            {
+              "run_id": "f27de184-2a5c-4a14-828c-ba2830aba690",
+              "seed": 42,
+              "score": 0.0,
+              "success": false,
+              "status": "runway_excursion",
+              "completed": true
+            },
+            {
+              "run_id": "bbfdff9c-1afb-438a-943a-fc0a2e3e0d2a",
+              "seed": 101,
+              "score": 0.0,
+              "success": false,
+              "status": "runway_excursion",
+              "completed": true
+            },
+            {
+              "run_id": "8d3607ef-4a93-46c4-9736-a22feb4e28eb",
+              "seed": 202,
+              "score": 58.486,
+              "success": true,
+              "status": "landed",
+              "completed": true
+            }
+          ],
+          "selected_run_id": "8d3607ef-4a93-46c4-9736-a22feb4e28eb",
+          "selected": {
+            "run_id": "8d3607ef-4a93-46c4-9736-a22feb4e28eb",
+            "seed": 202,
+            "score": 58.486,
+            "success": true,
+            "status": "landed",
+            "completed": true,
+            "calls": 141,
+            "diagnostics": {
+              "decision_count": 141,
+              "mean_latency_ms": 2906.8775035460994,
+              "calls": 141,
+              "requests_started": 141,
+              "requests_completed": 141,
+              "requests_cancel_requested": 0,
+              "requests_cancelled_before_start": 0,
+              "requests_outstanding": 0,
+              "residual_work": false,
+              "usage_unknown_requests": 0,
+              "late_decisions": 0,
+              "stale_decisions": 0,
+              "api_errors": 0,
+              "last_api_error": null,
+              "interventions": {
+                "fallback": 0,
+                "stability_hold": 0,
+                "applied": 141
+              },
+              "duration_s": 70.225
+            },
+            "started_at": "2026-10-28T19:54:24.365497+00:00",
+            "finished_at": "2026-10-28T20:01:17.386286+00:00",
+            "cost_lower_bound_usd": 0.402023,
+            "input_tokens": 332933,
+            "output_tokens": 13818,
+            "cost_usd": 0.402023,
+            "full_actual_usage": true
+          }
+        }
+      ],
+      "source_hash": "sha256:46016e511b7598025bd9e8c5c5bbc4c684d74fec18aa4898fce6983a1cef0da3",
+      "landing_retries": [
+        {
+          "model": "gpt-6.1-terra",
+          "mode": "lockstep",
+          "reasoning_effort": "xhigh",
+          "trials": [
+            {
+              "run_id": "676d52f9-9215-4232-a116-eb48a2a63afd",
+              "seed": 42,
+              "score": 0.0,
+              "success": false,
+              "status": "runway_excursion",
+              "completed": true
+            }
+          ],
+          "selected_run_id": "676d52f9-9215-4232-a116-eb48a2a63afd",
+          "selected": {
+            "run_id": "676d52f9-9215-4232-a116-eb48a2a63afd",
+            "seed": 42,
+            "score": 0.0,
+            "success": false,
+            "status": "runway_excursion",
+            "completed": true,
+            "calls": 126,
+            "diagnostics": {
+              "decision_count": 126,
+              "mean_latency_ms": 3071.0333333333333,
+              "calls": 126,
+              "requests_started": 126,
+              "requests_completed": 126,
+              "requests_cancel_requested": 0,
+              "requests_cancelled_before_start": 0,
+              "requests_outstanding": 0,
+              "residual_work": false,
+              "usage_unknown_requests": 0,
+              "late_decisions": 0,
+              "stale_decisions": 0,
+              "api_errors": 0,
+              "last_api_error": null,
+              "interventions": {
+                "fallback": 0,
+                "stability_hold": 0,
+                "applied": 126
+              },
+              "duration_s": 62.75
+            },
+            "started_at": "2026-10-28T20:22:36.936283+00:00",
+            "finished_at": "2026-10-28T20:29:06.614242+00:00",
+            "cost_lower_bound_usd": 0.36482,
+            "input_tokens": 298420,
+            "output_tokens": 13280,
+            "cost_usd": 0.36482,
+            "full_actual_usage": true
+          }
+        },
+        {
+          "model": "gpt-6.1-terra",
+          "mode": "lockstep",
+          "reasoning_effort": "xhigh",
+          "trials": [
+            {
+              "run_id": "0ca5ed6a-b3e4-4eee-a4ff-eec38237bc07",
+              "seed": 101,
+              "score": 0.0,
+              "success": false,
+              "status": "runway_excursion",
+              "completed": true
+            }
+          ],
+          "selected_run_id": "0ca5ed6a-b3e4-4eee-a4ff-eec38237bc07",
+          "selected": {
+            "run_id": "0ca5ed6a-b3e4-4eee-a4ff-eec38237bc07",
+            "seed": 101,
+            "score": 0.0,
+            "success": false,
+            "status": "runway_excursion",
+            "completed": true,
+            "calls": 129,
+            "diagnostics": {
+              "decision_count": 129,
+              "mean_latency_ms": 2858.34292248062,
+              "calls": 129,
+              "requests_started": 129,
+              "requests_completed": 129,
+              "requests_cancel_requested": 0,
+              "requests_cancelled_before_start": 0,
+              "requests_outstanding": 0,
+              "residual_work": false,
+              "usage_unknown_requests": 0,
+              "late_decisions": 0,
+              "stale_decisions": 0,
+              "api_errors": 0,
+              "last_api_error": null,
+              "interventions": {
+                "fallback": 0,
+                "stability_hold": 0,
+                "applied": 129
+              },
+              "duration_s": 64.16666666666667
+            },
+            "started_at": "2026-10-28T20:29:09.441695+00:00",
+            "finished_at": "2026-10-28T20:35:20.857738+00:00",
+            "cost_lower_bound_usd": 0.368983,
+            "input_tokens": 305378,
+            "output_tokens": 12721,
+            "cost_usd": 0.368983,
+            "full_actual_usage": true
+          }
+        }
+      ]
+    }
+  ],
+  "local": [],
+  "local_provenance": [
+    "leaderboard/campaigns/2026-10-26-local-v2/submissions/clef-flash-9b-q4-v2-lockstep-s42/submission.json",
+    "leaderboard/campaigns/2026-10-26-local-v2/submissions/decider-2b-v11-q4-v2-lockstep-s42/submission.json",
+    "leaderboard/campaigns/2026-10-26-local-v2/submissions/kev-0.8b-v1-v2-lockstep-s42/submission.json",
+    "leaderboard/campaigns/2026-10-26-local-v2/submissions/nimble-9b-q4-v2-lockstep-s42/submission.json",
+    "leaderboard/campaigns/2026-10-26-local-v2/submissions/openthai-v0.3-q8-v2-lockstep-s42/submission.json",
+    "leaderboard/campaigns/2026-10-26-local-v2/submissions/von-1.3-v2-lockstep-s42/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/clef-flash-9b-q4-v2-lockstep/trials/101/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/clef-flash-9b-q4-v2-lockstep/trials/202/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/decider-2b-v11-q4-v2-lockstep/trials/101/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/decider-2b-v11-q4-v2-lockstep/trials/202/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/kev-0.8b-v1-v2-lockstep/trials/101/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/kev-0.8b-v1-v2-lockstep/trials/202/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/nimble-9b-q4-v2-lockstep/trials/101/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/nimble-9b-q4-v2-lockstep/trials/202/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/openthai-v0.3-q8-v2-lockstep/trials/101/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/openthai-v0.3-q8-v2-lockstep/trials/202/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/von-1.3-v2-lockstep/trials/101/submission.json",
+    "leaderboard/campaigns/2026-10-28-local-v2/submissions/von-1.3-v2-lockstep/trials/202/submission.json"
+  ],
+  "selection": "Highest score across a completed three-seed cohort; repeat all three seeds once if none landed successfully. Failed high/xhigh seeds receive one user-requested landing retry; only successful retries can improve the selected result. Only positive current-scoring local runs are included; local hardware costs are not estimated."
+}

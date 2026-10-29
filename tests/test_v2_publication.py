@@ -2,6 +2,7 @@ import json
 import shutil
 import xml.etree.ElementTree as ET
 from copy import deepcopy
+from itertools import pairwise
 from types import SimpleNamespace
 
 import pytest
@@ -230,7 +231,7 @@ def test_plot_retains_original_family_symbols_and_realtime_cost_uncertainty():
     svg = _svg(groups)
     assert "high*" not in svg
     assert 'stroke-width="0.8"' not in svg
-    assert "#000c8b" in svg and "#c27b1b" in svg
+    assert "#000c8b" in svg and "#0b5551" in svg and "#c27b1b" in svg
     assert "Jev 1.14 realtime" in svg
     assert "at least $" in svg
     assert "stroke-dasharray" not in svg
@@ -238,6 +239,13 @@ def test_plot_retains_original_family_symbols_and_realtime_cost_uncertainty():
     assert "GPT-6 Sol" not in svg
     ns = {"s": "http://www.w3.org/2000/svg"}
     root = ET.fromstring(svg)
+    text = ["".join(node.itertext()) for node in root.findall("s:text", ns)]
+    ticks = [float(value.removeprefix("$")) for value in text if value.startswith("$")]
+    assert len(ticks) >= 2
+    assert all(next_tick / tick == pytest.approx(4) for tick, next_tick in pairwise(ticks))
+    assert text.count("lockstep") == 0
+    assert text.count("realtime") == 2
+    assert not any(value.startswith("Jev 1.") and value.endswith("realtime") for value in text)
     labels = [t for t in root.findall("s:text", ns) if t.text in {"low", "med", "high", "xhigh"}]
     points = [
         tuple(map(float, point.split(",")))

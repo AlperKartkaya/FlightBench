@@ -936,3 +936,10 @@ def test_api_equivalent_cost_prices_cache_ttl_and_counts_reasoning_once():
     )
     del usage["input_tokens_details"]["cache_write_tokens_details"]
     assert benchmark.api_equivalent_cost("gpt-6.1-sol", usage) is None
+
+
+def test_terra_standard_token_pricing():
+    assert benchmark.api_equivalent_cost(
+        "gpt-6.1-terra",
+        {"input_tokens": 100, "output_tokens": 20, "input_tokens_details": {"cached_tokens": 10}},
+    ) == pytest.approx((90 + 10 * 0.05 + 20 * 5) / 1e6)

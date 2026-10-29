@@ -1,12 +1,6 @@
-# Landing score versions
+# Landing score
 
-V2 follows [the requested specification](../../scoring_v2.md). The action/observation protocol
-remains `flightbench-v1`; scoring is independently labeled `v2`. Public V2 comparisons require
-identical full scoring configuration hashes and canonical default constants.
-
-## V2 (new runs)
-
-![V2 formula and variable definitions](scoring-v2.png)
+![Formula and variable definitions](scoring-v2.png)
 
 Successful means safe first main-gear contact followed by completed rollout, not exceeding a
 score threshold. Failure scores zero. Errors integrate each 1/120-second physics step until
@@ -37,16 +31,8 @@ The existing 3-degree glide target is 15 m above the threshold; signed distance 
 the threshold. Glide error is disabled at/below 6 m AGL for the flare. The 200 m longitudinal
 touchdown target is a scoring reference, not a universal ideal touchdown location.
 
-## V1 (historical)
-
-![Previous touchdown-only formula](scoring-v1.png)
-
-V1 is preserved with `ScoringConfig(version="v1")`. Missing scoring-version fields in old
-submissions mean V1, not V2. No historical score has been retrospectively rewritten.
-
-## Rebuild formula figures
+## Rebuild formula figure
 
 ```sh
 typst compile --format png --ppi 150 docs/scoring/scoring-v2.typ docs/scoring/scoring-v2.png
-typst compile --format png --ppi 150 docs/scoring/scoring-v1.typ docs/scoring/scoring-v1.png
 ```

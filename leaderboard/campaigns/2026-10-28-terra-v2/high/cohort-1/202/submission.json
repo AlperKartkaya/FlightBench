@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "GPT-6.1 Terra high",
+    "slug": "gpt-6-1-terra-high",
+    "type": "ai",
+    "provider": "OpenAI",
+    "model": "openai-codex/gpt-6.1-terra",
+    "source_url": "https://developers.openai.com/api/docs/models/gpt-6.1-terra",
+    "license": "proprietary hosted API",
+    "local": false,
+    "cost_kind": "unknown",
+    "parameter_count": null,
+    "quantization": null,
+    "metadata": {
+      "reasoning_effort": "high",
+      "campaign": {
+        "seeds": [
+          42,
+          101,
+          202
+        ],
+        "retry": "Repeat all three seeds once only if no successful landing"
+      }
+    }
+  },
+  "flightbench": {
+    "commit": "6da47647addda935933387b5e297ee8928dbf061",
+    "source_hash": "sha256:46016e511b7598025bd9e8c5c5bbc4c684d74fec18aa4898fce6983a1cef0da3",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      202
+    ],
+    "modes": [
+      "lockstep"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0
+    },
+    "realtime_response_policy": "discard-stale",
+    "scoring_version": "v2",
+    "scoring_config_sha256": "82684d68cfb2dc37bd08ee8a1e0072d88d31a3190483eb89b39e523a0b8a7b80"
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 2581.3545447761194,
+      "p50_latency_ms": 2463.715,
+      "p95_latency_ms": 3701.372,
+      "max_latency_ms": 5941.288,
+      "effective_decisions_per_second": 2.0024906600249066,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": null,
+      "cost_per_run_usd": null,
+      "cost_per_100_decisions_usd": null,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "345c74ef-c399-49ec-af32-61a081f5c117",
+      "seed": 202,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:ae017e01617b6f3ffa9ad70a55b91a8bbe6d6548251763bf5e1a28b01c3faaad"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "345c74ef-c399-49ec-af32-61a081f5c117.json.gz",
+      "sha256": "sha256:ae017e01617b6f3ffa9ad70a55b91a8bbe6d6548251763bf5e1a28b01c3faaad",
+      "bytes": 68419,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-28T19:41:25.825317Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": null
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

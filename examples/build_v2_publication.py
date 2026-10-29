@@ -186,6 +186,7 @@ def _load_episodes(submissions: Path) -> list[dict]:
 
 def _model_name(model: str) -> str:
     return {
+        "gpt-6.1-terra": "GPT-6.1 Terra",
         "gpt-6.1-sol": "GPT-6.1 Sol",
         "gpt-6-astra": "GPT-6 Astra",
         "gpt-6-luna": "GPT-6 Luna",
@@ -210,24 +211,30 @@ def _svg(groups: list[dict]) -> str:
         for group in plotted
     ]
     low, high = (min(costs), max(costs)) if costs else (0.001, 1.0)
-    low_log, high_log = math.floor(math.log10(low)), math.ceil(math.log10(high))
-    if low_log == high_log:
-        high_log += 1
+    tick = 10 ** math.floor(math.log10(low))
+    cost_ticks = [tick]
+    while cost_ticks[-1] < high:
+        cost_ticks.append(cost_ticks[-1] * 4)
+    if len(cost_ticks) == 1:
+        cost_ticks.append(cost_ticks[-1] * 4)
+    axis_low, axis_high = cost_ticks[0], cost_ticks[-1]
 
     def x(cost: float) -> float:
-        return 90 + (math.log10(cost) - low_log) / (high_log - low_log) * 980
+        return 90 + math.log(cost / axis_low) / math.log(axis_high / axis_low) * 980
 
     def y(score: float) -> float:
         return 620 - max(0.0, min(100.0, score)) * 5.0
 
     colors = {
+        "gpt-6.1-terra": "#c27b1b",
         "gpt-6.1-sol": "#c27b1b",
         "gpt-6-astra": "#c27b1b",
         "gpt-6-luna": "#c27b1b",
         "jev-1.13.0": "#000c8b",
-        "jev-1.14.0": "#000c8b",
+        "jev-1.14.0": "#0b5551",
     }
     shapes = {
+        "gpt-6.1-terra": "earth",
         "gpt-6-luna": "moon",
         "gpt-6.1-sol": "sun",
         "gpt-6-astra": "star",
@@ -238,7 +245,9 @@ def _svg(groups: list[dict]) -> str:
     def marker(model: str, cx: float, cy: float, size: float = 8, title: str = "") -> str:
         color = colors[model]
         title_tag = f"<title>{html.escape(title)}</title>" if title else ""
-        if shapes[model] == "plane":
+        if shapes[model] == "earth":
+            body = f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{size * 0.8:.1f}"/>'
+        elif shapes[model] == "plane":
             body = f'<path transform="translate({cx:.1f} {cy:.1f}) scale({size / 13:.3f})" d="M0-13l3 10 10 5v4l-10-2-2 7 4 3v2l-5-1-5 1v-2l4-3-2-7-10 2v-4l10-5z"/>'
         elif shapes[model] == "moon":
             body = f'<path transform="translate({cx:.1f} {cy:.1f}) scale({size / 13:.3f})" d="M5-12A13 13 0 1 0 5 12A12.5 12.5 0 0 1 5-12Z"/>'
@@ -257,12 +266,16 @@ def _svg(groups: list[dict]) -> str:
 
     lines = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 700" role="img" aria-labelledby="title desc">',
-        '<title id="title">FlightBench V2 landing score versus API-equivalent cost</title>',
+        '<title id="title">FlightBench landing score versus API-equivalent cost</title>',
         '<desc id="desc">Selected-flight scores; the accompanying text explains three-flight selection and user-selected retry exceptions. Modes are written beside Jev points. Incomplete costs are plotted at their recorded lower bound and identified in the accompanying table. GPT model families connect low, medium, high and xhigh reasoning effort in that order. Costs use only complete recorded token usage and are not subscription charges.</desc>',
         '<rect width="1180" height="700" rx="18" fill="#f8fafc"/>',
-        '<text x="90" y="34" font-family="system-ui,sans-serif" font-size="21" font-weight="700" fill="#172033">FlightBench V2: landing score vs API-equivalent cost</text>',
+        '<text x="90" y="34" font-family="system-ui,sans-serif" font-size="21" font-weight="700" fill="#172033">FlightBench: landing score vs API-equivalent cost</text>',
     ]
-    for index, model in enumerate(FAMILIES):
+    active_families = (
+        *FAMILIES,
+        *(("gpt-6.1-terra",) if any(g["model"] == "gpt-6.1-terra" for g in groups) else ()),
+    )
+    for index, model in enumerate(active_families):
         legend_x = 92 + (index % 3) * 335
         legend_y = 65 + (index // 3) * 30
         lines.append(marker(model, legend_x, legend_y - 4, 14))
@@ -275,17 +288,17 @@ def _svg(groups: list[dict]) -> str:
         lines.append(
             f'<text x="78" y="{yy + 4:.1f}" text-anchor="end" font-family="system-ui,sans-serif" font-size="16" fill="#526174">{score}</text>'
         )
-    for exponent in range(low_log, high_log + 1):
-        value = 10**exponent
+    for value in cost_ticks:
         xx = x(value)
+        label = f"{value:g}"
         lines.append(f'<path d="M{xx:.1f} 120V620" stroke="#e6ebf1"/>')
         lines.append(
-            f'<text x="{xx:.1f}" y="642" text-anchor="middle" font-family="system-ui,sans-serif" font-size="16" fill="#526174">${value:g}</text>'
+            f'<text x="{xx:.1f}" y="642" text-anchor="middle" font-family="system-ui,sans-serif" font-size="16" fill="#526174">${label}</text>'
         )
     lines += [
         '<path d="M90 120V620H1070" fill="none" stroke="#405066" stroke-width="1.5"/>',
         '<text x="580" y="680" text-anchor="middle" font-family="system-ui,sans-serif" font-size="19" fill="#273549">API-equivalent cost per selected full run (USD, log scale)</text>',
-        '<text transform="translate(25 370) rotate(-90)" text-anchor="middle" font-family="system-ui,sans-serif" font-size="19" fill="#273549">Landing score V2 (0–100)</text>',
+        '<text transform="translate(25 370) rotate(-90)" text-anchor="middle" font-family="system-ui,sans-serif" font-size="19" fill="#273549">Landing score (0–100)</text>',
     ]
     by_key = {(group["model"], group["reasoning_effort"]): group for group in groups}
     effort_labels = dict(zip(EFFORTS, ("low", "med", "high", "xhigh"), strict=True))
@@ -298,14 +311,20 @@ def _svg(groups: list[dict]) -> str:
             (8, -25, "middle"),
         ),
         "gpt-6.1-sol": ((-12, -24, "end"), (-16, 35, "end"), (10, -34, "start"), (22, 7, "start")),
+        "gpt-6.1-terra": (
+            (-12, -25, "end"),
+            (-22, -10, "end"),
+            (-24, 7, "end"),
+            (22, 20, "start"),
+        ),
         "gpt-6-astra": ((-21, -12, "end"), (-18, 35, "end"), (15, -29, "start"), (22, 20, "start")),
     }
-    for model in FAMILIES[:3]:
+    for model in (*FAMILIES[:3], "gpt-6.1-terra"):
         points = []
         segments = []
         segment = []
         for effort in EFFORTS:
-            selected = by_key[(model, effort)]["selected"]
+            selected = by_key.get((model, effort), {}).get("selected")
             if selected and selected["cost_usd"]:
                 point = (effort, selected, x(selected["cost_usd"]), y(selected["score"]))
                 points.append(point)
@@ -329,7 +348,7 @@ def _svg(groups: list[dict]) -> str:
             tx, ty = xx + dx, yy + dy
             effort_label = effort_labels[effort]
             lines.append(
-                f'<text x="{tx:.1f}" y="{ty:.1f}" text-anchor="{anchor}" font-family="system-ui,sans-serif" font-size="16" font-weight="600" fill="{colors[model]}">{effort_label}</text>'
+                f'<text x="{tx:.1f}" y="{ty:.1f}" text-anchor="{anchor}" font-family="system-ui,sans-serif" font-size="16" font-weight="600" fill="{colors[model]}" paint-order="stroke" stroke="#f8fafc" stroke-width="5" stroke-linejoin="round">{effort_label}</text>'
             )
     for group in groups:
         model = group["model"]
@@ -344,13 +363,13 @@ def _svg(groups: list[dict]) -> str:
         bound = selected["cost_usd"] is None
         title = f"{_model_name(model)} {mode}: score {selected['score']:.3f}, {'at least ' if bound else ''}{_money(cost)}"
         lines.append(marker(model, xx, yy, 24, title))
-        # Split names/modes to keep the large labels clear of the nearby Luna points.
-        tx, ty = xx + 30, yy + 1
+        tx, ty = xx + 30, yy + 5
         if model == "jev-1.14.0" and mode == "lockstep":
-            ty = yy - 37
-        name = html.escape(_model_name(model))
+            ty = yy - 24
+        elif model == "jev-1.13.0" and mode == "lockstep":
+            ty = yy + 27
         lines.append(
-            f'<text x="{tx:.1f}" y="{ty:.1f}" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="{colors[model]}">{name}<tspan x="{tx:.1f}" dy="19">{mode}</tspan></text>'
+            f'<text x="{tx:.1f}" y="{ty:.1f}" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="{colors[model]}">{mode}</text>'
         )
     lines.append("</svg>")
     return "\n".join(lines) + "\n"
@@ -450,7 +469,7 @@ def write_publication(
     )
     if any(g.get("repeat_campaign") == "2026-10-26-realtime-repeat2" for g in groups):
         repeat_argument += " --jev113-realtime-submissions leaderboard/campaigns/2026-10-26-realtime-repeat2/submissions"
-    text = f"""# FlightBench V2 comparison
+    text = f"""# FlightBench comparison
 
 Except the explicitly selected Luna high retry below, each row uses the highest-scoring completed flight for seeds 42, 101 and 202, separately by model, effort and mode. A tie uses the lower seed. Jev 1.13 uses its new three-flight repeat in each mode when supplied; superseded trials remain in the JSON provenance. Max is excluded.
 

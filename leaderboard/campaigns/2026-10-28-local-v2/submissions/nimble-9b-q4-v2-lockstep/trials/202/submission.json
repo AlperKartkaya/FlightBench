@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "Bespoke Nimble 9B Q4_K_M",
+    "slug": "nimble-9b-q4-v2-lockstep",
+    "type": "ai",
+    "provider": "Bespoke / local Ollama",
+    "model": "nimble:9b-q4_K_M",
+    "source_url": "https://ollama.com/library/nimble",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": 9000000000,
+    "quantization": "Q4_K_M",
+    "metadata": {
+      "backend": "Ollama 0.35.0 Metal System One scoring",
+      "model_digest": "572f1f4c801d37171344b0520d14853a88887c249d11db3acfa6c81a34cdcfa3",
+      "model_manifest_sha256": "572f1f4c801d37171344b0520d14853a88887c249d11db3acfa6c81a34cdcfa3",
+      "files": {
+        "application/vnd.ollama.image.model": {
+          "sha256": "sha256:0e228c45932655a4b97b175eba79a578e180778ce0d576a10b86f8726962d993",
+          "bytes": 5629108736
+        },
+        "application/vnd.ollama.image.system": {
+          "sha256": "sha256:47bec4463a2ae8ca4223cd9da803232e93f3e2c3c1990b17d79019133ad344a6",
+          "bytes": 385
+        },
+        "application/vnd.ollama.image.license": {
+          "sha256": "sha256:d0c0372065bbe3b1a9931ec5ed842e7ddce6d1308bb3d3bbd9edd27724e5cdd7",
+          "bytes": 400
+        },
+        "application/vnd.ollama.image.params": {
+          "sha256": "sha256:7892eb6262be941f7a3278cb307efebaadef0fbd35dea0837dc50533a4df6c89",
+          "bytes": 17
+        }
+      },
+      "context_length": 8192,
+      "generation": false,
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "campaign": {
+        "id": "local-v2-three-seeds-2026-10-28",
+        "seeds": [
+          42,
+          101,
+          202
+        ],
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "scoring_version": "v2",
+        "order": "One local model server and one lockstep episode at a time.",
+        "seed_42": "Reused from the validated October 26 campaign; not rerun."
+      },
+      "endpoint": "http://127.0.0.1:11435",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "6da47647addda935933387b5e297ee8928dbf061",
+    "source_hash": "sha256:ebbaf763d742e79e847f43f8f64f701ec923160f770960b0d6cecfe3c81fa128",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      202
+    ],
+    "modes": [
+      "lockstep"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0
+    },
+    "realtime_response_policy": "discard-stale",
+    "scoring_version": "v2",
+    "scoring_config_sha256": "82684d68cfb2dc37bd08ee8a1e0072d88d31a3190483eb89b39e523a0b8a7b80"
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 12659.266569620253,
+      "p50_latency_ms": 12836.849,
+      "p95_latency_ms": 13099.294,
+      "max_latency_ms": 13285.734,
+      "effective_decisions_per_second": 2.009965016431676,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "fc5e65c5-7b77-459e-abe1-0aeb6de962fb",
+      "seed": 202,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:478d658509f3a8150d6ae0e2b2875d838f237c5d30398433c0934546faf6aaf1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "fc5e65c5-7b77-459e-abe1-0aeb6de962fb.json.gz",
+      "sha256": "sha256:478d658509f3a8150d6ae0e2b2875d838f237c5d30398433c0934546faf6aaf1",
+      "bytes": 148183,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-27T23:01:10.225576Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

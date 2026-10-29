@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "Clef-Flash 9B Q4_K_M",
+    "slug": "clef-flash-9b-q4-v2-lockstep-s42",
+    "type": "ai",
+    "provider": "Cloudflare / ggml-org / local llama.cpp",
+    "model": "clef-flash-q4",
+    "source_url": "https://huggingface.co/Cloudflare/clef-flash",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": 9000000000,
+    "quantization": "Q4_K_M",
+    "metadata": {
+      "model_revision": "fde727a287004204b7518dcc983fe64379776712",
+      "quantized_model_source": "ggml-org/Clef-Flash-GGUF",
+      "quantized_model_revision": "4a192915ef971886004b5b13294f2b4c7a7fc39d",
+      "source_revision": "d81235049384534c167caea52b85a694f6103d14",
+      "backend": "llama.cpp b11429 Metal; all requested layers offloaded with -ngl 99; CPU helper threads 2",
+      "n_ctx": 8192,
+      "n_seq_max": 1,
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "files": {
+        "Clef-Flash-Q4_K_M.gguf": {
+          "sha256": "fd3e90605e8103307dca37cb5a8cdb036267e2fe3cb2d908d80a8ceb9ec0638c",
+          "bytes": 6486448288
+        },
+        "llama-b11429-bin-macos-arm64.tar.gz": {
+          "sha256": "740288ec6887be94280a5dfa25b5e23a78285cab104519e6c7e218904ee82459",
+          "bytes": 11971406
+        }
+      },
+      "campaign": {
+        "id": "local-v2-lockstep-2026-10-26",
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "scoring_version": "v2",
+        "warmup": "One complete canonical initial-state request before the episode; retained separately.",
+        "order": "Lockstep seed 42 only; dedicated fresh server after conformance; host kept awake with caffeinate -i.",
+        "isolation": "Other desktop/agent activity possible; no other benchmark model jobs."
+      },
+      "endpoint": "http://127.0.0.1:8012",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "6da47647addda935933387b5e297ee8928dbf061",
+    "source_hash": "sha256:ebbaf763d742e79e847f43f8f64f701ec923160f770960b0d6cecfe3c81fa128",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42
+    ],
+    "modes": [
+      "lockstep"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0
+    },
+    "realtime_response_policy": "discard-stale",
+    "scoring_version": "v2",
+    "scoring_config_sha256": "82684d68cfb2dc37bd08ee8a1e0072d88d31a3190483eb89b39e523a0b8a7b80"
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 11590.254178807947,
+      "p50_latency_ms": 11685.448,
+      "p95_latency_ms": 11950.552,
+      "max_latency_ms": 12592.731,
+      "effective_decisions_per_second": 2.002873880844479,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "d538c556-def4-456b-8385-18f65198a62a",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:6474fdff402ea14c109f1f390282fdfdfeeae08410cb448d6c640c33ade91b8e"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "d538c556-def4-456b-8385-18f65198a62a.json.gz",
+      "sha256": "sha256:6474fdff402ea14c109f1f390282fdfdfeeae08410cb448d6c640c33ade91b8e",
+      "bytes": 142744,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-27T16:38:38.162561Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

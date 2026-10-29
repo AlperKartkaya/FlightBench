@@ -1,4 +1,4 @@
-# FlightBench V2 comparison
+# FlightBench comparison
 
 Except the explicitly selected Luna high retry below, each row uses the highest-scoring completed flight for seeds 42, 101 and 202, separately by model, effort and mode. A tie uses the lower seed. Jev 1.13 uses its new three-flight repeat in each mode when supplied; superseded trials remain in the JSON provenance. Max is excluded.
 

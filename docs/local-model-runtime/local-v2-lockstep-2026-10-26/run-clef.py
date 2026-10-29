@@ -12,7 +12,9 @@ from pathlib import Path
 from urllib.request import ProxyHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[3]
-OUT = ROOT / "docs/local-model-runtime/local-v2-lockstep-2026-10-26/clef-flash"
+RUNTIME = ROOT / "docs/local-model-runtime/local-v2-lockstep-2026-10-26"
+# Keep generated diagnostics private; publish only the validated episode and manifest.
+OUT = ROOT / "scratch/clef-v2-lockstep-2026-10-27"
 MODEL = ROOT / "scratch/clef-flash/model/Clef-Flash-Q4_K_M.gguf"
 ARCHIVE = ROOT / "scratch/clef-flash/llama-b11429-bin-macos-arm64.tar.gz"
 SERVER = next((ROOT / "scratch/clef-flash/runtime-b11429").glob("*/llama-server"))
@@ -22,7 +24,7 @@ EXPECTED_SOURCE = None
 sys.path.insert(0, str(ROOT))
 from flightbench.runs import now, source_identity
 
-EXPECTED_SOURCE = json.loads((OUT.parent / "source.json").read_text())["identity"]["source_hash"]
+EXPECTED_SOURCE = json.loads((RUNTIME / "source.json").read_text())["identity"]["source_hash"]
 
 
 def sha(path):
@@ -248,10 +250,7 @@ try:
     assert source_identity()["source_hash"] == EXPECTED_SOURCE
     status["status"] = "evaluating"
     write("status.json", status)
-    submission = (
-        ROOT
-        / "leaderboard/campaigns/2026-10-26-local-v2/submissions/clef-flash-9b-q4-v2-lockstep-s42"
-    )
+    submission = OUT / "submission"
     with (OUT / "evaluation.log").open("w") as evaluation_log:
         subprocess.run(
             [

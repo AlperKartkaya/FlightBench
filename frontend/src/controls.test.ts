@@ -9,8 +9,8 @@ const apply = (key: string) => {
 };
 
 test("keyboard follows experimentally measured c172x command signs", () => {
-  assert.ok(apply("KeyW").elevator > 0, "W commands nose down");
-  assert.ok(apply("KeyS").elevator < 0, "S commands nose up");
+  assert.ok(apply("KeyW").elevator < 0, "W commands nose up");
+  assert.ok(apply("KeyS").elevator > 0, "S commands nose down");
   assert.ok(apply("KeyA").aileron < 0, "A commands left bank");
   assert.ok(apply("KeyD").aileron > 0, "D commands right bank");
   assert.ok(apply("KeyQ").rudder > 0, "Q commands yaw left");
@@ -151,4 +151,26 @@ test("wingLeveler manages throttle during approach, flare, and touchdown", () =>
     altitudeAglM: 5.0,
   });
   assert.ok(controlOverride.throttle > 0.50, "pilot throttle up overrides flare idle");
+});
+
+
+test("arrow keys match WASD in both control modes without doubling held aliases", () => {
+  for (const autoCenter of [true, false]) {
+    for (const [arrow, letter] of [["ArrowUp", "KeyW"], ["ArrowDown", "KeyS"], ["ArrowLeft", "KeyA"], ["ArrowRight", "KeyD"]]) {
+      const expected = defaultControls();
+      updateHumanControls(expected, new Set([letter]), .1, { autoCenter });
+      for (const keys of [[arrow], [arrow, letter]]) {
+        const actual = defaultControls();
+        updateHumanControls(actual, new Set(keys), .1, { autoCenter });
+        assert.deepEqual(actual, expected);
+      }
+    }
+    const controls = defaultControls();
+    updateHumanControls(controls, new Set(["ArrowUp", "KeyS", "ArrowLeft", "KeyD"]), .1, { autoCenter });
+    assert.deepEqual(controls, defaultControls(), "opposite directions cancel");
+    const held = new Set(["ArrowUp", "KeyW"]);
+    held.delete("KeyW");
+    updateHumanControls(controls, held, .1, { autoCenter });
+    assert.ok(controls.elevator < defaultControls().elevator, "releasing W leaves ArrowUp active");
+  }
 });

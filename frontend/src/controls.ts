@@ -49,6 +49,12 @@ const SURFACE_RATE = 1.4;
 const CENTER_RATE = 2.2;
 const THROTTLE_RATE = 0.45;
 
+const ARROW_KEYS: Record<string, string> = {
+  ArrowUp: "KeyW", ArrowDown: "KeyS", ArrowLeft: "KeyA", ArrowRight: "KeyD",
+};
+
+export const humanKey = (code: string) => ARROW_KEYS[code] ?? code;
+
 /**
  * Updates human control state.
  * By default, aerodynamic surfaces smoothly deflect while keys are held and
@@ -65,11 +71,12 @@ export function updateHumanControls(
   options: ControlOptions = {},
 ) {
   const autoCenter = options.autoCenter ?? true;
+  const keys = new Set([...pressed].map(humanKey));
   const axis = (negative: string, positive: string) =>
-    Number(pressed.has(positive)) - Number(pressed.has(negative));
+    Number(keys.has(positive)) - Number(keys.has(negative));
 
   const aileronDir = axis("KeyA", "KeyD");
-  const elevatorDir = axis("KeyS", "KeyW");
+  const elevatorDir = axis("KeyW", "KeyS");
   const rudderDir = axis("KeyE", "KeyQ");
   const throttleDir = axis("KeyF", "KeyR");
 
