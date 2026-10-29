@@ -38,7 +38,9 @@ def main():
         assert page.evaluate("document.documentElement.scrollHeight <= innerHeight")
         expect(page.locator("#controller")).to_have_value("human")
         expect(page.locator("#configureToggle")).to_have_text("Human pilot ▾")
-        assert page.locator("#controller option").evaluate_all("options => options.map(o => o.value)") == ["human", "baseline", "jev", "codex"]
+        assert page.locator("#controller option").evaluate_all(
+            "options => options.map(o => o.value)"
+        ) == ["human", "baseline", "jev", "codex"]
         expect(page.locator("#configPanel")).to_be_hidden()
         page.locator("#configureToggle").click()
         expect(page.locator("#configPanel")).to_be_visible()
@@ -49,11 +51,19 @@ def main():
         assert page.locator("#mode").count() == 0
         page.locator("#controller").select_option("jev")
         expect(page.locator("#jevModel")).to_be_visible()
-        assert page.locator("#jevModel option").evaluate_all("options => options.map(o => o.value)") == ["jev-1.13.0", "jev-1.14.0"]
+        assert page.locator("#jevModel option").evaluate_all(
+            "options => options.map(o => o.value)"
+        ) == ["jev-1.13.0", "jev-1.14.0"]
         page.locator("#jevModel").select_option("jev-1.14.0")
         page.locator("#controller").select_option("codex")
         expect(page.locator("#reasoningEffort")).to_be_visible()
-        assert page.locator("#reasoningEffort option").all_text_contents() == ["low", "medium", "high", "xhigh", "max"]
+        assert page.locator("#reasoningEffort option").all_text_contents() == [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+        ]
         page.locator("#controller").select_option("jev")
         page.locator("#decisionRate").select_option("5")
         expect(page.locator("#configureToggle")).to_contain_text("Jev · 5 Hz")
