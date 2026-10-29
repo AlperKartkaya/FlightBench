@@ -1,0 +1,21 @@
+{
+  "requested_at": "2026-10-26T14:48:14.834234+00:00",
+  "status": "complete",
+  "wait_for_pid": 1330,
+  "models": [
+    "jev-1.13.0"
+  ],
+  "modes": [
+    "lockstep",
+    "realtime"
+  ],
+  "seeds": [
+    42,
+    101,
+    202
+  ],
+  "source_hash": "sha256:ebbaf763d742e79e847f43f8f64f701ec923160f770960b0d6cecfe3c81fa128",
+  "started_at": "2026-10-26T14:50:35.412815+00:00",
+  "finished_at": "2026-10-26T15:00:25.341141+00:00",
+  "completed_flights": 6
+}

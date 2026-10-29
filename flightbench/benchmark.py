@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import json
+import sys
 from collections import Counter
 from collections.abc import Mapping
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, TimeoutError
 from copy import deepcopy
 from pathlib import Path
 from statistics import mean
@@ -27,14 +29,55 @@ from .temporal import TelemetryHistory
 
 DEFAULT_TIMEOUT_S = 10.0
 INCOMPLETE_STATUSES = {"interrupted", "error", "controller_timeout", "controller_error"}
-# USD per million tokens, Standard short-context rates (2026-09-27).
+# USD per million tokens, Standard short-context rates (2026-10-21).
 # https://developers.openai.com/api/docs/pricing
 CODEX_RATES = {
     "gpt-6-luna": (0.10, 0.01, 0.125, 0.50),
     "gpt-6-sol": (2.00, 0.20, 2.50, 10.00),
+    "gpt-6.1-sol": (2.00, 0.10, 2.50, 10.00),
+    "gpt-6.1-terra": (1.00, 0.05, 1.25, 5.00),
     "gpt-6-astra": (10.00, 1.00, 12.50, 50.00),
 }
 JEV_INPUT_RATE = 0.042  # https://typesafe.ai/blog/introducing-system-one-models-and-jev
+
+
+def _token_count(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+
+def _usage_token_pair(usage: object) -> bool:
+    return isinstance(usage, Mapping) and all(
+        _token_count(usage.get(key)) for key in ("input_tokens", "output_tokens")
+    )
+
+
+def api_equivalent_cost(model: str, usage: Mapping) -> float | None:
+    """Price Responses usage; missing cache-write TTL means unknown cost."""
+    rates = CODEX_RATES.get(model.removeprefix("openai-codex/"))
+    if not rates or not _usage_token_pair(usage):
+        return None
+    input_rate, cached_rate, _, output_rate = rates
+    details = usage.get("input_tokens_details") or {}
+    if not isinstance(details, Mapping):
+        return None
+    cached, writes = details.get("cached_tokens", 0), details.get("cache_write_tokens", 0)
+    ttl = details.get("cache_write_tokens_details") or {}
+    if not isinstance(ttl, Mapping):
+        return None
+    short, long = ttl.get("ttl_30m_tokens", 0), ttl.get("ttl_12h_tokens", 0)
+    if (
+        any(not _token_count(v) for v in (cached, writes, short, long))
+        or cached + writes > usage["input_tokens"]
+        or short + long != writes
+    ):
+        return None
+    return (
+        (usage["input_tokens"] - cached - writes) * input_rate
+        + cached * cached_rate
+        + short * 1.25 * input_rate
+        + long * 2.5 * input_rate
+        + usage["output_tokens"] * output_rate
+    ) / 1_000_000
 
 
 def _action_dict(action: ControlCommand) -> dict[str, float]:
@@ -63,8 +106,10 @@ def run_episode(
     mode: str = "lockstep",
     scenario: str = "easy",
     model: str | None = None,
+    reasoning_effort: str = "low",
     decision_hz: int = 2,
     time_scale: float = 1.0,
+    realtime_response_policy: str = "discard-stale",
     timeout_s: float = DEFAULT_TIMEOUT_S,
     log_path: Path | None = None,
     record_dir: Path | None = None,
@@ -77,8 +122,10 @@ def run_episode(
         mode=mode,
         scenario=scenario,
         model=model,
+        reasoning_effort=reasoning_effort,
         decision_hz=decision_hz,
         time_scale=time_scale,
+        realtime_response_policy=realtime_response_policy,
     )
     decision_ticks, decision_interval_s = decision_timing(decision_hz)
     if controller_name == "human":
@@ -96,12 +143,18 @@ def run_episode(
     observation, _ = env.reset(seed=seed)
     initial_observation = observation
     initial_snapshot = env.snapshot()
-    controller = make_controller(
-        controller_name,
-        seed=seed,
-        model=model,
-        decision_hz=decision_hz,
-    )
+    if ":" in controller_name:
+        from .loading import ExternalController
+
+        controller = ExternalController(controller_name)
+    else:
+        controller = make_controller(
+            controller_name,
+            seed=seed,
+            model=model,
+            reasoning_effort=reasoning_effort,
+            decision_hz=decision_hz,
+        )
     from .core import TRIM_AILERON, TRIM_ELEVATOR, TRIM_RUDDER
 
     action = ControlCommand(
@@ -112,6 +165,11 @@ def run_episode(
     )
     decisions: list[dict] = []
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="flightbench-controller")
+    requests_started = 0
+    requests_completed = 0
+    requests_cancel_requested = 0
+    requests_cancelled_before_start = 0
+    requests_outstanding = 0
     decision_index = 0
     terminal_error = None
     tracker = DecisionTracker()
@@ -162,13 +220,22 @@ def run_episode(
                 error = None
                 decision_info = None
                 try:
-                    next_action = executor.submit(controller.decide, enriched).result(
-                        timeout=timeout_s
-                    )
+                    request = executor.submit(controller.decide, enriched)
+                    requests_started += 1
+                    next_action = request.result(timeout=timeout_s)
+                    requests_completed += 1
                     decision_info = getattr(controller, "last_decision", None)
                 except TimeoutError:
+                    requests_cancel_requested += 1
+                    if request.cancel():
+                        requests_cancelled_before_start += 1
+                    elif request.done():
+                        requests_completed += 1
+                    else:
+                        requests_outstanding += 1
                     next_action, error = None, "controller_timeout"
                 except Exception:  # noqa: BLE001 - provider errors must stay sanitized
+                    requests_completed += 1
                     next_action, error = None, "controller_error"
                 latency_s = perf_counter() - started
                 control_before = _action_dict(action)
@@ -226,14 +293,19 @@ def run_episode(
                     decision_info_rt = None
                     try:
                         new_action_rt = pending.result()
+                        requests_completed += 1
                         decision_info_rt = getattr(controller, "last_decision", None)
                     except Exception:  # noqa: BLE001 - provider errors must stay sanitized
+                        requests_completed += 1
                         new_action_rt = None
                         error = "controller_error"
                     applied_time = observation.get("time_s", 0.0)
                     obs_time = pending_observation.get("time_s", 0.0)
                     state_age_ms = round(max(0.0, (applied_time - obs_time) * 1000), 1)
-                    stale = state_age_ms > 2 * env_interval_s * 1000
+                    stale = (
+                        realtime_response_policy == "discard-stale"
+                        and state_age_ms > 2 * env_interval_s * 1000
+                    )
                     control_before = _action_dict(action)
                     if new_action_rt is not None and not stale:
                         _record_transition(controller, action, new_action_rt, observation)
@@ -300,6 +372,7 @@ def run_episode(
                     enriched = _enrich(pending_observation)
                     pending_started = perf_counter()
                     pending = executor.submit(controller.decide, enriched)
+                    requests_started += 1
 
                 observation, _, _, _, _ = env.advance(action, ticks=1)
                 telemetry.add(observation)
@@ -307,7 +380,16 @@ def run_episode(
                 deadline += 1 / (PHYSICS_HZ * time_scale)
                 sleep(max(0, deadline - perf_counter()))
             if pending:
-                pending.cancel()
+                if pending.done():
+                    requests_completed += 1
+                else:
+                    requests_cancel_requested += 1
+                    if pending.cancel():
+                        requests_cancelled_before_start += 1
+                    elif pending.done():
+                        requests_completed += 1
+                    else:
+                        requests_outstanding += 1
     finally:
         executor.shutdown(wait=False, cancel_futures=True)
 
@@ -333,6 +415,15 @@ def run_episode(
         "decision_count": interventions["applied"],
         "mean_latency_ms": mean(latencies) if latencies else 0.0,
         "calls": len(decisions),
+        "requests_started": requests_started,
+        "requests_completed": requests_completed,
+        "requests_cancel_requested": requests_cancel_requested,
+        "requests_cancelled_before_start": requests_cancelled_before_start,
+        "requests_outstanding": requests_outstanding,
+        "residual_work": requests_outstanding > 0,
+        "usage_unknown_requests": max(
+            0, requests_started - len(decisions) - requests_cancelled_before_start
+        ),
         "late_decisions": sum(latency > 1000 / (decision_hz * time_scale) for latency in latencies)
         if mode == "realtime"
         else 0,
@@ -460,6 +551,7 @@ def _episode_row(episode: dict) -> dict:
     model = config.get("model")
     controller = config.get("controller")
     decisions = episode.get("decisions") or []
+    unknown_requests = int((episode.get("diagnostics") or {}).get("usage_unknown_requests", 0))
     row = {
         "controller": controller,
         "model": model,
@@ -472,47 +564,68 @@ def _episode_row(episode: dict) -> dict:
         "output_tokens": None,
         "cost_usd": None,
         "missing_usage": 0,
+        "input_tokens_estimated": False,
     }
     if controller == "codex" and isinstance(model, str):
         rates = CODEX_RATES.get(model.removeprefix("openai-codex/"))
         if rates:
             usage = [((d.get("decision_info") or {}).get("usage") or {}) for d in decisions]
-            known = [u for u in usage if "input_tokens" in u and "output_tokens" in u]
-            inputs = sum(u["input_tokens"] for u in known)
-            outputs = sum(u["output_tokens"] for u in known)
-            cached = sum(
-                (u.get("input_tokens_details") or {}).get("cached_tokens", 0) for u in known
-            )
-            writes = sum(
-                (u.get("input_tokens_details") or {}).get("cache_write_tokens", 0) for u in known
-            )
-            input_rate, cached_rate, write_rate, output_rate = rates
-            row.update(
-                input_tokens=inputs,
-                output_tokens=outputs,
-                missing_usage=len(usage) - len(known),
-                cost_usd=(
-                    (inputs - cached - writes) * input_rate
-                    + cached * cached_rate
-                    + writes * write_rate
-                    + outputs * output_rate
+            known = [u for u in usage if _usage_token_pair(u)]
+            row["missing_usage"] = len(usage) - len(known) + unknown_requests
+            if known:
+                costs = [api_equivalent_cost(model, u) for u in known]
+                row.update(
+                    input_tokens=sum(u["input_tokens"] for u in known),
+                    output_tokens=sum(u["output_tokens"] for u in known),
+                    cost_usd=sum(costs) if all(c is not None for c in costs) else None,
                 )
-                / 1_000_000,
+    elif controller in {"ollama", "systemone"}:
+        usage = [((d.get("decision_info") or {}).get("usage") or {}) for d in decisions]
+        known = [u for u in usage if _usage_token_pair(u)]
+        row.update(missing_usage=len(usage) - len(known) + unknown_requests, cost_usd=0.0)
+        if known:
+            row.update(
+                input_tokens=sum(u["input_tokens"] for u in known),
+                output_tokens=sum(u["output_tokens"] for u in known),
             )
     elif controller == "jev":
         requests = [(d.get("decision_info") or {}) for d in decisions]
-        complete = [
-            r for r in requests if r.get("input") is not None and r.get("sdk_request") is not None
+        actual = []
+        invalid_actual = 0
+        for request in requests:
+            usage = request.get("usage")
+            if usage is None or (isinstance(usage, Mapping) and "input_tokens" not in usage):
+                continue
+            if (
+                isinstance(usage, Mapping)
+                and _token_count(usage["input_tokens"])
+                and ("output_tokens" not in usage or _token_count(usage["output_tokens"]))
+            ):
+                actual.append(usage["input_tokens"])
+            else:
+                invalid_actual += 1
+        estimated = [
+            round(
+                (
+                    len(json.dumps(r["input"], separators=(",", ":")))
+                    + len(json.dumps(r["sdk_request"], separators=(",", ":")))
+                )
+                / 4
+            )
+            for r in requests
+            if (
+                r.get("usage") is None
+                or (isinstance(r.get("usage"), Mapping) and "input_tokens" not in r["usage"])
+            )
+            and r.get("input") is not None
+            and r.get("sdk_request") is not None
         ]
-        chars = sum(
-            len(json.dumps(r["input"], separators=(",", ":")))
-            + len(json.dumps(r["sdk_request"], separators=(",", ":")))
-            for r in complete
-        )
+        tokens = sum(actual) + sum(estimated)
         row.update(
-            input_tokens=round(chars / 4),
-            missing_usage=len(requests) - len(complete),
-            cost_usd=chars / 4 * JEV_INPUT_RATE / 1_000_000,
+            input_tokens=tokens if actual or estimated or not invalid_actual else None,
+            input_tokens_estimated=bool(estimated),
+            missing_usage=len(requests) - len(actual) - len(estimated) + unknown_requests,
+            cost_usd=None if invalid_actual else tokens * JEV_INPUT_RATE / 1_000_000,
         )
     return row
 
@@ -559,7 +672,7 @@ def _report_values(row: dict) -> tuple[str, str, str]:
     tokens = "—"
     if row["input_tokens"] is not None:
         output = f"{row['output_tokens']:,}" if row["output_tokens"] is not None else "—"
-        prefix = "~" if row["controller"] == "jev" else ""
+        prefix = "~" if row.get("input_tokens_estimated") else ""
         tokens = f"{prefix}{row['input_tokens']:,} / {output}"
     cost = f"${row['cost_usd']:.5f}" if row["cost_usd"] is not None else "—"
     if row["missing_usage"] and row["cost_usd"] is not None:
@@ -590,7 +703,7 @@ def report_markdown(rows: list[dict]) -> str:
     lines.extend(
         [
             "",
-            "Where available, costs use recorded Codex response usage and [OpenAI Standard short-context rates](https://developers.openai.com/api/docs/pricing) as of 2026-09-27; they are not Codex-account charges. Jev input tokens are a rough four-characters-per-token proxy from its logged request data at [TypeSafe's published rate](https://typesafe.ai/blog/introducing-system-one-models-and-jev). Missing usage makes a cost a lower bound. Equal scores select the lowest seed.",
+            "Where available, costs use recorded provider usage. Historical Jev records without usage use a rough four-characters-per-token proxy. Rates use [OpenAI Standard short-context pricing](https://developers.openai.com/api/docs/pricing) as of 2026-09-27 and [TypeSafe's published Jev rate](https://typesafe.ai/blog/introducing-system-one-models-and-jev); they are not Codex-account charges. Missing usage makes a cost a lower bound. Equal scores select the lowest seed.",
             "",
             "Selected run IDs: "
             + ", ".join(
@@ -621,14 +734,31 @@ def episode_markdown(rows: list[dict]) -> str:
 
 
 def main(argv: list[str] | None = None) -> None:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ["leaderboard"]:
+        from .leaderboard import main as leaderboard_main
+
+        leaderboard_main(argv[1:])
+        return
+    if argv[:1] == ["eval"]:
+        evaluate(argv[1:])
+        return
     parser = argparse.ArgumentParser(description="Run reproducible FlightBench episodes")
     parser.add_argument("--controllers", default="hold,random,baseline")
     parser.add_argument("--seeds", default="42")
     parser.add_argument("--modes", default="lockstep")
     parser.add_argument("--scenario", default="easy")
     parser.add_argument("--model")
+    parser.add_argument(
+        "--reasoning-effort", choices=("low", "medium", "high", "xhigh", "max"), default="low"
+    )
     parser.add_argument("--decision-hz", type=int, choices=(2, 5, 10), default=2)
     parser.add_argument("--time-scale", type=float, choices=(1.0, 0.5, 0.25), default=1.0)
+    parser.add_argument(
+        "--realtime-response-policy",
+        choices=("discard-stale", "apply-on-arrival"),
+        default="discard-stale",
+    )
     parser.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_S)
     parser.add_argument("--output-dir", type=Path, default=Path("runs"))
     parser.add_argument("--summary-format", choices=("json", "csv"), default="json")
@@ -658,8 +788,10 @@ def main(argv: list[str] | None = None) -> None:
                             mode=mode,
                             scenario=args.scenario,
                             model=args.model,
+                            reasoning_effort=args.reasoning_effort,
                             decision_hz=args.decision_hz,
                             time_scale=args.time_scale,
+                            realtime_response_policy=args.realtime_response_policy,
                             timeout_s=args.timeout,
                             log_path=args.output_dir / name,
                             record_dir=args.output_dir,
@@ -685,3 +817,107 @@ def main(argv: list[str] | None = None) -> None:
     with episodes_path.open("x", encoding="utf-8") as output:
         output.write(episode_markdown(episode_rows(episodes)))
     print(episodes_path)
+
+
+def _eval_episode(request: dict) -> dict:
+    record = run_episode(**request)
+    print(
+        json.dumps(
+            {
+                "run_id": record["run_id"],
+                "seed": record["seed"],
+                "mode": record["mode"],
+                **record["outcome"],
+            }
+        ),
+        flush=True,
+    )
+    return record
+
+
+def evaluate(argv: list[str]) -> None:
+    """Evaluate one built-in or explicitly trusted local external controller."""
+    from .leaderboard import _controller_identity, build_submission
+
+    parser = argparse.ArgumentParser(description="Evaluate and export a community submission")
+    parser.add_argument("--controller", required=True)
+    parser.add_argument("--model")
+    parser.add_argument(
+        "--reasoning-effort", choices=("low", "medium", "high", "xhigh", "max"), default="low"
+    )
+    parser.add_argument("--metadata", type=Path, help="Controller provenance JSON")
+    parser.add_argument("--modes", default="lockstep,realtime")
+    parser.add_argument("--seeds", default="42,101,202,303,404")
+    parser.add_argument("--scenario", choices=("easy", "medium"), default="easy")
+    parser.add_argument("--decision-hz", type=int, choices=(2, 5, 10), default=2)
+    parser.add_argument("--time-scale", type=float, choices=(1.0, 0.5, 0.25), default=1.0)
+    parser.add_argument(
+        "--realtime-response-policy",
+        choices=("discard-stale", "apply-on-arrival"),
+        default="discard-stale",
+    )
+    parser.add_argument("--timeout", type=float, default=120)
+    parser.add_argument("--jobs", type=int, default=1)
+    parser.add_argument("--output-dir", type=Path, required=True)
+    args = parser.parse_args(argv)
+    modes, seeds = args.modes.split(","), [int(s) for s in args.seeds.split(",")]
+    if not modes or set(modes) - {"lockstep", "realtime"} or len(set(modes)) != len(modes):
+        parser.error("modes must be unique lockstep/realtime values")
+    if not seeds or len(set(seeds)) != len(seeds) or any(s < 0 or s > 4294967295 for s in seeds):
+        parser.error("seeds must be unique unsigned 32-bit integers")
+    if not 1 <= args.jobs <= 32 or args.timeout <= 0:
+        parser.error("jobs must be 1..32 and timeout positive")
+    output = args.output_dir.resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    submission_path = output / "submission.json"
+    if submission_path.exists():
+        raise FileExistsError(submission_path)
+    metadata = json.loads(args.metadata.read_text()) if args.metadata else {}
+    requests = [
+        {
+            "controller_name": args.controller,
+            "model": args.model,
+            "reasoning_effort": args.reasoning_effort,
+            "seed": seed,
+            "mode": mode,
+            "scenario": args.scenario,
+            "decision_hz": args.decision_hz,
+            "time_scale": args.time_scale,
+            "realtime_response_policy": args.realtime_response_policy,
+            "timeout_s": args.timeout,
+            "record_dir": output,
+        }
+        for mode in modes
+        for seed in seeds
+    ]
+    if args.jobs == 1:
+        episodes = [_eval_episode(request) for request in requests]
+    else:
+        with ProcessPoolExecutor(max_workers=args.jobs) as pool:
+            episodes = list(pool.map(_eval_episode, requests))
+    _, recorded_model, recorded_type = _controller_identity(episodes[0])
+    automatic = episodes[0]["config"].get("controller_metadata", {})
+    metadata = automatic | metadata
+    default_name = args.controller.rsplit(":", 1)[-1]
+    metadata.setdefault("name", args.model or default_name)
+    metadata.setdefault("slug", default_name)
+    metadata.setdefault(
+        "controller_type",
+        recorded_type,
+    )
+    metadata.setdefault("provider", "external" if ":" in args.controller else args.controller)
+    metadata.setdefault("model", recorded_model)
+    metadata.setdefault("source_url", "https://github.com/AlperKartkaya/FlightBench")
+    metadata.setdefault("license", "MIT" if metadata["controller_type"] != "ai" else "unspecified")
+    artifact_paths = []
+    for record in episodes:
+        path = output / f"{record['run_id']}.json.gz"
+        with path.open("xb") as file:
+            file.write(gzip.compress(json.dumps(record, allow_nan=False).encode(), mtime=0))
+        artifact_paths.append(path)
+    build_submission(episodes, metadata, artifact_paths, submission_path)
+    print(submission_path)
+
+
+if __name__ == "__main__":
+    main()

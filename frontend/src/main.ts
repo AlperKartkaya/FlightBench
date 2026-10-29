@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Control } from "./controls.ts";
-import { updateHumanControls, defaultControls, adjustControl, centerSurfaces } from "./controls.ts";
+import { updateHumanControls, defaultControls, adjustControl, centerSurfaces, humanKey } from "./controls.ts";
 import { nextRunState, outcomeLabel, touchdownValues } from "./results.ts";
 import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./results.ts";
 import { isRunwayLightOn } from "./runway-lights.ts";
@@ -154,16 +154,17 @@ app.innerHTML = `
         <div id="renderUnavailable" class="render-unavailable" hidden><strong>3D view unavailable</strong><p>This browser could not initialize WebGL. Telemetry, controls and saved results still work. Try a browser with hardware acceleration enabled.</p></div>
 
         <div class="viewer-toolbar" id="viewerToolbar">
-          <button class="btn-secondary" id="configureToggle" type="button" aria-label="Flight settings" aria-controls="configPanel" aria-expanded="false">Baseline · 2 Hz ▾</button>
+          <button class="btn-secondary" id="configureToggle" type="button" aria-label="Flight settings" aria-controls="configPanel" aria-expanded="false">Human pilot ▾</button>
           <button class="btn-primary" id="start" disabled>Start flight</button><button class="btn-secondary" id="stop" aria-label="Stop and save" disabled>Stop</button><button class="btn-secondary" id="reset" disabled>Reset</button>
           <div class="viewer-config-panel" id="configPanel" hidden>
             <fieldset id="experimentSettings"><legend class="sr-only">Experiment settings</legend>
               <div class="config-group">
                 <div class="config-item"><label for="controller">Controller</label><select id="controller" class="select-input">
-                  <option value="baseline" selected>Baseline · rule-based</option><option value="human">Human pilot</option>
-                  <option value="jev">Jev · experimental</option><option value="codex">Codex model</option>
-                  <option value="hold">Hold · negative control</option><option value="random">Random · negative control</option></select></div>
+                  <option value="human" selected>Human pilot</option><option value="baseline">Baseline · rule-based</option>
+                  <option value="jev">Jev · experimental</option><option value="codex">Codex model</option></select></div>
                 <div class="config-item" id="modelGroup" hidden><label for="model">Model</label><select id="model" class="select-input"></select></div>
+                <div class="config-item" id="jevModelGroup" hidden><label for="jevModel">Jev version</label><select id="jevModel" class="select-input"><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
+                <div class="config-item" id="reasoningEffortGroup" hidden><label for="reasoningEffort">Reasoning effort</label><select id="reasoningEffort" class="select-input"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh">xhigh</option><option value="max">max</option></select></div>
                 <div class="config-item" id="decisionRateGroup"><label for="decisionRate">Decision rate</label><select id="decisionRate" class="select-input"><option value="2" selected>2 Hz</option><option value="5">5 Hz</option><option value="10">10 Hz</option></select></div>
                 <div class="config-item"><label for="seed">Seed</label><input class="number-input" id="seed" type="number" value="42" min="0" max="4294967295" step="1" required /></div>
               </div>
@@ -425,13 +426,13 @@ app.innerHTML = `
             </div>
           </div>
           <div class="axis-btns">
-            <button class="ctrl-btn" data-axis="elevator" data-dir="-1" title="Nose Up (Key S)">
+            <button class="ctrl-btn" data-axis="elevator" data-dir="-1" title="Nose Up (W / ↑)">
               <span>▲ Nose Up</span>
-              <kbd>S</kbd>
+              <kbd>W / ↑</kbd>
             </button>
-            <button class="ctrl-btn" data-axis="elevator" data-dir="1" title="Nose Down (Key W)">
+            <button class="ctrl-btn" data-axis="elevator" data-dir="1" title="Nose Down (S / ↓)">
               <span>▼ Nose Down</span>
-              <kbd>W</kbd>
+              <kbd>S / ↓</kbd>
             </button>
           </div>
         </div>
@@ -454,13 +455,13 @@ app.innerHTML = `
             </div>
           </div>
           <div class="axis-btns">
-            <button class="ctrl-btn" data-axis="aileron" data-dir="-1" title="Bank Left (Key A)">
+            <button class="ctrl-btn" data-axis="aileron" data-dir="-1" title="Bank Left (A / ←)">
               <span>◄ Bank Left</span>
-              <kbd>A</kbd>
+              <kbd>A / ←</kbd>
             </button>
-            <button class="ctrl-btn" data-axis="aileron" data-dir="1" title="Bank Right (Key D)">
+            <button class="ctrl-btn" data-axis="aileron" data-dir="1" title="Bank Right (D / →)">
               <span>► Bank Right</span>
-              <kbd>D</kbd>
+              <kbd>D / →</kbd>
             </button>
           </div>
         </div>
@@ -903,14 +904,15 @@ showControls(controls);
 // Keyboard interaction
 addEventListener("keydown", (event) => {
   if (event.target instanceof Element && event.target.closest("input, select, textarea, button, summary, dialog")) return;
-  if (!boundKeys.has(event.code)) return;
-  if (!event.code.startsWith("Digit") && (runState !== "running" || controllerSelect.value !== "human")) return;
+  const key = humanKey(event.code);
+  if (!boundKeys.has(key)) return;
+  if (!key.startsWith("Digit") && (runState !== "running" || controllerSelect.value !== "human")) return;
   event.preventDefault();
-  if (["Digit1", "Digit2", "Digit3"].includes(event.code)) {
-    setCamera(({ Digit1: "chase", Digit2: "orbit", Digit3: "tower" } as const)[event.code as "Digit1" | "Digit2" | "Digit3"]);
+  if (["Digit1", "Digit2", "Digit3"].includes(key)) {
+    setCamera(({ Digit1: "chase", Digit2: "orbit", Digit3: "tower" } as const)[key as "Digit1" | "Digit2" | "Digit3"]);
     return;
   }
-  if (event.code === "KeyC" || event.code === "KeyX") {
+  if (key === "KeyC" || key === "KeyX") {
     centerSurfaces(controls);
     showControls(controls);
     if (controllerSelect.value === "human") send({ type: "action", action: controls });
@@ -918,15 +920,15 @@ addEventListener("keydown", (event) => {
   }
   if (!event.repeat) {
     if (!autoCenterEnabled) {
-      if (event.code === "KeyW") adjustControl(controls, "elevator", 0.04);
-      else if (event.code === "KeyS") adjustControl(controls, "elevator", -0.04);
-      else if (event.code === "KeyA") adjustControl(controls, "aileron", -0.04);
-      else if (event.code === "KeyD") adjustControl(controls, "aileron", 0.04);
-      else if (event.code === "KeyQ") adjustControl(controls, "rudder", 0.04);
-      else if (event.code === "KeyE") adjustControl(controls, "rudder", -0.04);
+      if (key === "KeyW") adjustControl(controls, "elevator", -0.04);
+      else if (key === "KeyS") adjustControl(controls, "elevator", 0.04);
+      else if (key === "KeyA") adjustControl(controls, "aileron", -0.04);
+      else if (key === "KeyD") adjustControl(controls, "aileron", 0.04);
+      else if (key === "KeyQ") adjustControl(controls, "rudder", 0.04);
+      else if (key === "KeyE") adjustControl(controls, "rudder", -0.04);
     }
-    if (event.code === "KeyR") adjustControl(controls, "throttle", 0.05);
-    else if (event.code === "KeyF") adjustControl(controls, "throttle", -0.05);
+    if (key === "KeyR") adjustControl(controls, "throttle", 0.05);
+    else if (key === "KeyF") adjustControl(controls, "throttle", -0.05);
     showControls(controls);
     if (controllerSelect.value === "human") send({ type: "action", action: controls });
   }
@@ -938,8 +940,8 @@ addEventListener("blur", () => pressed.clear());
 // Interactive Manual Controls
 function setupInteractiveControls() {
   const btnKeyMap: Record<string, string> = {
-    "elevator:-1": "KeyS",
-    "elevator:1": "KeyW",
+    "elevator:-1": "KeyW",
+    "elevator:1": "KeyS",
     "aileron:-1": "KeyA",
     "aileron:1": "KeyD",
     "rudder:1": "KeyQ",
@@ -1030,9 +1032,7 @@ function updateAssistPill() {
   }
   const r = lastObservation?.runway;
   const isHumanSteering =
-    pressed.has("KeyW") || pressed.has("KeyS") ||
-    pressed.has("KeyA") || pressed.has("KeyD") ||
-    pressed.has("KeyQ") || pressed.has("KeyE");
+    [...pressed].some((code) => ["KeyW", "KeyS", "KeyA", "KeyD", "KeyQ", "KeyE"].includes(humanKey(code)));
   if (isHumanSteering) {
     pill.textContent = "MANUAL OVERRIDE";
     pill.className = "assist-status-pill";
@@ -1701,6 +1701,8 @@ function send(message: { type: string; [key: string]: unknown }): boolean {
 
 const controllerSelect = byId<HTMLSelectElement>("controller");
 const modelSelect = byId<HTMLSelectElement>("model");
+const jevModelSelect = byId<HTMLSelectElement>("jevModel");
+const reasoningEffortSelect = byId<HTMLSelectElement>("reasoningEffort");
 const manualPanel = byId("manualControlsCard");
 function setConfigOpen(open: boolean) {
   byId("configPanel").hidden = !open;
@@ -1723,10 +1725,13 @@ function updateControllerUi() {
   const isJevOrAi = controllerSelect.value === "jev" || isCodex;
 
   byId("modelGroup").hidden = !isCodex;
+  byId("jevModelGroup").hidden = controllerSelect.value !== "jev";
+  byId("reasoningEffortGroup").hidden = !isCodex;
   byId("decisionRateGroup").hidden = isHuman;
-  byId("cadenceValue").textContent = `${byId<HTMLSelectElement>("decisionRate").value} Hz`;
-  byId("overlayCadence").textContent = `${byId<HTMLSelectElement>("decisionRate").value} Hz`;
-  byId("configureToggle").textContent = `${controllerSelect.selectedOptions[0]?.textContent?.split(" · ")[0] ?? "Controller"} · ${byId<HTMLSelectElement>("decisionRate").value} Hz ▾`;
+  const cadence = isHuman ? "Manual" : `${byId<HTMLSelectElement>("decisionRate").value} Hz`;
+  byId("cadenceValue").textContent = cadence;
+  byId("overlayCadence").textContent = cadence;
+  byId("configureToggle").textContent = `${controllerSelect.selectedOptions[0]?.textContent?.split(" · ")[0] ?? "Controller"}${isHuman ? "" : ` · ${cadence}`} ▾`;
   byId("overlayController").textContent = controllerSelect.selectedOptions[0]?.textContent ?? "Controller";
   byId("liveDecisionCard").hidden = !isJevOrAi;
   byId("decisionInput").hidden = controllerSelect.value !== "jev";
@@ -1753,18 +1758,12 @@ function updateControllerUi() {
   } else if (controllerSelect.value === "baseline") {
     if (brandTitle) brandTitle.textContent = "Baseline Controller";
     if (modelTag) modelTag.textContent = "Rule-Based ILS";
-  } else if (controllerSelect.value === "hold") {
-    if (brandTitle) brandTitle.textContent = "Hold Controller";
-    if (modelTag) modelTag.textContent = "Fixed Controls";
-  } else if (controllerSelect.value === "random") {
-    if (brandTitle) brandTitle.textContent = "Random Controller";
-    if (modelTag) modelTag.textContent = "Uniform Random";
   } else if (controllerSelect.value === "jev") {
     if (brandTitle) brandTitle.textContent = "TypeSafe Jev";
-    if (modelTag) modelTag.textContent = "jev-1.13.0 · experimental";
+    if (modelTag) modelTag.textContent = `${jevModelSelect.value} · experimental`;
   } else if (isCodex) {
     if (brandTitle) brandTitle.textContent = "Codex Controller";
-    if (modelTag) modelTag.textContent = modelSelect.value || "Select an authenticated model";
+    if (modelTag) modelTag.textContent = modelSelect.value ? `${modelSelect.value} · ${reasoningEffortSelect.value}` : "Select an authenticated model";
   }
 
   autoCenterEnabled = byId<HTMLInputElement>("autoCenterToggle").checked;
@@ -1774,7 +1773,9 @@ function updateControllerUi() {
 
 }
 controllerSelect.addEventListener("change", () => { clearDecisionView(); updateControllerUi(); });
-byId("decisionRate").addEventListener("change", updateControllerUi);
+for (const select of [byId("decisionRate"), modelSelect, jevModelSelect, reasoningEffortSelect]) {
+  select.addEventListener("change", updateControllerUi);
+}
 updateControllerUi();
 
 fetch("/api/models")
@@ -1784,6 +1785,7 @@ fetch("/api/models")
       ...(models.length ? models.map((m) => new Option(m, m)) : [new Option("No Codex models", "")]),
     );
     if (!models.length) modelSelect.options[0].disabled = true;
+    updateControllerUi();
   })
   .catch(() => {
     modelSelect.innerHTML = "<option disabled>Models unavailable</option>";
@@ -1843,8 +1845,10 @@ byId("start").addEventListener("click", () => {
     seed: Number(seedInput.value),
     decision_hz: Number(byId<HTMLSelectElement>("decisionRate").value),
     time_scale: 1,
+    realtime_response_policy: "apply-on-arrival",
     human_assistance: { auto_center: autoCenterEnabled, wing_leveler: wingLevelerEnabled },
-    model: controllerSelect.value === "codex" ? modelSelect.value : null,
+    model: controllerSelect.value === "codex" ? modelSelect.value : controllerSelect.value === "jev" ? jevModelSelect.value : null,
+    reasoning_effort: controllerSelect.value === "codex" ? reasoningEffortSelect.value : "low",
   };
   if (!send({ type: "start", ...config })) { transitionRun("disconnect"); return; }
   transitionRun("start");

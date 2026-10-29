@@ -1,0 +1,412 @@
+[
+  {
+    "id": "right_bank_recovery",
+    "note": "Clear large growing right bank: left correction outranks alignment.",
+    "observation": {
+      "time_s": 0.0,
+      "decision_dt_s": 0.5,
+      "phase": "AIRBORNE / APPROACH",
+      "runway": {
+        "distance_to_threshold_m": 1500.000000000001,
+        "along_track_m": -1500.000000000001,
+        "cross_track_error_m": 0.0,
+        "centerline_offset_m": -0.0,
+        "runway_width_m": 30,
+        "altitude_agl_m": 30.0,
+        "glideslope_error_deg": -4.728883951088392e-11,
+        "heading_error_deg": 0.0
+      },
+      "flight": {
+        "airspeed_mps": 33.438888888889736,
+        "groundspeed_mps": 33.54315861349885,
+        "vertical_speed_mps": -1.7579224530722855,
+        "flight_path_angle_deg": -2.999999999999992,
+        "angle_of_attack_deg": 4.999999999999994,
+        "alpha_deg": 4.999999999999994,
+        "roll_deg": 9.0,
+        "pitch_deg": 2.000000000000002,
+        "heading_deg": 90.0,
+        "p_rad_s": 0.1,
+        "q_rad_s": 0.0,
+        "r_rad_s": 0.0,
+        "beta_deg": 1.2798540759470421e-14
+      },
+      "environment": {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0
+      },
+      "controls": {
+        "aileron": -0.15,
+        "elevator": 0.17,
+        "rudder": 0.09,
+        "throttle": 0.5,
+        "flaps_deg": 20.0
+      },
+      "status": {
+        "on_ground": false,
+        "main_gear_on_ground": false
+      },
+      "ground_contact": {
+        "any_gear_wow": false,
+        "nose_gear_wow": false,
+        "left_main_gear_wow": false,
+        "right_main_gear_wow": false
+      },
+      "temporal": {
+        "rates": {}
+      }
+    }
+  },
+  {
+    "id": "left_bank_recovery",
+    "note": "Clear large growing left bank: right correction outranks alignment.",
+    "observation": {
+      "time_s": 0.0,
+      "decision_dt_s": 0.5,
+      "phase": "AIRBORNE / APPROACH",
+      "runway": {
+        "distance_to_threshold_m": 1500.000000000001,
+        "along_track_m": -1500.000000000001,
+        "cross_track_error_m": 0.0,
+        "centerline_offset_m": -0.0,
+        "runway_width_m": 30,
+        "altitude_agl_m": 30.0,
+        "glideslope_error_deg": -4.728883951088392e-11,
+        "heading_error_deg": 0.0
+      },
+      "flight": {
+        "airspeed_mps": 33.438888888889736,
+        "groundspeed_mps": 33.54315861349885,
+        "vertical_speed_mps": -1.7579224530722855,
+        "flight_path_angle_deg": -2.999999999999992,
+        "angle_of_attack_deg": 4.999999999999994,
+        "alpha_deg": 4.999999999999994,
+        "roll_deg": -9.0,
+        "pitch_deg": 2.000000000000002,
+        "heading_deg": 90.0,
+        "p_rad_s": -0.1,
+        "q_rad_s": 0.0,
+        "r_rad_s": 0.0,
+        "beta_deg": 1.2798540759470421e-14
+      },
+      "environment": {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0
+      },
+      "controls": {
+        "aileron": -0.15,
+        "elevator": 0.17,
+        "rudder": 0.09,
+        "throttle": 0.5,
+        "flaps_deg": 20.0
+      },
+      "status": {
+        "on_ground": false,
+        "main_gear_on_ground": false
+      },
+      "ground_contact": {
+        "any_gear_wow": false,
+        "nose_gear_wow": false,
+        "left_main_gear_wow": false,
+        "right_main_gear_wow": false
+      },
+      "temporal": {
+        "rates": {}
+      }
+    }
+  },
+  {
+    "id": "lateral_braking",
+    "note": "Moving right while left of centerline: brake motion before position.",
+    "observation": {
+      "time_s": 0.0,
+      "decision_dt_s": 0.5,
+      "phase": "AIRBORNE / APPROACH",
+      "runway": {
+        "distance_to_threshold_m": 1500.000000000001,
+        "along_track_m": -1500.000000000001,
+        "cross_track_error_m": 0.0,
+        "centerline_offset_m": -4.0,
+        "runway_width_m": 30,
+        "altitude_agl_m": 30.0,
+        "glideslope_error_deg": -4.728883951088392e-11,
+        "heading_error_deg": 0.0
+      },
+      "flight": {
+        "airspeed_mps": 33.438888888889736,
+        "groundspeed_mps": 33.54315861349885,
+        "vertical_speed_mps": -1.7579224530722855,
+        "flight_path_angle_deg": -2.999999999999992,
+        "angle_of_attack_deg": 4.999999999999994,
+        "alpha_deg": 4.999999999999994,
+        "roll_deg": 0.0,
+        "pitch_deg": 2.000000000000002,
+        "heading_deg": 90.0,
+        "p_rad_s": 0.0,
+        "q_rad_s": 0.0,
+        "r_rad_s": 0.0,
+        "beta_deg": 1.2798540759470421e-14
+      },
+      "environment": {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0
+      },
+      "controls": {
+        "aileron": -0.15,
+        "elevator": 0.17,
+        "rudder": 0.09,
+        "throttle": 0.5,
+        "flaps_deg": 20.0
+      },
+      "status": {
+        "on_ground": false,
+        "main_gear_on_ground": false
+      },
+      "ground_contact": {
+        "any_gear_wow": false,
+        "nose_gear_wow": false,
+        "left_main_gear_wow": false,
+        "right_main_gear_wow": false
+      },
+      "temporal": {
+        "rates": {
+          "cross_track_rate_mps": 1.0
+        }
+      }
+    }
+  },
+  {
+    "id": "ambiguous_descent",
+    "note": "Below glidepath and normal descent overlap; not a unique optimal-action label.",
+    "observation": {
+      "time_s": 0.0,
+      "decision_dt_s": 0.5,
+      "phase": "AIRBORNE / APPROACH",
+      "runway": {
+        "distance_to_threshold_m": 1500.000000000001,
+        "along_track_m": -1500.000000000001,
+        "cross_track_error_m": 0.0,
+        "centerline_offset_m": -0.0,
+        "runway_width_m": 30,
+        "altitude_agl_m": 30.0,
+        "glideslope_error_deg": -1.0,
+        "heading_error_deg": 0.0
+      },
+      "flight": {
+        "airspeed_mps": 33.438888888889736,
+        "groundspeed_mps": 33.54315861349885,
+        "vertical_speed_mps": -2.0,
+        "flight_path_angle_deg": -2.999999999999992,
+        "angle_of_attack_deg": 4.999999999999994,
+        "alpha_deg": 4.999999999999994,
+        "roll_deg": -1.889605438696786e-14,
+        "pitch_deg": -2.0,
+        "heading_deg": 90.0,
+        "p_rad_s": 0.0,
+        "q_rad_s": 0.0,
+        "r_rad_s": 0.0,
+        "beta_deg": 1.2798540759470421e-14
+      },
+      "environment": {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0
+      },
+      "controls": {
+        "aileron": -0.15,
+        "elevator": 0.17,
+        "rudder": 0.09,
+        "throttle": 0.5,
+        "flaps_deg": 20.0
+      },
+      "status": {
+        "on_ground": false,
+        "main_gear_on_ground": false
+      },
+      "ground_contact": {
+        "any_gear_wow": false,
+        "nose_gear_wow": false,
+        "left_main_gear_wow": false,
+        "right_main_gear_wow": false
+      },
+      "temporal": {
+        "rates": {}
+      }
+    }
+  },
+  {
+    "id": "threshold_equality",
+    "note": "Exactly bank/speed/phase thresholds: preserve numerical equality, APPROACH.",
+    "observation": {
+      "time_s": 0.0,
+      "decision_dt_s": 0.5,
+      "phase": "AIRBORNE / APPROACH",
+      "runway": {
+        "distance_to_threshold_m": 1500.000000000001,
+        "along_track_m": -1500.000000000001,
+        "cross_track_error_m": 0.0,
+        "centerline_offset_m": -0.0,
+        "runway_width_m": 30,
+        "altitude_agl_m": 20.0,
+        "glideslope_error_deg": -4.728883951088392e-11,
+        "heading_error_deg": 0.0
+      },
+      "flight": {
+        "airspeed_mps": 33.438888888889736,
+        "groundspeed_mps": 33.54315861349885,
+        "vertical_speed_mps": -1.7579224530722855,
+        "flight_path_angle_deg": -2.999999999999992,
+        "angle_of_attack_deg": 4.999999999999994,
+        "alpha_deg": 4.999999999999994,
+        "roll_deg": 3.0,
+        "pitch_deg": 2.000000000000002,
+        "heading_deg": 90.0,
+        "p_rad_s": 0.0,
+        "q_rad_s": 0.0,
+        "r_rad_s": 0.0,
+        "beta_deg": 1.2798540759470421e-14
+      },
+      "environment": {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0
+      },
+      "controls": {
+        "aileron": -0.15,
+        "elevator": 0.17,
+        "rudder": 0.09,
+        "throttle": 0.5,
+        "flaps_deg": 20.0
+      },
+      "status": {
+        "on_ground": false,
+        "main_gear_on_ground": false
+      },
+      "ground_contact": {
+        "any_gear_wow": false,
+        "nose_gear_wow": false,
+        "left_main_gear_wow": false,
+        "right_main_gear_wow": false
+      },
+      "temporal": {
+        "rates": {
+          "cross_track_rate_mps": 0.5
+        }
+      }
+    }
+  },
+  {
+    "id": "flare",
+    "note": "Immediately below 20 m selects FLARE criteria.",
+    "observation": {
+      "time_s": 0.0,
+      "decision_dt_s": 0.5,
+      "phase": "AIRBORNE / APPROACH",
+      "runway": {
+        "distance_to_threshold_m": 1500.000000000001,
+        "along_track_m": -1500.000000000001,
+        "cross_track_error_m": 0.0,
+        "centerline_offset_m": -0.0,
+        "runway_width_m": 30,
+        "altitude_agl_m": 19.999,
+        "glideslope_error_deg": -4.728883951088392e-11,
+        "heading_error_deg": 0.0
+      },
+      "flight": {
+        "airspeed_mps": 33.438888888889736,
+        "groundspeed_mps": 33.54315861349885,
+        "vertical_speed_mps": -2.5,
+        "flight_path_angle_deg": -2.999999999999992,
+        "angle_of_attack_deg": 4.999999999999994,
+        "alpha_deg": 4.999999999999994,
+        "roll_deg": -1.889605438696786e-14,
+        "pitch_deg": 2.000000000000002,
+        "heading_deg": 90.0,
+        "p_rad_s": 0.0,
+        "q_rad_s": 0.0,
+        "r_rad_s": 0.0,
+        "beta_deg": 1.2798540759470421e-14
+      },
+      "environment": {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0
+      },
+      "controls": {
+        "aileron": -0.15,
+        "elevator": 0.17,
+        "rudder": 0.09,
+        "throttle": 0.5,
+        "flaps_deg": 20.0
+      },
+      "status": {
+        "on_ground": false,
+        "main_gear_on_ground": false
+      },
+      "ground_contact": {
+        "any_gear_wow": false,
+        "nose_gear_wow": false,
+        "left_main_gear_wow": false,
+        "right_main_gear_wow": false
+      },
+      "temporal": {
+        "rates": {}
+      }
+    }
+  },
+  {
+    "id": "rollout",
+    "note": "On-ground takes precedence and selects ROLLOUT criteria.",
+    "observation": {
+      "time_s": 0.0,
+      "decision_dt_s": 0.5,
+      "phase": "AIRBORNE / APPROACH",
+      "runway": {
+        "distance_to_threshold_m": 1500.000000000001,
+        "along_track_m": -1500.000000000001,
+        "cross_track_error_m": 0.0,
+        "centerline_offset_m": -0.0,
+        "runway_width_m": 30,
+        "altitude_agl_m": 0.0,
+        "glideslope_error_deg": -4.728883951088392e-11,
+        "heading_error_deg": 0.0
+      },
+      "flight": {
+        "airspeed_mps": 33.438888888889736,
+        "groundspeed_mps": 33.54315861349885,
+        "vertical_speed_mps": 0.0,
+        "flight_path_angle_deg": -2.999999999999992,
+        "angle_of_attack_deg": 4.999999999999994,
+        "alpha_deg": 4.999999999999994,
+        "roll_deg": -1.889605438696786e-14,
+        "pitch_deg": 2.000000000000002,
+        "heading_deg": 90.0,
+        "p_rad_s": 0.0,
+        "q_rad_s": 0.0,
+        "r_rad_s": 0.0,
+        "beta_deg": 1.2798540759470421e-14
+      },
+      "environment": {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0
+      },
+      "controls": {
+        "aileron": -0.15,
+        "elevator": 0.17,
+        "rudder": 0.09,
+        "throttle": 0.5,
+        "flaps_deg": 20.0
+      },
+      "status": {
+        "on_ground": true,
+        "main_gear_on_ground": false
+      },
+      "ground_contact": {
+        "any_gear_wow": false,
+        "nose_gear_wow": false,
+        "left_main_gear_wow": false,
+        "right_main_gear_wow": false
+      },
+      "temporal": {
+        "rates": {}
+      }
+    }
+  }
+]

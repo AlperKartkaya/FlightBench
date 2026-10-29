@@ -1,0 +1,17 @@
+{
+  "identity": {
+    "versions": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "git_commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "git_dirty": true
+  },
+  "archive_sha256": "9a7759a0afce8e44fcda767afe7470d5f65fa325720ff8ebae41cf163aac707b"
+}

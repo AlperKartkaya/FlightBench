@@ -18,7 +18,7 @@ from .core import (
     decision_timing,
 )
 from .geometry import attitude_quaternion, wrap_degrees
-from .scoring import ScoringConfig, evaluate
+from .scoring import ScoringConfig, evaluate, trajectory_error_rate
 
 FT = 0.3048
 
@@ -103,6 +103,7 @@ class FixedWingLandingEnv(gym.Env):
         self.reason = "running"
         self.touchdown = None
         self.touchdown_time = None
+        self._trajectory_error = {"lateral": 0.0, "pitch": 0.0, "glide": 0.0}
         self.success = False
         self._last_obs = self.observe()
         return self._last_obs, self.info()
@@ -224,6 +225,9 @@ class FixedWingLandingEnv(gym.Env):
                 break
             self._last_obs = obs
             r, flight = obs["runway"], obs["flight"]
+            if self.touchdown is None and self.scoring.version == "v2":
+                for name, rate in trajectory_error_rate(obs, self.scoring).items():
+                    self._trajectory_error[name] += rate / PHYSICS_HZ
             lat_pos = r.get("centerline_offset_m")
             if lat_pos is None or (
                 lat_pos == 0.0
@@ -276,7 +280,13 @@ class FixedWingLandingEnv(gym.Env):
 
     def info(self):
         return {
-            "result": evaluate(self.touchdown, self.success, self.reason, self.scoring),
+            "result": evaluate(
+                self.touchdown,
+                self.success,
+                self.reason,
+                self.scoring,
+                self._trajectory_error,
+            ),
             "scenario": self.scenario,
             "physics_hz": PHYSICS_HZ,
             "decision_ticks": self.decision_ticks,

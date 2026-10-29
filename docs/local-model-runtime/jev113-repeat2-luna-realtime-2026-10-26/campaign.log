@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/jev113-repeat2-luna-realtime-2026-10-26/run.py", line 222, in <module>
+    publish("jev-1-13-0-realtime", "jev-1.13.0", "realtime", [42, 101, 202], "best of new three realtime flights; prior cohorts archived")
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/jev113-repeat2-luna-realtime-2026-10-26/run.py", line 205, in publish
+    records, artifacts = zip(
+                         ^^^^
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/jev113-repeat2-luna-realtime-2026-10-26/run.py", line 207, in <genexpr>
+    run_trial(
+  File "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/jev113-repeat2-luna-realtime-2026-10-26/run.py", line 181, in run_trial
+    raise RuntimeError(f"Trial export failed: {slug} seed {seed}; inspect sanitized log")
+RuntimeError: Trial export failed: jev-1-13-0-realtime seed 42; inspect sanitized log
+jev-1-13-0-realtime 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 413.31947962136974, 'cross_track_m': 18.5168, 'sink_rate_mps': -2.357186039755777, 'airspeed_mps': 27.265915464311355, 'heading_error_deg': 6.086827684912407, 'roll_deg': 0.9756601256492469, 'pitch_deg': 0.8982735324777965}}
+jev-1-13-0-realtime 101 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': 616.5680130547335, 'cross_track_m': 9.3719, 'sink_rate_mps': -2.2888431346791993, 'airspeed_mps': 26.910214658853338, 'heading_error_deg': 3.056803222643026, 'roll_deg': 2.2127076485867097, 'pitch_deg': 1.085101153123998}}
+jev-1-13-0-realtime 202 {'success': True, 'quality': 38.577, 'status': 'landed', 'touchdown': {'along_track_m': 427.68159014169873, 'cross_track_m': 2.3536, 'sink_rate_mps': -1.5100988167074116, 'airspeed_mps': 27.16880241167399, 'heading_error_deg': 3.6344521936408114, 'roll_deg': 1.5115267667171919, 'pitch_deg': 2.575530079831187}}
+gpt-6-luna-low-realtime 42 {'success': False, 'quality': 0.0, 'status': 'runway_excursion', 'touchdown': {'along_track_m': -610.2153700460066, 'cross_track_m': 234.0393, 'sink_rate_mps': -8.703298542917311, 'airspeed_mps': 40.677720513024475, 'heading_error_deg': -26.970074047879052, 'roll_deg': -25.197278690263698, 'pitch_deg': -9.402456335229349}}
+CAMPAIGN COMPLETE

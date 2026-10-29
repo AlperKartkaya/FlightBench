@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "Clef-Flash 9B Q4_K_M",
+    "slug": "clef-flash-9b-q4-serial-s42",
+    "type": "ai",
+    "provider": "Cloudflare / ggml-org / local llama.cpp",
+    "model": "clef-flash-q4",
+    "source_url": "https://huggingface.co/Cloudflare/clef-flash",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": 9000000000,
+    "quantization": "Q4_K_M",
+    "metadata": {
+      "model_revision": "fde727a287004204b7518dcc983fe64379776712",
+      "quantized_model_source": "ggml-org/Clef-Flash-GGUF",
+      "quantized_model_revision": "4a192915ef971886004b5b13294f2b4c7a7fc39d",
+      "source_revision": "d81235049384534c167caea52b85a694f6103d14",
+      "backend": "llama.cpp b11429 Metal; all requested layers offloaded with -ngl 99; CPU helper threads 2",
+      "n_ctx": 8192,
+      "n_seq_max": 1,
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "files": {
+        "Clef-Flash-Q4_K_M.gguf": {
+          "sha256": "fd3e90605e8103307dca37cb5a8cdb036267e2fe3cb2d908d80a8ceb9ec0638c",
+          "bytes": 6486448288
+        },
+        "llama-b11429-bin-macos-arm64.tar.gz": {
+          "sha256": "740288ec6887be94280a5dfa25b5e23a78285cab104519e6c7e218904ee82459",
+          "bytes": 11971406
+        }
+      },
+      "campaign": {
+        "id": "serial-2026-10-07",
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "warmup": "One complete canonical initial-state request before both episodes; retained separately.",
+        "order": "Lockstep then realtime; dedicated fresh server after conformance; host kept awake with caffeinate -i.",
+        "isolation": "Other desktop/agent activity possible; no other benchmark model jobs."
+      },
+      "endpoint": "http://127.0.0.1:8012",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:023b0dd0743a2bb23cd2951a071401f9dd00d81dfcfd86b1d33f462799d7efa4",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42
+    ],
+    "modes": [
+      "lockstep",
+      "realtime"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0,
+      "realtime": 1.0
+    }
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 31.67,
+      "median_score": 31.67,
+      "terminal_outcomes": {
+        "runway_excursion": 1
+      },
+      "mean_latency_ms": 14173.587271523178,
+      "p50_latency_ms": 13833.063,
+      "p95_latency_ms": 16296.733,
+      "max_latency_ms": 17423.893,
+      "effective_decisions_per_second": 2.002873880844479,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 1
+      },
+      "mean_latency_ms": 16080.406500000001,
+      "p50_latency_ms": 15652.082,
+      "p95_latency_ms": 16508.731,
+      "max_latency_ms": 16508.731,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 2,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 2,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "44d23f9d-8a13-4b9a-a162-ac1efbb3d842",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 31.67,
+      "terminal_outcome": "runway_excursion",
+      "artifact_sha256": "sha256:d14828045a1bf827d239b0c467185a02083efc76e917d893cfca08e10acb3cc3"
+    },
+    {
+      "run_id": "96292dde-1103-4665-a1cc-c8e18353a63c",
+      "seed": 42,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:083db67521e99129ee71c919ac0dd3907dd452b02bd5229aec6e0744908a0914"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "44d23f9d-8a13-4b9a-a162-ac1efbb3d842.json.gz",
+      "sha256": "sha256:d14828045a1bf827d239b0c467185a02083efc76e917d893cfca08e10acb3cc3",
+      "bytes": 142453,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "96292dde-1103-4665-a1cc-c8e18353a63c.json.gz",
+      "sha256": "sha256:083db67521e99129ee71c919ac0dd3907dd452b02bd5229aec6e0744908a0914",
+      "bytes": 7291,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-07T20:56:33.552455Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

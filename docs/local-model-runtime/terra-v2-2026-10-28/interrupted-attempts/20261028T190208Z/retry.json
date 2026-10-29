@@ -1,0 +1,11 @@
+{
+  "reason": "User requested resuming missing Terra runs after HTTP 429",
+  "retry_effort": "low",
+  "retry_seed": 202,
+  "preserved_completed_seeds": [
+    42,
+    101
+  ],
+  "source_hash": "sha256:46016e511b7598025bd9e8c5c5bbc4c684d74fec18aa4898fce6983a1cef0da3",
+  "archived_at": "2026-10-28T19:02:08.815103+00:00"
+}

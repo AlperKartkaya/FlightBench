@@ -1,0 +1,36 @@
+{
+  "started_at": "2026-10-27T08:14:46.791385+00:00",
+  "status": "paused_by_user",
+  "command": [
+    "/Users/alperkartkaya/Documents/FlightBench/scratch/clef-flash/runtime-b11429/llama-b11429/llama-server",
+    "-m",
+    "/Users/alperkartkaya/Documents/FlightBench/scratch/clef-flash/model/Clef-Flash-Q4_K_M.gguf",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "8012",
+    "--alias",
+    "clef-flash-q4",
+    "-ngl",
+    "99",
+    "-c",
+    "8192",
+    "-b",
+    "8192",
+    "-ub",
+    "8192",
+    "-np",
+    "1",
+    "-t",
+    "2",
+    "-tb",
+    "2"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "2",
+    "VECLIB_MAXIMUM_THREADS": "2"
+  },
+  "stopped_at": "2026-10-27T08:36:23.452543+00:00",
+  "reason": "User requested stopping local models and continuing later; unfinished Clef flight is not a scored result.",
+  "resume": "Preserve this interrupted attempt, then start a fresh Clef flight. Five completed models must not be rerun."
+}

@@ -1,0 +1,8 @@
+
+
+     JSBSim Flight Dynamics Model v1.3.1 [GitHub build 1837/commit 3b25f25e49b42d0489c04ac805674fc1450ca579] May 17 2026 14:38:05
+            [JSBSim-ML v2.0]
+
+JSBSim startup beginning ...
+
+{"run_id": "74488f33-465c-4400-b133-6e468f92723e", "seed": 42, "mode": "lockstep", "success": false, "quality": 0.0, "status": "controller_timeout", "touchdown": null}

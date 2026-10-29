@@ -1,0 +1,54 @@
+{
+  "checked_at": "2026-10-26",
+  "launch_state": "prepared_not_started",
+  "models": [
+    {
+      "model": "kev",
+      "runtime": "scratch/kev-runtime/.venv/bin/python",
+      "runtime_present": true,
+      "artifact": "scratch/huggingface",
+      "artifact_present": true,
+      "artifact_bytes": null
+    },
+    {
+      "model": "openthai",
+      "runtime": "scratch/ollama-0.35.0/ollama",
+      "runtime_present": true,
+      "artifact": "/Users/alperkartkaya/.ollama/models",
+      "artifact_present": true,
+      "artifact_bytes": null
+    },
+    {
+      "model": "decider",
+      "runtime": "scratch/decider-runtime/.venv/bin/python",
+      "runtime_present": true,
+      "artifact": "scratch/decider-runtime/model",
+      "artifact_present": true,
+      "artifact_bytes": null
+    },
+    {
+      "model": "von",
+      "runtime": "scratch/von-runtime/.venv/bin/von",
+      "runtime_present": true,
+      "artifact": "scratch/von-runtime/model",
+      "artifact_present": true,
+      "artifact_bytes": null
+    },
+    {
+      "model": "nimble",
+      "runtime": "scratch/ollama-0.35.0/ollama",
+      "runtime_present": true,
+      "artifact": "/Users/alperkartkaya/.ollama/models",
+      "artifact_present": true,
+      "artifact_bytes": null
+    },
+    {
+      "model": "clef-flash",
+      "runtime": "scratch/clef-flash/runtime-b11429/llama-b11429/llama-server",
+      "runtime_present": true,
+      "artifact": "scratch/clef-flash/model/Clef-Flash-Q4_K_M.gguf",
+      "artifact_present": true,
+      "artifact_bytes": 6486448288
+    }
+  ]
+}

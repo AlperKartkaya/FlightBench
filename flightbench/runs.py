@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import platform
+import subprocess
 from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -34,18 +36,26 @@ class RunSettings(BaseModel):
     """One validated request contract for browser and headless runs."""
 
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True, allow_inf_nan=False)
-    controller: str = Field(default="baseline", min_length=1, max_length=80)
+    controller: str = Field(default="baseline", min_length=1, max_length=4096)
     model: str | None = Field(default=None, max_length=200)
+    reasoning_effort: Literal["low", "medium", "high", "xhigh", "max"] = "low"
     scenario: Literal["easy", "medium"] = "easy"
     mode: Literal["lockstep", "realtime"] = "lockstep"
     seed: int = Field(default=42, ge=0, le=4294967295)
     decision_hz: Literal[2, 5, 10] = 2
     time_scale: Literal[1.0, 0.5, 0.25] = 1.0
+    realtime_response_policy: Literal["discard-stale", "apply-on-arrival"] = "discard-stale"
     human_assistance: HumanAssistance = Field(default_factory=HumanAssistance)
 
 
 def effective_config(settings: RunSettings, controller=None) -> dict:
+    from .protocol import protocol_metadata
+
     config = settings.model_dump()
+    config.update(protocol_metadata())
+    from .scoring import ScoringConfig
+
+    config["scoring_version"] = ScoringConfig().version
     name = settings.controller
     if name == "jev":
         config["model"] = controller._model
@@ -53,9 +63,13 @@ def effective_config(settings: RunSettings, controller=None) -> dict:
         config["experimental"] = True
         config["assistance"] = "none"
     else:
-        config["model"] = (
-            getattr(controller, "model_id", settings.model) if name == "codex" else None
-        )
+        config["model"] = getattr(controller, "model_id", settings.model)
+    metadata = getattr(controller, "metadata", None)
+    if metadata:
+        config["controller_metadata"] = metadata
+    config["protocol_participant"] = name in {"jev", "codex", "ollama", "systemone"} or bool(
+        metadata and metadata.get("controller_type") == "ai"
+    )
     if name != "human":
         config["human_assistance"] = {"auto_center": False, "wing_leveler": False}
     if settings.mode == "lockstep":
@@ -87,7 +101,27 @@ def source_identity() -> dict:
                 else path.name.encode()
             )
             digest.update(path.read_bytes())
-    return {"versions": versions, "source_hash": f"sha256:{digest.hexdigest()}"}
+    identity = {
+        "versions": versions,
+        "source_hash": f"sha256:{digest.hexdigest()}",
+        "hardware": {"system": platform.system(), "machine": platform.machine()},
+    }
+    try:
+        identity["git_commit"] = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL
+        ).strip()
+        identity["git_dirty"] = bool(
+            subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=normal"],
+                cwd=ROOT,
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+        )
+    except (OSError, subprocess.CalledProcessError):
+        identity["git_commit"] = None
+        identity["git_dirty"] = None
+    return identity
 
 
 def _path(run_id: str, directory: Path) -> Path:

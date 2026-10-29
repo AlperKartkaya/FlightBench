@@ -1,0 +1,44 @@
+{
+  "name": "Bespoke Nimble 9B Q4_K_M",
+  "slug": "nimble-9b-q4",
+  "model": "nimble:9b-q4_K_M",
+  "provider": "Bespoke / local Ollama",
+  "source_url": "https://ollama.com/library/nimble",
+  "license": "Apache-2.0",
+  "controller_type": "ai",
+  "local": true,
+  "parameter_count": 9000000000,
+  "quantization": "Q4_K_M",
+  "backend": "Ollama 0.35.0 Metal System One scoring",
+  "model_digest": "572f1f4c801d37171344b0520d14853a88887c249d11db3acfa6c81a34cdcfa3",
+  "model_manifest_sha256": "572f1f4c801d37171344b0520d14853a88887c249d11db3acfa6c81a34cdcfa3",
+  "files": {
+    "application/vnd.ollama.image.model": {
+      "sha256": "sha256:0e228c45932655a4b97b175eba79a578e180778ce0d576a10b86f8726962d993",
+      "bytes": 5629108736
+    },
+    "application/vnd.ollama.image.system": {
+      "sha256": "sha256:47bec4463a2ae8ca4223cd9da803232e93f3e2c3c1990b17d79019133ad344a6",
+      "bytes": 385
+    },
+    "application/vnd.ollama.image.license": {
+      "sha256": "sha256:d0c0372065bbe3b1a9931ec5ed842e7ddce6d1308bb3d3bbd9edd27724e5cdd7",
+      "bytes": 400
+    },
+    "application/vnd.ollama.image.params": {
+      "sha256": "sha256:7892eb6262be941f7a3278cb307efebaadef0fbd35dea0837dc50533a4df6c89",
+      "bytes": 17
+    }
+  },
+  "context_length": 8192,
+  "generation": false,
+  "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+  "campaign": {
+    "model_parallelism": 2,
+    "per_model_episode_jobs": 1,
+    "shared_hardware": "Apple M1 Pro 16GB unified memory",
+    "scenario": "easy: seed-independent physical initialization",
+    "decision_hz": 2,
+    "time_scale": 1.0
+  }
+}

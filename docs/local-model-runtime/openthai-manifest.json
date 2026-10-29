@@ -1,0 +1,44 @@
+{
+  "name": "OpenThai-SystemOne v0.3 Q8",
+  "slug": "openthai-v0.3-q8",
+  "model": "iapp/openthai-systemone:0.8b-q8_0",
+  "provider": "iApp/OpenThai / local Ollama",
+  "source_url": "https://huggingface.co/iapp/OpenThai-SystemOne-Ollama",
+  "license": "Apache-2.0",
+  "controller_type": "ai",
+  "local": true,
+  "parameter_count": 752410000,
+  "quantization": "Q8_0",
+  "backend": "Ollama 0.35.0 Metal System One scoring",
+  "model_digest": "fe366af549835646c523136e3742a321cffb934f893e6fbbda9938f90f8923bd",
+  "model_manifest_sha256": "fe366af549835646c523136e3742a321cffb934f893e6fbbda9938f90f8923bd",
+  "files": {
+    "application/vnd.ollama.image.model": {
+      "sha256": "sha256:24ccacfa663273b160c7c7d8f6d60e4a334dbef472d33b3193fb4a68b1ed7c74",
+      "bytes": 811864768
+    },
+    "application/vnd.ollama.image.system": {
+      "sha256": "sha256:bc311040d7361a272f9e0c101a42785963d8e568dbcca0cb188b409f48bc57de",
+      "bytes": 155
+    },
+    "application/vnd.ollama.image.license": {
+      "sha256": "sha256:283ea6cc2997a1a70da0049e09adf9317bb60ca1b51279b65196b83a69e1996b",
+      "bytes": 11323
+    },
+    "application/vnd.ollama.image.params": {
+      "sha256": "sha256:ce4a164fc04605703b485251fe9f1a181688ba0eb6badb80cc6335c0de17ca0d",
+      "bytes": 17
+    }
+  },
+  "context_length": 8192,
+  "generation": false,
+  "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+  "campaign": {
+    "model_parallelism": 2,
+    "per_model_episode_jobs": 1,
+    "shared_hardware": "Apple M1 Pro 16GB unified memory",
+    "scenario": "easy: seed-independent physical initialization",
+    "decision_hz": 2,
+    "time_scale": 1.0
+  }
+}

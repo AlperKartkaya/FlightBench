@@ -1,0 +1,35 @@
+0.05.021.144 I srv  llama_server: initializing ...
+0.05.021.151 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.05.023.488 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+0.05.025.705 I srv    load_model: loading model '/Users/alperkartkaya/Documents/FlightBench/scratch/clef-flash/model/Clef-Flash-Q4_K_M.gguf'
+0.12.900.678 I decision model reads the embeddings output, enabling embedding mode
+0.12.902.499 W llama_init_from_model: model default pooling_type is [-1], but [0] was specified
+0.13.338.150 I cmn          init: llama threadpool init, n_threads = 2
+0.13.338.242 W init: embeddings required but some input tokens were not marked as outputs -> overriding
+0.14.261.053 I srv          init: decision model type: clef
+0.14.261.200 W srv    load_model: speculative decoding not supported by this context
+0.14.261.204 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 8192, kv_unified = 'false'
+0.14.267.931 I srv  llama_server: model loaded
+0.14.268.073 I srv  llama_server: listening on http://127.0.0.1:8012
+0.14.662.931 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+0.14.662.938 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0
+0.26.100.889 I slot      release: id  0 | task 0 | stop processing: n_tokens = 2156, truncated = 0
+0.26.171.788 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 312747006269
+0.26.171.795 I slot launch_slot_: id  0 | task 2 | processing task, is_child = 0
+0.37.143.753 I slot      release: id  0 | task 2 | stop processing: n_tokens = 2156, truncated = 0
+0.37.205.811 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 312758049135
+0.37.205.818 I slot launch_slot_: id  0 | task 4 | processing task, is_child = 0
+0.47.716.991 I slot      release: id  0 | task 4 | stop processing: n_tokens = 2160, truncated = 0
+0.47.727.888 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 312768622371
+0.47.727.893 I slot launch_slot_: id  0 | task 6 | processing task, is_child = 0
+0.57.897.922 I slot      release: id  0 | task 6 | stop processing: n_tokens = 2148, truncated = 0
+0.57.909.879 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 312778803302
+0.57.909.887 I slot launch_slot_: id  0 | task 8 | processing task, is_child = 0
+1.09.253.776 I slot      release: id  0 | task 8 | stop processing: n_tokens = 2162, truncated = 0
+1.09.266.871 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 312790159156
+1.09.266.875 I slot launch_slot_: id  0 | task 10 | processing task, is_child = 0
+1.19.280.183 I slot      release: id  0 | task 10 | stop processing: n_tokens = 2046, truncated = 0
+1.19.292.232 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 312800185562
+1.19.292.237 I slot launch_slot_: id  0 | task 12 | processing task, is_child = 0
+1.29.459.701 I slot      release: id  0 | task 12 | stop processing: n_tokens = 2040, truncated = 0
+1.29.535.795 I srv    operator(): operator(): cleaning up before exit...

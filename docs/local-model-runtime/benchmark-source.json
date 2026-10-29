@@ -1,0 +1,18 @@
+{
+  "source_identity": {
+    "versions": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "source_hash": "sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "git_commit": "6b1163942ed8e98c342a518900214464f7dce6da",
+    "git_dirty": true
+  },
+  "archive_sha256": "3dabbef2a970045e3cd7ac286879db17799984608b5ba20c34fcf02a6aeab01d",
+  "notes": "Actual 50-run source before submission-validation hardening. Protocol/controller/physics unchanged by later validation fixes."
+}

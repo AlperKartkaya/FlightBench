@@ -1,0 +1,52 @@
+{
+  "name": "Von 1.3",
+  "slug": "von-1.3",
+  "model": "von-1.3.0",
+  "provider": "wfzyx / local von-sdk",
+  "source_url": "https://github.com/wfzyx/von",
+  "license": "Apache-2.0",
+  "model_revision": "498ceba33390b32cfefaab6422ec380318ba9b99",
+  "source_revision": "a72b19c25bd3a90e5f7133999155a9213f61994a",
+  "runtime_version": "von-sdk 1.3.7",
+  "runtime_wheel_sha256": "c728895955da163eff7aebe4cd0387593ec0c2af6eec8ea5e18399236366eeef",
+  "backend": "PyTorch CPU, 2 threads",
+  "on_overflow": "refuse",
+  "chains": false,
+  "controller_type": "ai",
+  "local": true,
+  "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+  "campaign": {
+    "model_parallelism": 2,
+    "per_model_episode_jobs": 1,
+    "shared_hardware": "Apple M1 Pro 16GB unified memory",
+    "scenario": "easy: seed-independent physical initialization",
+    "decision_hz": 2,
+    "time_scale": 1.0
+  },
+  "files": {
+    "config.json": {
+      "sha256": "091b9a53c47e1cbc0b10b521a2d2f21dedf863851c07122cfa3d3e497e5e82ec",
+      "bytes": 6329
+    },
+    "tokenizer.json": {
+      "sha256": "bb637767e8dfb8044597df6c58243bff2e592ae9e3b310c0bbdb8591f6ac543d",
+      "bytes": 3583486
+    },
+    "tokenizer_config.json": {
+      "sha256": "4d2a485d5fd1ee514db180744fc00807c11da34012ac3666744c0377f6c23731",
+      "bytes": 571
+    },
+    "model.safetensors": {
+      "sha256": "af57d5d2ab15715a753a1eb4add4271d1aecce7e76f3365f629c082df329297a",
+      "bytes": 1579143688
+    },
+    "option_marker.pt": {
+      "sha256": "3faf27f88d30aaf9aa37860d4cdef99f1d05450cf40364f6236ac892d4d139ed",
+      "bytes": 1581316459
+    },
+    "marker_calibration.json": {
+      "sha256": "9b32949dcd0cfd122db509c9bd5be67f0cfe35696153aa93d667caf0aae147c9",
+      "bytes": 1456
+    }
+  }
+}

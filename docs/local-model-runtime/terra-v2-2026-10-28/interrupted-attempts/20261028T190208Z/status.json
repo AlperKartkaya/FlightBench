@@ -1,0 +1,11 @@
+{
+  "state": "running",
+  "started_at": "2026-10-28T14:45:22.810448+00:00",
+  "efforts": {},
+  "current": {
+    "effort": "low",
+    "cohort": 1,
+    "seed": 202,
+    "started_at": "2026-10-28T14:55:56.711149+00:00"
+  }
+}

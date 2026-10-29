@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "Kev 0.8B v1.0",
+    "slug": "kev-0.8b-v1-v2-lockstep-s42",
+    "type": "ai",
+    "provider": "Jared Palmer / local MLX",
+    "model": "kev-0.8b-v1.0",
+    "source_url": "https://github.com/jaredpalmer/kev",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": null,
+    "quantization": null,
+    "metadata": {
+      "model_revision": "bf75a6a8848ea6960ff2ed108d9ed44c2941174f",
+      "source_revision": "84847f0a883d900f7de5b7a57eaa341ca7f9a6b4",
+      "backend": "MLX bfloat16",
+      "base_revision": "dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68",
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "campaign": {
+        "id": "local-v2-lockstep-2026-10-26",
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "scoring_version": "v2",
+        "warmup": "One complete canonical initial-state request before the episode; retained separately.",
+        "order": "Lockstep seed 42 only; one model server at a time; host kept awake with caffeinate -i",
+        "isolation": "Other desktop/agent activity possible; no other benchmark model jobs."
+      },
+      "files": {
+        "adapter_model.safetensors": {
+          "sha256": "9b908623acb162118575f4e7a94524f9c139c335be4bfb74d6cfceca01e1885a",
+          "bytes": 43338624
+        },
+        "head.pt": {
+          "sha256": "f400bd12802b2b105ae45d6b03774a158a3db4fccff42413734ddca2e5c920b6",
+          "bytes": 2103999
+        },
+        "provenance.json": {
+          "sha256": "fce039fbda7de19451c9b5d3065aee2c5e063e1562a8bc18c72e297fbd15e9d8",
+          "bytes": 4221
+        },
+        "result.json": {
+          "sha256": "523770dbe04ad23bfdadd627d253273220fe8969a74b213e0fafb1e65093bc8c",
+          "bytes": 80760
+        },
+        "tokenizer_config.json": {
+          "sha256": "e611fbccc7c29ef3b1cafb1cb7ea548d189968632901d678fd62be68c47885de",
+          "bytes": 16712
+        },
+        "tokenizer.json": {
+          "sha256": "fe000e3ed39ed12b8d2481d527d44f93c65d37e87645d2dcc80d1bf9d50d2927",
+          "bytes": 12807196
+        },
+        "training_metrics.json": {
+          "sha256": "5f94d869c3707c0efff9f2e893e288014bc88515ae04fe5f75c9d793c453cfc1",
+          "bytes": 326
+        },
+        "adapter_config.json": {
+          "sha256": "748acb2cda88454cb1ba69d745ba336f3fcb5486eac349e90960c8b8d8d3e854",
+          "bytes": 1273
+        },
+        "training_config.json": {
+          "sha256": "3ec3d92146248265652d4387f8eb65ee8defaed4dd9173b049e7b5193045ece6",
+          "bytes": 1767
+        },
+        "config.json": {
+          "sha256": "b90b86f35c8e6925ef74ee04d0e758f0a845c83a42089ad82bbaa948de9b4204",
+          "bytes": 2907
+        },
+        "model.safetensors-00001-of-00001.safetensors": {
+          "sha256": "c2b1e5a17d9c1e27685d92ed9b382911ebb99955ecd89052d1721241adfbab6c",
+          "bytes": 1746942600
+        },
+        "merges.txt": {
+          "sha256": "a9d356d7bdf1ef4949e3e748e95b8e10ad9d4e2e838eddc38a0a7b6b94d1db8d",
+          "bytes": 3353259
+        },
+        "vocab.json": {
+          "sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003",
+          "bytes": 6722759
+        },
+        "model.safetensors.index.json": {
+          "sha256": "ce9a885efdf27d3664fdef5d512ad365216f1074051ef840c7cd8e5431495d0a",
+          "bytes": 50900
+        },
+        "video_preprocessor_config.json": {
+          "sha256": "d039cd7d88b3502a99edd455496b75b44ecf7dd3b3669748bafac37e6cecc085",
+          "bytes": 386
+        },
+        "preprocessor_config.json": {
+          "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+          "bytes": 390
+        }
+      },
+      "endpoint": "http://127.0.0.1:11436",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:ebbaf763d742e79e847f43f8f64f701ec923160f770960b0d6cecfe3c81fa128",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42
+    ],
+    "modes": [
+      "lockstep"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0
+    },
+    "realtime_response_policy": "discard-stale",
+    "scoring_version": "v2",
+    "scoring_config_sha256": "82684d68cfb2dc37bd08ee8a1e0072d88d31a3190483eb89b39e523a0b8a7b80"
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 1294.1303921568629,
+      "p50_latency_ms": 1327.565,
+      "p95_latency_ms": 1408.925,
+      "max_latency_ms": 1653.879,
+      "effective_decisions_per_second": 2.02113606340819,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "4240386a-9cd9-4c34-847c-69fd9c8fb5b8",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:938904c5d36d1a2e8562cae69e7ce20232844f847fd1f885f9b701876445dbf5"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "4240386a-9cd9-4c34-847c-69fd9c8fb5b8.json.gz",
+      "sha256": "sha256:938904c5d36d1a2e8562cae69e7ce20232844f847fd1f885f9b701876445dbf5",
+      "bytes": 37552,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-26T20:45:24.519511Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

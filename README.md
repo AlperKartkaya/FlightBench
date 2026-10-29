@@ -38,53 +38,52 @@
   >
 </a>
 
-**[Watch my flight!](https://alperkartkaya.github.io/FlightBench/human-flight/)** My record is **70.1/100**. Try the same setup and beat my score, then [send me your run or recording](mailto:alperkartkaya@gmail.com)! You can also [watch the baseline controller](https://alperkartkaya.github.io/FlightBench/baseline-flight/).
+**[Watch my flight!](https://alperkartkaya.github.io/FlightBench/human-flight/)** My best record is **70.1/100**. Try the same setup and beat my score, then [send me your run or recording](mailto:alperkartkaya@gmail.com)! You can also [watch the baseline controller](https://alperkartkaya.github.io/FlightBench/baseline-flight/).
 
 ## Quick take-off
 
-### Requirements
+Requires Python, uv and Node.js on your PATH; the launcher installs project dependencies automatically.
 
-- Python 3.11–3.13 and [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- [Node.js](https://nodejs.org/en/download) 20.19+ (20.x) or 22.12+, with npm
-
+Clone the repository and change into the cloned directory:
 
 ```sh
-uv sync
-uv run uvicorn flightbench.server:app --host 127.0.0.1 --port 8000
-
-# In another terminal:
-cd frontend && npm ci && npm run dev -- --host 127.0.0.1
+git clone https://github.com/AlperKartkaya/FlightBench.git
+cd FlightBench
 ```
 
-Open <http://127.0.0.1:5173>, choose a controller, and select **Start flight**.
+On macOS or Linux, install dependencies and start both servers with one command:
 
-Human-pilot and baseline modes require neither an API key nor a Codex account. For Jev, run `uv sync --extra jev` and set `TYPESAFE_API_KEY`. For Codex, run `uv sync --extra codex`, install the Codex CLI, then authenticate with `codex login` and check `codex login status`; this connection uses a [ChatGPT plan (free, plus, or pro) with Codex CLI access](https://learn.chatgpt.com/docs/pricing), not an API key. See [llm-openai-via-codex](https://github.com/simonw/llm-openai-via-codex).
+```sh
+./scripts/dev.sh
+```
 
+On Windows (PowerShell), use:
 
-## Benchmark results and estimated API cost
+```powershell
+python scripts/dev.py
+```
 
-Where Jev landed successfully in realtime at an effective rate of about 2.4 calls per second, no Codex model managed to land successfully even with 2 Hz lockstep. Jev's performance is **not a 5-star one**, it performed with a 14% successful landing, 74% runway excursion, 9% nose-first contact (crash), and 2% timeout rate. The baseline controller landed with a score of **69.9/100**, a little below [my personal best](https://alperkartkaya.github.io/FlightBench/human-flight/)!
+You are all set! Choose a controller and select **Start flight**.
 
-| Controller | Score and result | Sim time and wall time (s) | Calls | Mean latency per call (s) | Latency vs Jev | Input / output tokens | Est. API cost | Cost vs Jev |
-| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **Jev · TypeSafe API** | **56 · landed** | 71 / 71 (realtime) | 168 (~2.4 Hz) | **0.33** | **1.0×** | ~291k / — | **$0.0122** | **1.0×** |
-| GPT-6 Luna (low) · Codex | 0 · nose-first contact | 39 / 202 (lockstep) | 79 (~0.4 Hz) | 2.53 | 7.7× | 78k / 5k | ≈$0.0153† | ≈1.3×† |
-| GPT-6 Sol (low) · Codex | 49 · runway excursion | 61 / 463 (lockstep) | 122 (~0.3 Hz) | 3.77 | 11.5× | 121k / 11k | $0.3521 | ≈29× |
-| GPT-6 Astra (low) · Codex | 49 · runway excursion | 61 / 558 (lockstep) | 123 (~0.2 Hz) | 4.50 | 13.8× | 122k / 11k | $1.758 | ≈143× |
+For Jev and Codex authentication, [see the setup guide](docs/controller-setup/README.md).
 
-† Luna's observed 79-call cost is $0.01009. In the table, Luna's run is scaled to **120 calls** to roughly match the number of steps in the other models' runs.
+## Benchmark results — landing score and API cost
+
+![FlightBench benchmark results (dark theme)](docs/evaluations/2026-10-22-scoring-v2/benchmark-dark.svg#gh-dark-mode-only)
+![FlightBench benchmark results (light theme)](docs/evaluations/2026-10-22-scoring-v2/benchmark-light.svg#gh-light-mode-only)
+
+**In our evaluation, all the Codex/LLM controllers failed to achieve a successful realtime landing;
+their results above are lockstep runs.**
 
 > While **Realtime** means simulation time equals wall clock time, **Lockstep** means the simulation is paused for each step to let the model respond. Hence, simulation and wall time can differ in lockstep.
 
-## Landing score vs. estimated API cost
+## Landing Score vs. Estimated API Cost
 
-![Performance on FlightBench: best landing score versus estimated API cost](docs/benchmark-cost-performance.svg)
+![Landing score versus API-equivalent cost](docs/evaluations/2026-10-22-scoring-v2/landing-score-vs-api-cost.svg)
 
-**Estimate basis:** Jev's input-token estimate uses a four-characters-per-token proxy on the selected run's logged JSON, priced at [TypeSafe's $0.042/1M rate](https://typesafe.ai/blog/introducing-system-one-models-and-jev). Codex token usage is based on the selected session logs, priced at [OpenAI Standard short-context rates](https://developers.openai.com/api/docs/pricing): Luna $0.10/$0.50, Sol $2/$10, Astra $10/$50 per million input/output tokens. Cached/cache-write tokens were zero, and output includes reasoning.
+## Landing score calculation
 
-The Codex runs used a **Codex subscription**, not pay-as-you-go API keys. The reported costs are **API-key equivalents**, not actual Codex charges. See [llm-openai-via-codex](https://github.com/simonw/llm-openai-via-codex).
-
-Successful landing threshold is a score of 50, and only Jev managed to surpass it. Also, Jev's flight was run in realtime, whereas for Codex, the UI uses lockstep so physics waits for each model response.
+![Landing score: formula, variables and default constants](docs/scoring/scoring-v2.png)
 
 ## How is Jev's API used?
 

@@ -1,0 +1,23 @@
+{
+  "models": [
+    {
+      "name": "nimble:9b-q4_K_M",
+      "model": "nimble:9b-q4_K_M",
+      "size": 5931123342,
+      "digest": "572f1f4c801d37171344b0520d14853a88887c249d11db3acfa6c81a34cdcfa3",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen35",
+        "families": [
+          "qwen35"
+        ],
+        "parameter_size": "9.0B",
+        "quantization_level": "Q4_K_M"
+      },
+      "expires_at": "2026-10-07T22:21:54.832456+03:00",
+      "size_vram": 5931123342,
+      "context_length": 8194
+    }
+  ]
+}

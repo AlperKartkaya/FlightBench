@@ -1,0 +1,14 @@
+{
+  "requested_change": "User requested one additional flight per group and best-of-three publication. Existing two trials retained byte-for-byte; third seed202 appended using frozen benchmark source.",
+  "third_seed": 202,
+  "target_completed_flights": 54,
+  "runner_sha256": "a59e6ead7f759d0234dbd6cbedc96c198cdef988658fb53de7b3e032a83ed60b",
+  "launch_after": "Expanded campaign resumes from39 completed flights; remaining original flights and seed202 scheduled serially. Repeatedly rate-limited Astra max deferred last.",
+  "launched_at": "2026-10-24T18:22:51.350336+00:00",
+  "previous_runner_copy": "docs/local-model-runtime/scoring-v2-2026-10-22/runner-revisions/20261025T173638Z-before-max-exclusion.py",
+  "previous_runner_sha256": "a6fb48e317ae412c2533529b599b79f3fa7f952d515405a1e0cda20c041f1dd8",
+  "revision_reason": "User excludes max from remaining flights and publication; existing max evidence retained.",
+  "excluded_efforts": [
+    "max"
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "OpenThai-SystemOne v0.3 Q8",
+    "slug": "openthai-v0.3-q8-arrival-s42",
+    "type": "ai",
+    "provider": "iApp/OpenThai / local Ollama",
+    "model": "iapp/openthai-systemone:0.8b-q8_0",
+    "source_url": "https://huggingface.co/iapp/OpenThai-SystemOne-Ollama",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": 752410000,
+    "quantization": "Q8_0",
+    "metadata": {
+      "backend": "Ollama 0.35.0 Metal System One scoring",
+      "model_digest": "fe366af549835646c523136e3742a321cffb934f893e6fbbda9938f90f8923bd",
+      "model_manifest_sha256": "fe366af549835646c523136e3742a321cffb934f893e6fbbda9938f90f8923bd",
+      "files": {
+        "application/vnd.ollama.image.model": {
+          "sha256": "sha256:24ccacfa663273b160c7c7d8f6d60e4a334dbef472d33b3193fb4a68b1ed7c74",
+          "bytes": 811864768
+        },
+        "application/vnd.ollama.image.system": {
+          "sha256": "sha256:bc311040d7361a272f9e0c101a42785963d8e568dbcca0cb188b409f48bc57de",
+          "bytes": 155
+        },
+        "application/vnd.ollama.image.license": {
+          "sha256": "sha256:283ea6cc2997a1a70da0049e09adf9317bb60ca1b51279b65196b83a69e1996b",
+          "bytes": 11323
+        },
+        "application/vnd.ollama.image.params": {
+          "sha256": "sha256:ce4a164fc04605703b485251fe9f1a181688ba0eb6badb80cc6335c0de17ca0d",
+          "bytes": 17
+        }
+      },
+      "context_length": 8192,
+      "generation": false,
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "campaign": {
+        "id": "arrival-2026-10-20",
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "realtime_response_policy": "apply-on-arrival",
+        "warmup": "One complete canonical initial-state request before both episodes; retained separately.",
+        "order": "lockstep then realtime apply-on-arrival; one model server at a time; host kept awake with caffeinate -i",
+        "isolation": "Other desktop/agent activity possible; no other benchmark model jobs."
+      },
+      "endpoint": "http://127.0.0.1:11435",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "a37581fcecf00bd6ee7977e54ed77791765a5c26",
+    "source_hash": "sha256:b68312840b8e2fb8f61809b0994afb68727cfbf85819a50cf72e6259486d8d15",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42
+    ],
+    "modes": [
+      "lockstep",
+      "realtime"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0,
+      "realtime": 1.0
+    },
+    "realtime_response_policy": "apply-on-arrival"
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 1283.4453773584905,
+      "p50_latency_ms": 1292.895,
+      "p95_latency_ms": 1373.182,
+      "max_latency_ms": 1429.914,
+      "effective_decisions_per_second": 2.026122969098439,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "nose_first_contact": 1
+      },
+      "mean_latency_ms": 1302.6897272727272,
+      "p50_latency_ms": 1375.003,
+      "p95_latency_ms": 1472.418,
+      "max_latency_ms": 1472.418,
+      "effective_decisions_per_second": 0.6613226452905812,
+      "deadline_misses": 10,
+      "deadline_miss_rate": 0.9090909090909091,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "3d4b98b7-15d6-48a6-98d5-d42441b671d0",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:8ffa4c00b90817b223d0300a7db818cad746f88acbee7e74f3b6d752e0b5ea82"
+    },
+    {
+      "run_id": "8daa8981-a077-4387-a84d-f44072d4a379",
+      "seed": 42,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "nose_first_contact",
+      "artifact_sha256": "sha256:c6ac30225ba8081ce8869964cfee72cf1d2f680772e378bf839cd77b2c40da84"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "3d4b98b7-15d6-48a6-98d5-d42441b671d0.json.gz",
+      "sha256": "sha256:8ffa4c00b90817b223d0300a7db818cad746f88acbee7e74f3b6d752e0b5ea82",
+      "bytes": 54564,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "8daa8981-a077-4387-a84d-f44072d4a379.json.gz",
+      "sha256": "sha256:c6ac30225ba8081ce8869964cfee72cf1d2f680772e378bf839cd77b2c40da84",
+      "bytes": 17978,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-20T16:53:27.865400Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

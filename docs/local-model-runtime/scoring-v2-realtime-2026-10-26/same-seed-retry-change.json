@@ -1,0 +1,8 @@
+{
+  "reason": "User replaced new-seed retry request with repeated original seeds42,101,202 until each lands; preserve all attempts.",
+  "old_runner_sha256": "644bc9912035bfb82b09bb90bb45d56b8cc9546d576ce514e75e5fbc18fb2a7c",
+  "new_runner_sha256": "73e009d080bdf7ebd908323a4391907700201b97b0f48a54832884d29ee7febb",
+  "source_identity_changed": false,
+  "excluded_new_seed_attempt": "leaderboard/campaigns/2026-10-26-realtime/failed-attempts/luna-high-new-seed-303-http429",
+  "original_records": "leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-luna-high/trials"
+}

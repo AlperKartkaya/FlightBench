@@ -1,0 +1,23 @@
+{
+  "models": [
+    {
+      "name": "iapp/openthai-systemone:0.8b-q8_0",
+      "model": "iapp/openthai-systemone:0.8b-q8_0",
+      "size": 975836281,
+      "digest": "fe366af549835646c523136e3742a321cffb934f893e6fbbda9938f90f8923bd",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen35",
+        "families": [
+          "qwen35"
+        ],
+        "parameter_size": "752.41M",
+        "quantization_level": "Q8_0"
+      },
+      "expires_at": "2026-10-20T20:02:02.6867+03:00",
+      "size_vram": 975836281,
+      "context_length": 8192
+    }
+  ]
+}

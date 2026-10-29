@@ -1,0 +1,660 @@
+{
+  "$defs": {
+    "Artifact": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "bytes": {
+          "maximum": 104857600,
+          "minimum": 1,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "media_type": {
+          "enum": [
+            "application/json",
+            "application/gzip"
+          ],
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "bytes",
+        "media_type"
+      ],
+      "title": "Artifact",
+      "type": "object"
+    },
+    "ControllerMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "slug": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slug"
+        },
+        "type": {
+          "enum": [
+            "ai",
+            "classical",
+            "human",
+            "reference"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "provider": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "model": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        },
+        "license": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "local": {
+          "default": false,
+          "title": "Local",
+          "type": "boolean"
+        },
+        "cost_kind": {
+          "default": "unknown",
+          "enum": [
+            "provider_fee",
+            "local_provider_fee",
+            "unknown"
+          ],
+          "title": "Cost Kind",
+          "type": "string"
+        },
+        "parameter_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parameter Count"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "provider",
+        "model",
+        "source_url",
+        "license"
+      ],
+      "title": "ControllerMetadata",
+      "type": "object"
+    },
+    "Evaluation": {
+      "additionalProperties": false,
+      "properties": {
+        "seeds": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Seeds",
+          "type": "array"
+        },
+        "modes": {
+          "items": {
+            "enum": [
+              "lockstep",
+              "realtime"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Modes",
+          "type": "array"
+        },
+        "scenario": {
+          "enum": [
+            "easy",
+            "medium"
+          ],
+          "title": "Scenario",
+          "type": "string"
+        },
+        "decision_hz": {
+          "enum": [
+            2,
+            5,
+            10
+          ],
+          "title": "Decision Hz",
+          "type": "integer"
+        },
+        "time_scale_by_mode": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "propertyNames": {
+            "enum": [
+              "lockstep",
+              "realtime"
+            ]
+          },
+          "title": "Time Scale By Mode",
+          "type": "object"
+        },
+        "realtime_response_policy": {
+          "default": "discard-stale",
+          "enum": [
+            "discard-stale",
+            "apply-on-arrival"
+          ],
+          "title": "Realtime Response Policy",
+          "type": "string"
+        },
+        "scoring_version": {
+          "default": "v1",
+          "enum": [
+            "v1",
+            "v2"
+          ],
+          "title": "Scoring Version",
+          "type": "string"
+        },
+        "scoring_config_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scoring Config Sha256"
+        }
+      },
+      "required": [
+        "seeds",
+        "modes",
+        "scenario",
+        "decision_hz",
+        "time_scale_by_mode"
+      ],
+      "title": "Evaluation",
+      "type": "object"
+    },
+    "FlightBenchIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Commit",
+          "type": "string"
+        },
+        "source_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Source Hash",
+          "type": "string"
+        },
+        "benchmark_protocol": {
+          "title": "Benchmark Protocol",
+          "type": "string"
+        },
+        "action_space_version": {
+          "title": "Action Space Version",
+          "type": "string"
+        },
+        "action_space_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Action Space Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "commit",
+        "source_hash",
+        "benchmark_protocol",
+        "action_space_version",
+        "action_space_sha256"
+      ],
+      "title": "FlightBenchIdentity",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "ModeMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "total_runs": {
+          "minimum": 1,
+          "title": "Total Runs",
+          "type": "integer"
+        },
+        "successful_landings": {
+          "minimum": 0,
+          "title": "Successful Landings",
+          "type": "integer"
+        },
+        "success_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Success Rate",
+          "type": "number"
+        },
+        "mean_score": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Mean Score",
+          "type": "number"
+        },
+        "median_score": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Median Score",
+          "type": "number"
+        },
+        "terminal_outcomes": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Terminal Outcomes",
+          "type": "object"
+        },
+        "mean_latency_ms": {
+          "minimum": 0,
+          "title": "Mean Latency Ms",
+          "type": "number"
+        },
+        "p50_latency_ms": {
+          "minimum": 0,
+          "title": "P50 Latency Ms",
+          "type": "number"
+        },
+        "p95_latency_ms": {
+          "minimum": 0,
+          "title": "P95 Latency Ms",
+          "type": "number"
+        },
+        "max_latency_ms": {
+          "minimum": 0,
+          "title": "Max Latency Ms",
+          "type": "number"
+        },
+        "effective_decisions_per_second": {
+          "minimum": 0,
+          "title": "Effective Decisions Per Second",
+          "type": "number"
+        },
+        "deadline_misses": {
+          "minimum": 0,
+          "title": "Deadline Misses",
+          "type": "integer"
+        },
+        "deadline_miss_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Deadline Miss Rate",
+          "type": "number"
+        },
+        "stale_decisions": {
+          "minimum": 0,
+          "title": "Stale Decisions",
+          "type": "integer"
+        },
+        "stale_decision_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Stale Decision Rate",
+          "type": "number"
+        },
+        "total_cost_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Cost Usd"
+        },
+        "cost_per_run_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Run Usd"
+        },
+        "cost_per_100_decisions_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per 100 Decisions Usd"
+        },
+        "cost_per_success_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Success Usd"
+        }
+      },
+      "required": [
+        "total_runs",
+        "successful_landings",
+        "success_rate",
+        "mean_score",
+        "median_score",
+        "terminal_outcomes",
+        "mean_latency_ms",
+        "p50_latency_ms",
+        "p95_latency_ms",
+        "max_latency_ms",
+        "effective_decisions_per_second",
+        "deadline_misses",
+        "deadline_miss_rate",
+        "stale_decisions",
+        "stale_decision_rate"
+      ],
+      "title": "ModeMetrics",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generated_by": {
+          "default": "flightbench leaderboard",
+          "title": "Generated By",
+          "type": "string"
+        },
+        "hardware": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Hardware",
+          "type": "object"
+        },
+        "environment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Environment",
+          "type": "object"
+        },
+        "pricing_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pricing Date"
+        },
+        "cost_methodology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Methodology"
+        }
+      },
+      "required": [
+        "generated_at"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "RunResult": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Run Id",
+          "type": "string"
+        },
+        "seed": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "mode": {
+          "enum": [
+            "lockstep",
+            "realtime"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "success": {
+          "title": "Success",
+          "type": "boolean"
+        },
+        "score": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "terminal_outcome": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Terminal Outcome",
+          "type": "string"
+        },
+        "artifact_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Artifact Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "seed",
+        "mode",
+        "success",
+        "score",
+        "terminal_outcome",
+        "artifact_sha256"
+      ],
+      "title": "RunResult",
+      "type": "object"
+    },
+    "Verification": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "community",
+          "default": "community",
+          "title": "Status",
+          "type": "string"
+        },
+        "method": {
+          "const": "self-reported",
+          "default": "self-reported",
+          "title": "Method",
+          "type": "string"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "title": "Verification",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "controller": {
+      "$ref": "#/$defs/ControllerMetadata"
+    },
+    "flightbench": {
+      "$ref": "#/$defs/FlightBenchIdentity"
+    },
+    "evaluation": {
+      "$ref": "#/$defs/Evaluation"
+    },
+    "results": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ModeMetrics"
+      },
+      "propertyNames": {
+        "enum": [
+          "lockstep",
+          "realtime"
+        ]
+      },
+      "title": "Results",
+      "type": "object"
+    },
+    "runs": {
+      "items": {
+        "$ref": "#/$defs/RunResult"
+      },
+      "minItems": 1,
+      "title": "Runs",
+      "type": "array"
+    },
+    "artifacts": {
+      "items": {
+        "$ref": "#/$defs/Artifact"
+      },
+      "minItems": 1,
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "verification": {
+      "$ref": "#/$defs/Verification"
+    }
+  },
+  "required": [
+    "schema_version",
+    "controller",
+    "flightbench",
+    "evaluation",
+    "results",
+    "runs",
+    "artifacts",
+    "provenance"
+  ],
+  "title": "Submission",
+  "type": "object"
+}

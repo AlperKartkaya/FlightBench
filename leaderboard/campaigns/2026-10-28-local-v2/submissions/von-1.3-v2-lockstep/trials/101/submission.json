@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "Von 1.3",
+    "slug": "von-1.3-v2-lockstep",
+    "type": "ai",
+    "provider": "wfzyx / local von-sdk",
+    "model": "von-1.3.0",
+    "source_url": "https://github.com/wfzyx/von",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": null,
+    "quantization": null,
+    "metadata": {
+      "model_revision": "498ceba33390b32cfefaab6422ec380318ba9b99",
+      "source_revision": "a72b19c25bd3a90e5f7133999155a9213f61994a",
+      "runtime_version": "von-sdk 1.3.7",
+      "runtime_wheel_sha256": "c728895955da163eff7aebe4cd0387593ec0c2af6eec8ea5e18399236366eeef",
+      "backend": "PyTorch MPS; CPU helper threads 2; no CPU fallback requested",
+      "on_overflow": "refuse",
+      "chains": false,
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "campaign": {
+        "id": "local-v2-three-seeds-2026-10-28",
+        "seeds": [
+          42,
+          101,
+          202
+        ],
+        "model_parallelism": 1,
+        "per_model_episode_jobs": 1,
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0,
+        "scoring_version": "v2",
+        "order": "One local model server and one lockstep episode at a time.",
+        "seed_42": "Reused from the validated October 26 campaign; not rerun."
+      },
+      "files": {
+        "config.json": {
+          "sha256": "091b9a53c47e1cbc0b10b521a2d2f21dedf863851c07122cfa3d3e497e5e82ec",
+          "bytes": 6329
+        },
+        "tokenizer.json": {
+          "sha256": "bb637767e8dfb8044597df6c58243bff2e592ae9e3b310c0bbdb8591f6ac543d",
+          "bytes": 3583486
+        },
+        "tokenizer_config.json": {
+          "sha256": "4d2a485d5fd1ee514db180744fc00807c11da34012ac3666744c0377f6c23731",
+          "bytes": 571
+        },
+        "model.safetensors": {
+          "sha256": "af57d5d2ab15715a753a1eb4add4271d1aecce7e76f3365f629c082df329297a",
+          "bytes": 1579143688
+        },
+        "option_marker.pt": {
+          "sha256": "3faf27f88d30aaf9aa37860d4cdef99f1d05450cf40364f6236ac892d4d139ed",
+          "bytes": 1581316459
+        },
+        "marker_calibration.json": {
+          "sha256": "9b32949dcd0cfd122db509c9bd5be67f0cfe35696153aa93d667caf0aae147c9",
+          "bytes": 1456
+        }
+      },
+      "endpoint": "http://127.0.0.1:11437",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "6da47647addda935933387b5e297ee8928dbf061",
+    "source_hash": "sha256:ebbaf763d742e79e847f43f8f64f701ec923160f770960b0d6cecfe3c81fa128",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      101
+    ],
+    "modes": [
+      "lockstep"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0
+    },
+    "realtime_response_policy": "discard-stale",
+    "scoring_version": "v2",
+    "scoring_config_sha256": "82684d68cfb2dc37bd08ee8a1e0072d88d31a3190483eb89b39e523a0b8a7b80"
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 1,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "crash": 1
+      },
+      "mean_latency_ms": 1537.1675714285714,
+      "p50_latency_ms": 1479.858,
+      "p95_latency_ms": 1701.321,
+      "max_latency_ms": 1865.33,
+      "effective_decisions_per_second": 2.066420664206642,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "bd0f3650-cc13-44df-bb33-014e6dfce511",
+      "seed": 101,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:776b7f62605f44c7ffb23712bc7c3408862ba6f268f953ecb06df47e134cb91c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "bd0f3650-cc13-44df-bb33-014e6dfce511.json.gz",
+      "sha256": "sha256:776b7f62605f44c7ffb23712bc7c3408862ba6f268f953ecb06df47e134cb91c",
+      "bytes": 14434,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-27T21:52:05.963329Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

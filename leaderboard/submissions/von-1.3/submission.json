@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "controller": {
+    "name": "Von 1.3",
+    "slug": "von-1.3",
+    "type": "ai",
+    "provider": "wfzyx / local von-sdk",
+    "model": "von-1.3.0",
+    "source_url": "https://github.com/wfzyx/von",
+    "license": "Apache-2.0",
+    "local": true,
+    "cost_kind": "local_provider_fee",
+    "parameter_count": null,
+    "quantization": null,
+    "metadata": {
+      "model_revision": "498ceba33390b32cfefaab6422ec380318ba9b99",
+      "source_revision": "a72b19c25bd3a90e5f7133999155a9213f61994a",
+      "runtime_version": "von-sdk 1.3.7",
+      "runtime_wheel_sha256": "c728895955da163eff7aebe4cd0387593ec0c2af6eec8ea5e18399236366eeef",
+      "backend": "PyTorch CPU, 2 threads",
+      "on_overflow": "refuse",
+      "chains": false,
+      "cost_methodology": "Local provider fee zero; hardware/electricity excluded.",
+      "campaign": {
+        "model_parallelism": 2,
+        "per_model_episode_jobs": 1,
+        "shared_hardware": "Apple M1 Pro 16GB unified memory",
+        "scenario": "easy: seed-independent physical initialization",
+        "decision_hz": 2,
+        "time_scale": 1.0
+      },
+      "files": {
+        "config.json": {
+          "sha256": "091b9a53c47e1cbc0b10b521a2d2f21dedf863851c07122cfa3d3e497e5e82ec",
+          "bytes": 6329
+        },
+        "tokenizer.json": {
+          "sha256": "bb637767e8dfb8044597df6c58243bff2e592ae9e3b310c0bbdb8591f6ac543d",
+          "bytes": 3583486
+        },
+        "tokenizer_config.json": {
+          "sha256": "4d2a485d5fd1ee514db180744fc00807c11da34012ac3666744c0377f6c23731",
+          "bytes": 571
+        },
+        "model.safetensors": {
+          "sha256": "af57d5d2ab15715a753a1eb4add4271d1aecce7e76f3365f629c082df329297a",
+          "bytes": 1579143688
+        },
+        "option_marker.pt": {
+          "sha256": "3faf27f88d30aaf9aa37860d4cdef99f1d05450cf40364f6236ac892d4d139ed",
+          "bytes": 1581316459
+        },
+        "marker_calibration.json": {
+          "sha256": "9b32949dcd0cfd122db509c9bd5be67f0cfe35696153aa93d667caf0aae147c9",
+          "bytes": 1456
+        }
+      },
+      "endpoint": "http://127.0.0.1:11437",
+      "transport": "systemone"
+    }
+  },
+  "flightbench": {
+    "commit": "6b1163942ed8e98c342a518900214464f7dce6da",
+    "source_hash": "sha256:16e73c3adef4646edfeee6e0b68a2366eb43e1ffe8fd93c992ffe9f721a460b8",
+    "benchmark_protocol": "flightbench-v1",
+    "action_space_version": "flightbench-action-space-v1",
+    "action_space_sha256": "5b7d181a8a9dc7a934ef4e2efba5e36772f5bbce1f3af847d6547abdf64c76d9"
+  },
+  "evaluation": {
+    "seeds": [
+      42,
+      101,
+      202,
+      303,
+      404
+    ],
+    "modes": [
+      "lockstep",
+      "realtime"
+    ],
+    "scenario": "easy",
+    "decision_hz": 2,
+    "time_scale_by_mode": {
+      "lockstep": 1.0,
+      "realtime": 1.0
+    }
+  },
+  "results": {
+    "lockstep": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "crash": 5
+      },
+      "mean_latency_ms": 4003.6165285714287,
+      "p50_latency_ms": 3890.044,
+      "p95_latency_ms": 4685.526,
+      "max_latency_ms": 9420.312,
+      "effective_decisions_per_second": 2.066420664206642,
+      "deadline_misses": 0,
+      "deadline_miss_rate": 0.0,
+      "stale_decisions": 0,
+      "stale_decision_rate": 0.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    },
+    "realtime": {
+      "total_runs": 5,
+      "successful_landings": 0,
+      "success_rate": 0.0,
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "terminal_outcomes": {
+        "out_of_bounds": 5
+      },
+      "mean_latency_ms": 4301.703617647059,
+      "p50_latency_ms": 4049.852,
+      "p95_latency_ms": 5480.411,
+      "max_latency_ms": 5969.504,
+      "effective_decisions_per_second": 0.0,
+      "deadline_misses": 34,
+      "deadline_miss_rate": 1.0,
+      "stale_decisions": 34,
+      "stale_decision_rate": 1.0,
+      "total_cost_usd": 0.0,
+      "cost_per_run_usd": 0.0,
+      "cost_per_100_decisions_usd": 0.0,
+      "cost_per_success_usd": null
+    }
+  },
+  "runs": [
+    {
+      "run_id": "bb91fdb0-1b71-42cd-9217-7bf0bd81478a",
+      "seed": 42,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:6048ab0800c444cee9e8b1dc0077749a67f994dfa88331c80ce91c9680ef0630"
+    },
+    {
+      "run_id": "402e97aa-9d27-4a0f-8332-3c3c4b91b74b",
+      "seed": 101,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:9a0eaa64dae379516bce4c9b8b17dee81509517e11a574fc248c5a23da160757"
+    },
+    {
+      "run_id": "8052f219-2e1b-4b23-9ffd-29aedb5ab51e",
+      "seed": 202,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:1365ca11353395f4cb9c856b0065f13ddbffe84970af1fd1a196a73eb2a2eded"
+    },
+    {
+      "run_id": "8a3fb071-60e3-4b89-9f32-45a71ae314bb",
+      "seed": 303,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:729102eea5d31978b9deb5a53e0291da3563991b2d6728f1ed059eba502ea908"
+    },
+    {
+      "run_id": "c658d46d-69d7-4fa8-b866-c5b6132aece6",
+      "seed": 404,
+      "mode": "lockstep",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "crash",
+      "artifact_sha256": "sha256:35d7530dc78ca5d2ad234a88545fe57a1053b08b9dd964365a7db47fffebb773"
+    },
+    {
+      "run_id": "4a7486f5-fdb0-4b9b-bc6b-a83ccf2f8c23",
+      "seed": 42,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:72d0b22505948ce7fdbd116e5be998df256a2da6624dc330528b43b0d559ef12"
+    },
+    {
+      "run_id": "1f45443f-d515-4216-8447-80623edae318",
+      "seed": 101,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:46af9b70f734b3d3b01622f371bc355d331c2749464f0ea427dc007d80db77b6"
+    },
+    {
+      "run_id": "4c4d92a9-96dc-4677-9394-2e98bd591d47",
+      "seed": 202,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:99ab993807f8d4eadc81c6c2bf46da01f9d64aef2cd371803e972a7ad2e0376f"
+    },
+    {
+      "run_id": "f06f0c44-1c9c-4486-b2f0-a067659164fa",
+      "seed": 303,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:6d39bdd9469faae68ec701e81204aa3fb633fb1dbc6e48e9974e1a66a7f5fba6"
+    },
+    {
+      "run_id": "7b3cb04a-ee2a-4b5c-bda3-5396121dd01e",
+      "seed": 404,
+      "mode": "realtime",
+      "success": false,
+      "score": 0.0,
+      "terminal_outcome": "out_of_bounds",
+      "artifact_sha256": "sha256:857d7feadd3614bef13c8062fc4fcf89ab6d1d329275cd0511e708749ec91504"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "bb91fdb0-1b71-42cd-9217-7bf0bd81478a.json.gz",
+      "sha256": "sha256:6048ab0800c444cee9e8b1dc0077749a67f994dfa88331c80ce91c9680ef0630",
+      "bytes": 13922,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "402e97aa-9d27-4a0f-8332-3c3c4b91b74b.json.gz",
+      "sha256": "sha256:9a0eaa64dae379516bce4c9b8b17dee81509517e11a574fc248c5a23da160757",
+      "bytes": 13903,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "8052f219-2e1b-4b23-9ffd-29aedb5ab51e.json.gz",
+      "sha256": "sha256:1365ca11353395f4cb9c856b0065f13ddbffe84970af1fd1a196a73eb2a2eded",
+      "bytes": 13906,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "8a3fb071-60e3-4b89-9f32-45a71ae314bb.json.gz",
+      "sha256": "sha256:729102eea5d31978b9deb5a53e0291da3563991b2d6728f1ed059eba502ea908",
+      "bytes": 13906,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "c658d46d-69d7-4fa8-b866-c5b6132aece6.json.gz",
+      "sha256": "sha256:35d7530dc78ca5d2ad234a88545fe57a1053b08b9dd964365a7db47fffebb773",
+      "bytes": 13893,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "4a7486f5-fdb0-4b9b-bc6b-a83ccf2f8c23.json.gz",
+      "sha256": "sha256:72d0b22505948ce7fdbd116e5be998df256a2da6624dc330528b43b0d559ef12",
+      "bytes": 11880,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "1f45443f-d515-4216-8447-80623edae318.json.gz",
+      "sha256": "sha256:46af9b70f734b3d3b01622f371bc355d331c2749464f0ea427dc007d80db77b6",
+      "bytes": 11023,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "4c4d92a9-96dc-4677-9394-2e98bd591d47.json.gz",
+      "sha256": "sha256:99ab993807f8d4eadc81c6c2bf46da01f9d64aef2cd371803e972a7ad2e0376f",
+      "bytes": 11041,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "f06f0c44-1c9c-4486-b2f0-a067659164fa.json.gz",
+      "sha256": "sha256:6d39bdd9469faae68ec701e81204aa3fb633fb1dbc6e48e9974e1a66a7f5fba6",
+      "bytes": 10138,
+      "media_type": "application/gzip"
+    },
+    {
+      "path": "7b3cb04a-ee2a-4b5c-bda3-5396121dd01e.json.gz",
+      "sha256": "sha256:857d7feadd3614bef13c8062fc4fcf89ab6d1d329275cd0511e708749ec91504",
+      "bytes": 9878,
+      "media_type": "application/gzip"
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-10-02T21:46:41.331899Z",
+    "generated_by": "flightbench leaderboard",
+    "hardware": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "environment": {
+      "flightbench": "0.1.0",
+      "jsbsim": "1.3.1",
+      "gymnasium": "1.3.0"
+    },
+    "pricing_date": null,
+    "cost_methodology": "Local provider fee zero; hardware/electricity excluded."
+  },
+  "verification": {
+    "status": "community",
+    "method": "self-reported",
+    "notes": null
+  }
+}

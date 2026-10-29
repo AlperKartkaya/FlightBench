@@ -129,7 +129,13 @@ def test_headless_report_selects_best_completed_run_and_prices_logged_usage(tmp_
     jev = _record("00000000-0000-4000-8000-000000000001")
     jev["config"].update(controller="jev", model="jev-1.13.0")
     jev["decisions"] = [
-        {"decision_info": {"input": {"state": "test"}, "sdk_request": {"question": "hold"}}}
+        {
+            "decision_info": {
+                "input": {"state": "test"},
+                "sdk_request": {"question": "hold"},
+                "usage": {"input_tokens": 123, "output_tokens": 0},
+            }
+        }
     ]
     codex = _record("00000000-0000-4000-8000-000000000002")
     codex["config"].update(controller="codex", model="openai-codex/gpt-6-luna", seed=101)
@@ -139,7 +145,11 @@ def test_headless_report_selects_best_completed_run_and_prices_logged_usage(tmp_
                 "usage": {
                     "input_tokens": 100,
                     "output_tokens": 20,
-                    "input_tokens_details": {"cached_tokens": 10, "cache_write_tokens": 5},
+                    "input_tokens_details": {
+                        "cached_tokens": 10,
+                        "cache_write_tokens": 5,
+                        "cache_write_tokens_details": {"ttl_30m_tokens": 5, "ttl_12h_tokens": 0},
+                    },
                 }
             }
         }
@@ -155,6 +165,9 @@ def test_headless_report_selects_best_completed_run_and_prices_logged_usage(tmp_
 
     rows = benchmark.report_rows([jev, worse, codex, interrupted])
     assert [r["controller"] for r in rows] == ["jev", "codex"]
+    assert rows[0]["input_tokens"] == 123
+    assert rows[0]["cost_usd"] == pytest.approx(123 * benchmark.JEV_INPUT_RATE / 1_000_000)
+    assert rows[0]["input_tokens_estimated"] is False
     assert rows[1]["seed"] == 101
     assert rows[1]["cost_usd"] == pytest.approx(
         (85 * 0.1 + 10 * 0.01 + 5 * 0.125 + 20 * 0.5) / 1_000_000
@@ -186,9 +199,26 @@ def test_headless_run_writes_markdown_beside_json_summary(monkeypatch, tmp_path)
     monkeypatch.setattr(benchmark, "FixedWingLandingEnv", FakeEnv)
     monkeypatch.setattr(benchmark, "make_controller", lambda *a, **k: FixedController())
 
-    benchmark.main(["--controllers", "mock", "--seeds", "7", "--output-dir", str(tmp_path)])
+    benchmark.main(
+        [
+            "--controllers",
+            "mock",
+            "--seeds",
+            "7",
+            "--realtime-response-policy",
+            "apply-on-arrival",
+            "--output-dir",
+            str(tmp_path),
+        ]
+    )
 
     assert len(list(tmp_path.glob("summary-*.json"))) == 1
+    record = next(
+        json.loads(path.read_text())
+        for path in tmp_path.glob("*.json")
+        if "summary-" not in path.name
+    )
+    assert record["config"]["realtime_response_policy"] == "apply-on-arrival"
     report = next(tmp_path.glob("report-*.md")).read_text()
     assert "| mock | 7 | 75.000 | landed |" in report
     assert "Selected run IDs: mock" in report
@@ -291,7 +321,13 @@ def test_invalid_second_start_does_not_cancel_active_run(monkeypatch, tmp_path):
         assert websocket.receive_json() == {"type": "idle"}
 
 
-def test_realtime_stale_limit_tracks_decision_interval(monkeypatch):
+@pytest.mark.parametrize(
+    ("policy", "expected_applied", "expected_stale"),
+    [("discard-stale", 0, 1), ("apply-on-arrival", 1, 0)],
+)
+def test_realtime_response_policy_controls_delayed_decisions(
+    monkeypatch, policy, expected_applied, expected_stale
+):
     class TimedEnv:
         instances: ClassVar[list] = []
 
@@ -321,13 +357,317 @@ def test_realtime_stale_limit_tracks_decision_interval(monkeypatch):
     monkeypatch.setattr(benchmark, "FixedWingLandingEnv", TimedEnv)
     monkeypatch.setattr(benchmark, "make_controller", lambda *a, **k: SlowController())
 
-    record = benchmark.run_episode("mock", 42, mode="realtime", decision_hz=10)
+    record = benchmark.run_episode(
+        "mock",
+        42,
+        mode="realtime",
+        decision_hz=10,
+        realtime_response_policy=policy,
+    )
 
-    assert record["diagnostics"]["stale_decisions"] >= 1
-    assert record["diagnostics"]["decision_count"] == 0
+    assert record["config"]["realtime_response_policy"] == policy
+    assert record["diagnostics"]["stale_decisions"] >= expected_stale
+    assert record["diagnostics"]["decision_count"] >= expected_applied
     assert record["diagnostics"]["calls"] >= 1
-    stale = [d for d in record["decisions"] if d["discard_reason"] == "stale_observation"]
-    assert all(not d["applied"] and d["control_before"] == d["control_after"] for d in stale)
+    if policy == "discard-stale":
+        stale = [d for d in record["decisions"] if d["discard_reason"] == "stale_observation"]
+        assert all(not d["applied"] and d["control_before"] == d["control_after"] for d in stale)
+    else:
+        assert all(d["applied"] and d["discard_reason"] is None for d in record["decisions"])
+
+
+def test_cli_realtime_records_inflight_request_without_late_physics_mutation(monkeypatch):
+    import threading
+
+    started = threading.Event()
+    release = threading.Event()
+    completed = threading.Event()
+
+    class TerminalEnv:
+        instances: ClassVar[list] = []
+
+        def __init__(self, **_kwargs):
+            self.done = False
+            self.advances = 0
+            self.decision_interval_s = 0.5
+            self.decision_ticks = 1
+            TerminalEnv.instances.append(self)
+
+        def reset(self, seed=42):
+            return {"time_s": 0.0, "seed": seed, "controls": {}}, {}
+
+        def advance(self, action, ticks=1):
+            assert started.wait(1)
+            self.advances += ticks
+            self.done = True
+            return {"time_s": 1 / 120, "controls": action.model_dump()}, 0, True, False, {}
+
+        def snapshot(self):
+            return {
+                "advances": self.advances,
+                "result": {"success": False, "quality": 0, "reason": "timeout"},
+            }
+
+    class SlowController:
+        def decide(self, _observation):
+            started.set()
+            release.wait(1)
+            self.last_decision = {"usage": {"input_tokens": 10, "output_tokens": 1}}
+            completed.set()
+            return ControlCommand(aileron=0, elevator=0, rudder=0, throttle=0.5)
+
+    monkeypatch.setattr(benchmark, "FixedWingLandingEnv", TerminalEnv)
+    monkeypatch.setattr(benchmark, "make_controller", lambda *a, **k: SlowController())
+
+    try:
+        record = benchmark.run_episode(
+            "codex", 42, mode="realtime", model="openai-codex/gpt-6-luna"
+        )
+        diagnostics = record["diagnostics"]
+        assert diagnostics["calls"] == 0
+        assert diagnostics["requests_started"] == 1
+        assert diagnostics["requests_completed"] == 0
+        assert diagnostics["requests_cancel_requested"] == 1
+        assert diagnostics["requests_outstanding"] == 1
+        assert diagnostics["residual_work"] is True
+        assert diagnostics["usage_unknown_requests"] == 1
+        assert benchmark.episode_rows([record])[0]["missing_usage"] == 1
+        assert record["final_state"]["advances"] == 1
+    finally:
+        release.set()
+    assert completed.wait(1)
+    assert TerminalEnv.instances[-1].advances == 1
+
+
+def test_cli_realtime_counts_completed_response_discarded_at_terminal(monkeypatch):
+    import threading
+
+    completed = threading.Event()
+
+    class TerminalEnv:
+        def __init__(self, **_kwargs):
+            self.done = False
+            self.decision_interval_s = 0.5
+            self.decision_ticks = 1
+
+        def reset(self, seed=42):
+            return {"time_s": 0.0, "seed": seed, "controls": {}}, {}
+
+        def advance(self, action, ticks=1):
+            assert completed.wait(1)
+            self.done = True
+            return {"time_s": 1 / 120, "controls": action.model_dump()}, 0, True, False, {}
+
+        def snapshot(self):
+            return {"result": {"success": False, "quality": 0, "reason": "timeout"}}
+
+    class FastController:
+        def decide(self, _observation):
+            self.last_decision = {"usage": {"input_tokens": 10, "output_tokens": 1}}
+            completed.set()
+            return ControlCommand(aileron=0, elevator=0, rudder=0, throttle=0.5)
+
+    monkeypatch.setattr(benchmark, "FixedWingLandingEnv", TerminalEnv)
+    monkeypatch.setattr(benchmark, "make_controller", lambda *a, **k: FastController())
+
+    record = benchmark.run_episode("codex", 42, mode="realtime", model="openai-codex/gpt-6-luna")
+
+    diagnostics = record["diagnostics"]
+    assert diagnostics["calls"] == 0
+    assert diagnostics["requests_started"] == 1
+    assert diagnostics["requests_completed"] == 1
+    assert diagnostics["requests_cancel_requested"] == 0
+    assert diagnostics["requests_outstanding"] == 0
+    assert diagnostics["residual_work"] is False
+    assert diagnostics["usage_unknown_requests"] == 1
+    assert benchmark.episode_rows([record])[0]["missing_usage"] == 1
+
+
+def test_websocket_realtime_records_inflight_request_without_late_physics_mutation(
+    monkeypatch, tmp_path
+):
+    import threading
+
+    started = threading.Event()
+    release = threading.Event()
+    completed = threading.Event()
+
+    class TerminalEnv:
+        instances: ClassVar[list] = []
+
+        def __init__(self, **_kwargs):
+            self.done = False
+            self.advances = 0
+            self.decision_interval_s = 0.5
+            self.decision_ticks = 1
+            TerminalEnv.instances.append(self)
+
+        def reset(self, seed=42):
+            return {"time_s": 0.0, "seed": seed, "controls": {}}, {}
+
+        def advance(self, action, ticks=1):
+            self.advances += ticks
+            self.done = self.advances >= 2 and started.is_set()
+            return (
+                {"time_s": self.advances / 120, "controls": action.model_dump()},
+                0,
+                self.done,
+                False,
+                {},
+            )
+
+        def snapshot(self):
+            return {
+                "type": "state",
+                "advances": self.advances,
+                "result": {"success": False, "quality": 0, "reason": "timeout"},
+            }
+
+    class SlowController:
+        def decide(self, _observation):
+            started.set()
+            release.wait(1)
+            self.last_decision = {"usage": {"input_tokens": 10, "output_tokens": 1}}
+            completed.set()
+            return ControlCommand(aileron=0, elevator=0, rudder=0, throttle=0.5)
+
+    monkeypatch.setattr(server, "FixedWingLandingEnv", TerminalEnv)
+    monkeypatch.setattr(server, "make_controller", lambda *a, **k: SlowController())
+    monkeypatch.setattr(server, "RUNS_DIR", tmp_path)
+    client = TestClient(server.app, base_url="http://localhost")
+
+    try:
+        with client.websocket_connect("/ws", headers={"host": "localhost"}) as websocket:
+            websocket.send_json({"type": "start", "controller": "mock", "mode": "realtime"})
+            while (message := websocket.receive_json()).get("type") != "run_finished":
+                pass
+            record = message["record"]
+            diagnostics = record["diagnostics"]
+            assert diagnostics["calls"] == 0
+            assert diagnostics["requests_started"] == 1
+            assert diagnostics["requests_completed"] == 0
+            assert diagnostics["requests_cancel_requested"] == 1
+            assert diagnostics["requests_outstanding"] == 1
+            assert diagnostics["residual_work"] is True
+            assert diagnostics["usage_unknown_requests"] == 1
+            terminal_advances = record["final_state"]["advances"]
+            release.set()
+            assert completed.wait(1)
+            assert TerminalEnv.instances[-1].advances == terminal_advances
+    finally:
+        release.set()
+
+
+def test_websocket_realtime_marks_unrecorded_terminal_response_usage_unknown():
+    import asyncio
+    import threading
+
+    release = threading.Event()
+    completed = threading.Event()
+
+    class TerminalEnv:
+        def __init__(self):
+            self.done = False
+            self.advances = 0
+            self.decision_interval_s = 0.5
+            self.decision_ticks = 1
+
+        def advance(self, action, ticks=1):
+            self.advances += ticks
+            if self.advances == 2:
+                release.set()
+                assert completed.wait(1)
+                self.done = True
+            return (
+                {"time_s": self.advances / 120, "controls": action.model_dump()},
+                0,
+                self.done,
+                False,
+                {},
+            )
+
+    class Controller:
+        def decide(self, _observation):
+            assert release.wait(1)
+            self.last_decision = {"usage": {"input_tokens": 10, "output_tokens": 1}}
+            completed.set()
+            return ControlCommand(aileron=0, elevator=0, rudder=0, throttle=0.5)
+
+    async def run():
+        env = TerminalEnv()
+        session = server.Session(
+            None,
+            env=env,
+            controller=Controller(),
+            observation={"time_s": 0.0, "controls": {}},
+            mode="realtime",
+        )
+
+        async def ignore_state():
+            pass
+
+        session.state = ignore_state
+        await session._realtime()
+        return session
+
+    session = asyncio.run(run())
+
+    assert session.calls_count == 0
+    assert session.requests_started == 1
+    assert session.requests_completed == 1
+    assert session.requests_cancel_requested == 0
+    assert session.requests_outstanding == 0
+    assert session.requests_started - session.calls_count == 1
+
+
+def test_websocket_apply_on_arrival_applies_delayed_response():
+    import asyncio
+
+    class TimedEnv:
+        def __init__(self):
+            self.done = False
+            self.ticks = 0
+            self.decision_interval_s = 0.001
+            self.decision_ticks = 1
+
+        def advance(self, action, ticks=1):
+            self.ticks += ticks
+            self.done = self.ticks >= 10
+            return (
+                {"time_s": self.ticks / 120, "controls": action.model_dump()},
+                0,
+                self.done,
+                False,
+                {},
+            )
+
+    class SlowController:
+        def decide(self, _observation):
+            time.sleep(0.02)
+            return ControlCommand(aileron=0.1, elevator=0.2, rudder=0.0, throttle=0.7)
+
+    async def run():
+        session = server.Session(
+            None,
+            env=TimedEnv(),
+            controller=SlowController(),
+            observation={"time_s": 0.0, "controls": {}},
+            mode="realtime",
+            realtime_response_policy="apply-on-arrival",
+        )
+
+        async def ignore_state():
+            pass
+
+        session.state = ignore_state
+        await session._realtime()
+        return session
+
+    session = asyncio.run(run())
+
+    assert session.decision_count >= 1
+    assert session.stale_decisions == 0
+    assert session.action.throttle == 0.7
 
 
 @pytest.mark.parametrize("mode", ["lockstep", "realtime"])
@@ -485,6 +825,7 @@ def test_failed_serialization_never_publishes_partial_record(tmp_path):
     [
         {"seed": -1},
         {"decision_hz": 7},
+        {"realtime_response_policy": "invalid"},
         {"human_assistance": "yes"},
         {"delta_scale": float("nan")},
         {"stability_maintainer": "false"},
@@ -577,3 +918,28 @@ def test_send_side_disconnect_is_interruption(monkeypatch, tmp_path):
     asyncio.run(session.run(session.state))
     assert runs.load_record(run_id, tmp_path)["outcome"]["status"] == "interrupted"
     assert session.run_id is None
+
+
+def test_api_equivalent_cost_prices_cache_ttl_and_counts_reasoning_once():
+    usage = {
+        "input_tokens": 100,
+        "output_tokens": 20,
+        "output_tokens_details": {"reasoning_tokens": 12},
+        "input_tokens_details": {
+            "cached_tokens": 10,
+            "cache_write_tokens": 30,
+            "cache_write_tokens_details": {"ttl_30m_tokens": 20, "ttl_12h_tokens": 10},
+        },
+    }
+    assert benchmark.api_equivalent_cost("gpt-6.1-sol", usage) == pytest.approx(
+        (60 * 2 + 10 * 0.1 + 20 * 2.5 + 10 * 5 + 20 * 10) / 1e6
+    )
+    del usage["input_tokens_details"]["cache_write_tokens_details"]
+    assert benchmark.api_equivalent_cost("gpt-6.1-sol", usage) is None
+
+
+def test_terra_standard_token_pricing():
+    assert benchmark.api_equivalent_cost(
+        "gpt-6.1-terra",
+        {"input_tokens": 100, "output_tokens": 20, "input_tokens_details": {"cached_tokens": 10}},
+    ) == pytest.approx((90 + 10 * 0.05 + 20 * 5) / 1e6)

@@ -1,0 +1,10 @@
+
+
+     JSBSim Flight Dynamics Model v1.3.1 [GitHub build 1837/commit 3b25f25e49b42d0489c04ac805674fc1450ca579] May 17 2026 14:38:05
+            [JSBSim-ML v2.0]
+
+JSBSim startup beginning ...
+
+CONTROLLER_DIAGNOSTIC {"exception_type": "RateLimitError", "http_status": 429, "limit_indicated": true}
+{"run_id": "9acf1925-f748-4dd4-b638-afdcea9a8ded", "seed": 101, "mode": "lockstep", "success": false, "quality": 0.0, "status": "controller_error", "touchdown": {"along_track_m": 574.8360696401282, "cross_track_m": 3.8715, "sink_rate_mps": -1.6633643844028663, "airspeed_mps": 27.77818441128935, "heading_error_deg": 1.2105496731348637, "roll_deg": 0.6275260460173245, "pitch_deg": 0.5817064074743441}}
+/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-22-scoring-v2/submissions/gpt-6-astra-max/trials/101/submission.json

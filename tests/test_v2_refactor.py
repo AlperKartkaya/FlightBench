@@ -389,7 +389,13 @@ def test_existing_benchmark_touchdown_and_scoring():
     }
     from flightbench.scoring import evaluate
 
-    res = evaluate(safe_td, success=True, reason="landed", config=env.scoring)
+    res = evaluate(
+        safe_td,
+        success=True,
+        reason="landed",
+        config=env.scoring,
+        trajectory={"lateral": 0, "pitch": 0, "glide": 0},
+    )
     assert res["success"] is True
     assert res["quality"] >= 90.0
     env.close()

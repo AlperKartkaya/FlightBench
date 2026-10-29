@@ -1,0 +1,41 @@
+[
+  {
+    "slug": "jev-1-13-0-realtime",
+    "model": "jev-1.13.0",
+    "mode": "realtime",
+    "effort": null,
+    "seed": 42,
+    "started_at": "2026-10-26T20:38:38.943095+00:00",
+    "command": [
+      "/Users/alperkartkaya/Documents/FlightBench/.venv/bin/python",
+      "-u",
+      "/Users/alperkartkaya/Documents/FlightBench/docs/local-model-runtime/jev113-repeat2-luna-realtime-2026-10-26/diagnostic_entry.py",
+      "eval",
+      "--controller",
+      "jev",
+      "--model",
+      "jev-1.13.0",
+      "--metadata",
+      "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime-repeat2/submissions/jev-1-13-0-realtime/metadata.json",
+      "--modes",
+      "realtime",
+      "--seeds",
+      "42",
+      "--jobs",
+      "1",
+      "--decision-hz",
+      "2",
+      "--time-scale",
+      "1.0",
+      "--realtime-response-policy",
+      "apply-on-arrival",
+      "--timeout",
+      "300",
+      "--output-dir",
+      "/Users/alperkartkaya/Documents/FlightBench/leaderboard/campaigns/2026-10-26-realtime-repeat2/submissions/jev-1-13-0-realtime/trials/42"
+    ],
+    "status": "export_failed",
+    "exit_code": 1,
+    "finished_at": "2026-10-26T20:38:40.950259+00:00"
+  }
+]
