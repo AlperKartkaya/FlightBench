@@ -157,6 +157,7 @@ app.innerHTML = `
         <div id="renderUnavailable" class="render-unavailable" hidden><strong>3D view unavailable</strong><p>This browser could not initialize WebGL. Telemetry, controls and saved results still work. Try a browser with hardware acceleration enabled.</p></div>
 
         <div class="viewer-toolbar" id="viewerToolbar">
+          <button class="btn-secondary" id="hudToggle" type="button" aria-label="Flight instruments" title="Flight instruments" aria-controls="hudOverlay" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4.2 17a9 9 0 1 1 15.6 0M12 3v2M3 12h2m14 0h2M12 12l4-4"/><circle cx="12" cy="12" r="1.5"/></svg></button>
           <button class="btn-secondary" id="configureToggle" type="button" aria-label="Flight settings" aria-controls="configPanel" aria-expanded="false">Human pilot ▾</button>
           <button class="btn-primary" id="start" disabled>Start flight</button><button class="btn-secondary" id="stop" aria-label="Stop and save" disabled>Stop</button><button class="btn-secondary" id="reset" disabled>Reset</button>
           <div class="viewer-config-panel" id="configPanel" hidden>
@@ -176,7 +177,7 @@ app.innerHTML = `
         </div>
 
         <!-- Primary HUD (Top-Left Canvas Overlay) -->
-        <div class="hud-overlay">
+        <div class="hud-overlay" id="hudOverlay" data-open="false">
           <div class="hud-panel">
             <div class="hud-primary-grid">
               <div class="hud-metric">
@@ -1736,6 +1737,11 @@ function setConfigOpen(open: boolean) {
   byId("configureToggle").setAttribute("aria-expanded", String(open));
 }
 byId("configureToggle").addEventListener("click", () => setConfigOpen(byId("configPanel").hidden));
+function setHudOpen(open: boolean) {
+  byId("hudOverlay").dataset.open = String(open);
+  byId("hudToggle").setAttribute("aria-expanded", String(open));
+}
+byId("hudToggle").addEventListener("click", () => setHudOpen(byId("hudOverlay").dataset.open !== "true"));
 document.addEventListener("pointerdown", (event) => {
   if (!byId("configPanel").hidden && !byId("viewerToolbar").contains(event.target as Node)) setConfigOpen(false);
 });
@@ -1743,6 +1749,9 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !byId("configPanel").hidden) {
     setConfigOpen(false);
     byId("configureToggle").focus();
+  } else if (event.key === "Escape" && byId("hudToggle").offsetParent && byId("hudOverlay").dataset.open === "true") {
+    setHudOpen(false);
+    byId("hudToggle").focus();
   }
 });
 

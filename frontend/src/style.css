@@ -1640,6 +1640,7 @@ html, body { height: 100%; overflow: hidden; }
 .viewer-toolbar { position: absolute; top: 14px; right: 14px; z-index: 8; display: flex; align-items: center; gap: 6px; }
 .viewer-toolbar > button { min-height: 34px; padding: 6px 10px; white-space: nowrap; font: 600 11px var(--font-mono); backdrop-filter: blur(10px); }
 #configureToggle { background: rgba(8, 18, 22, .88); border-color: var(--border-highlight); color: var(--accent-mint); }
+#hudToggle { display: none; }
 .viewer-config-panel { position: absolute; top: calc(100% + 8px); right: 0; width: min(330px, calc(100vw - 28px)); padding: 14px; background: rgba(8, 18, 22, .97); border: 1px solid var(--border-highlight); border-radius: 7px; box-shadow: 0 18px 48px rgba(0,0,0,.5); }
 .viewer-config-panel { max-height: calc(100dvh - 130px); overflow-y: auto; }
 .viewer-config-panel #jevProxyGroup { grid-column: 1 / -1; }
@@ -1702,7 +1703,13 @@ html, body { height: 100%; overflow: hidden; }
 }
 
 /* Keep the scene and existing multi-touch controls together on phones. */
-@media (max-width: 850px) {
+@media (max-width: 850px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
+  .viewer-toolbar { top: 10px; left: 10px; right: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .viewer-toolbar > button { min-height: 44px; }
+  #hudToggle { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; }
+  #hudToggle[aria-expanded="true"] { border-color: var(--accent-mint); color: var(--accent-mint); }
+  .hud-overlay { top: 110px; left: 10px; right: 10px; }
+  .hud-overlay[data-open="false"] { display: none; }
   .workspace[data-controller="human"] .sim-column { height: min(340px, 42dvh); position: sticky; top: 0; z-index: 6; background: var(--bg-main); }
   .workspace[data-controller="human"] .controller-column { flex: none; }
   .workspace[data-controller="human"] .flight-readout { display: none; }

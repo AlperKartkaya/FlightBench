@@ -42,6 +42,8 @@ Narrow screens stack inside the fixed-height workspace and can scroll that works
 Human mode places compact 44px touch controls first, with the scene sticky above them.
 Phone landscape keeps scene and controls side by side. Pointer capture releases held
 inputs on lift/cancel; distinct buttons support simultaneous fingers.
+Mobile flight instruments start closed and open with the gauge icon left of controller
+settings; desktop instruments remain visible.
 ## Interaction states
 Disconnected/ready/starting/running/completed/interrupted/error are distinct.
 Disable start offline or pending; lock experiment settings during a run; explicit stop.

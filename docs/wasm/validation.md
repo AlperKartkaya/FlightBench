@@ -191,3 +191,16 @@ has not been updated in this step.
   value was read or committed. Actual TypeSafe authorization, physical phones,
   Safari, Cloudflare CPU/billing and provider credit limits remain unverified.
   The owner explicitly removed the total quota; only minute-rate abuse limits remain.
+
+## Mobile instruments — 2026-10-29
+
+- Instruments start closed on phones, including short landscape screens up to
+  950px wide. An accessible gauge-icon button sits left of controller settings;
+  mobile toolbar buttons share the same 44px height. Desktop instruments stay visible.
+- The extended `tests/browser_pages_smoke.js` passed on the local Pages build at
+  390×844, 320×667, 844×390 and 932×430: default closed, icon placement/equal heights,
+  toggle/Escape, all three controller selections, favicon, simultaneous touch controls,
+  independent release/cancel and stop/reset. A 1440×900 desktop assertion also passed.
+- Frontend tests (18), engine/proxy tests (13), TypeScript and both frontend builds
+  passed. Existing Three.js bundle-size warning remains. Screenshots were visually
+  checked; physical phones/Safari and authenticated provider calls were not tested.
