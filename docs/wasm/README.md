@@ -4,7 +4,7 @@ The Pages build reuses the **existing localhost 3D workbench**, aircraft, camera
 keyboard/onscreen controls, landing assistance, telemetry and outcome dialog at
 `https://alperkartkaya.github.io/FlightBench/`. Only its transport changes: a module
 Web Worker replaces the local Python WebSocket. The default local build still uses
-Python and keeps its controllers and saved-run archive. The local Codex integration is unchanged. Human and baseline need no backend. Jev requires a Cloudflare proxy with a separate access token. Provider credentials remain Worker secrets.
+Python and keeps its controllers and saved-run archive. The local Codex integration is unchanged. Human and baseline need no backend. Public Jev uses the fixed Cloudflare proxy without asking visitors for credentials. Provider credentials remain Worker secrets.
 
 ## Run locally
 
@@ -36,7 +36,7 @@ npm --prefix frontend run preview -- --mode pages --outDir dist-pages --host 127
 `build:pages` writes `frontend/dist-pages/`, not the Python server's `frontend/dist/`.
 The normal `npm --prefix frontend run build` and `scripts/dev.sh` retain their local
 WebSocket/backend behavior. Pages does not request `/ws` or `/api/models`. It offers
-human/baseline/Jev only, frozen easy/seed-42 conditions, 2 Hz AI and Jev 1.13.0.
+human/baseline/Jev only, frozen easy/seed-42 conditions, 2 Hz AI and Jev 1.13/1.14.
 Browser results last for the current session only; the status is Completed, not Saved.
 Official benchmark submissions and persistent local records still use the Python workflow.
 This UI-only preview does not download recordings; the workflow packaging stage adds
@@ -102,7 +102,7 @@ score 0 match the existing environment. No score is submitted to the leaderboard
 ## Cloudflare connection
 
 The Worker exposes only `POST /decide` (and CORS preflight). It constructs the four
-frozen `Choice` questions server-side, pins `jev-1.13.0`, calls only
+frozen `Choice` questions server-side, allows only `jev-1.13.0` or `jev-1.14.0`, calls only
 `https://api.typesafe.ai/v1/systemone`, rejects redirects, and never retries. HTTP API
 `answers` are validated and mapped to canonical IDs and absolute commands. Only model,
 action IDs and controls leave the proxy; upstream errors and headers do not.
@@ -117,13 +117,14 @@ secrets directly in Cloudflare. See `validation.md` for verification boundaries.
 
 1. Confirm the target account uses **Workers Free**; do not enable a paid plan.
 2. Have a separate, revocable TypeSafe API key ready. Do not send it in chat.
-3. Create a separate 32-random-byte base64url access token (at least 43 characters)
-   in a password manager. This grants Jev access; it is not the provider API key.
+3. Create a separate 32-random-byte base64url token (at least 43 characters)
+   in a password manager. It salts stored IP hashes and enables optional private access;
+   it is not the provider API key and is never shared with public visitors.
 4. After the disabled Worker has been deployed, enter these two values directly in
    Cloudflare Dashboard → **Workers & Pages → flightbench-jev → Settings → Variables
    and Secrets → Add → Secret**:
    - `TYPESAFE_API_KEY`: provider API key, never exposed to the browser.
-   - `JEV_ACCESS_TOKEN`: the separate access token used by authorized visitors.
+   - `JEV_ACCESS_TOKEN`: server-only IP-hash salt and optional private-mode bearer secret.
 
 The operator handles deployment, the endpoint URL, CORS, Durable Object binding and
 rate-limit checks. No custom domain or DNS setup is required for `workers.dev`. Store secrets
@@ -132,7 +133,7 @@ build variables, URLs or browser storage. Do not log headers or use credential d
 
 ### Operator deployment sequence
 
-1. Keep `ENABLED = "false"`. Verify `ALLOWED_ORIGIN` matches the exact Pages origin
+1. Initially keep `ENABLED = "false"` and `PUBLIC_ACCESS = "false"`. Verify `ALLOWED_ORIGIN` matches the exact Pages origin
    (no repository path or trailing slash). For an initial deployment, temporarily
    set `ENABLED` to false; the checked-in configuration enables the existing Worker.
 2. Use a separate, revocable TypeSafe key with a provider-side spending limit if
@@ -152,23 +153,26 @@ build variables, URLs or browser storage. Do not log headers or use credential d
    ```
 
 4. Verify the account is on **Workers Free**, not a paid plan. Keep observability off.
-   Set `ENABLED = "true"`, redeploy, and privately share only the access token.
-   On the site, open Flight settings and select Jev; enter your exact `https://…workers.dev/decide` URL plus
-   access token. Browser CSP permits `*.workers.dev`; custom domains require a deliberate
-   CSP change. Access token is held only in memory and cleared on stop/error/completion;
-   the input clears immediately after start. Do not save it in a URL or storage.
-5. Verify authentication, strict telemetry validation and minute-rate rejection.
+   Set `ENABLED = "true"` and `PUBLIC_ACCESS = "true"` only when the owner agrees to
+   sponsor anonymous use, then redeploy. These are the current checked-in settings.
+   Visitors select Jev and a version, then start; no endpoint/token fields are shown.
+   Both secrets remain server-side. The fixed proxy URL is still visible in source
+   and browser network tools; hiding a form field does not make a URL secret.
+   Set `PUBLIC_ACCESS = "false"` to require the server's bearer secret again. The
+   public frontend intentionally has no credential entry for that private mode.
+5. Verify public access, private-mode authentication, strict telemetry validation and minute-rate rejection.
    Set `ENABLED = "false"` and redeploy to disable new calls. Revoke the TypeSafe key
    for an immediate provider-side stop; already-sent requests cannot be recalled.
 
 ### Protection and spending boundary
 
-- CORS is not authentication. A separate bearer token is mandatory, including for
-  a client that spoofs an allowed Origin. The server compares hashed credentials.
-  Jev access requires possession of the access token; this is not anonymous access
-  or individual user identity.
+- Public mode deliberately allows anonymous visitors to spend the owner's Jev
+  credit. CORS is only a browser-origin restriction, not identity or authentication;
+  a non-browser client can spoof Origin. Global and per-IP rate limits, strict schema
+  and fixed questions apply independently. No browser token is embedded or required.
+  Private mode (`PUBLIC_ACCESS != "true"`) retains hashed bearer-token comparison.
 - Exact numeric telemetry schema, enum phase, finite/ranged numbers, control bounds,
-  8 KiB streaming body limit. No prompts, arbitrary model names, assets, URL relay or
+  8 KiB streaming body limit. No prompts, models outside the two pinned versions, assets, URL relay or
   user-provided criteria. The response is size-limited and rejects invalid IDs,
   model drift and explicit truncation.
 - One **SQLite Durable Object** atomically reserves a minute-rate slot **before**
@@ -178,13 +182,14 @@ build variables, URLs or browser storage. Do not log headers or use credential d
   compatibility, but there is **no lifetime or total request quota**, by owner choice.
 - Fixed-minute abuse limits remain: **120/client IP**, **180/global**. Trusted Cloudflare
   IP is hashed with the access token before storage. Raw IPs and credentials are not stored
-  by application code. Token holders can spend the provider balance; IP rotation cannot
-  bypass the global minute rate. NAT users share a rate. Authentication failures never reach storage
+  by application code. Public callers can spend the provider balance; IP rotation cannot
+  bypass the global minute rate. NAT users share a rate. Private-mode authentication failures never reach storage
   or TypeSafe. Network-level denial of service is still possible.
 - This bounds short-term request rate and prompt size, **not total spending**.
   Provider credit, top-ups, pricing and billing remain external; the proxy does not
   inspect the balance or enforce a money limit. Cloudflare being free does not make
-  Jev free. Keep the access token private and rotate it if exposed.
+  Jev free. Keep both secrets private. To stop public spending, disable the Worker
+  or turn public mode off; rotating the bearer secret alone does not close public mode.
 - Workers Free currently has 100,000 requests/day and 10 ms CPU/request; network wait
   does not count as CPU. SQLite Durable Objects are available on Free. This design
   uses one object and tiny transactional state, no paid-only KV-backed DO, Workers AI,
@@ -235,6 +240,7 @@ execution remains self-only plus WebAssembly compilation.
 - Proxy unit tests use fake keys and mock upstream fetch; they test concurrent rates,
   persistence across object reconstruction, authentication, validation and failure paths.
   Public Pages deployment, desktop baseline and emulated phone touch checks passed;
-  see `validation.md` for release commits and evidence. Real TypeSafe, production
+  see `validation.md` for release commits and evidence. Both pinned versions also
+  returned validated HTTP 200 decisions through the real public proxy. Production
   Cloudflare CPU/concurrency/billing and Safari/Firefox/physical-device execution
   still require separate live validation.

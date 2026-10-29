@@ -30,6 +30,12 @@ async page => {
     for (const controller of ['baseline', 'jev', 'human']) {
       await page.locator('#configureToggle').click();
       await page.locator('#controller').selectOption(controller);
+      if (controller === 'jev') {
+        assert(await page.locator('#jevProxy, #jevInvite').count() === 0, 'Public Jev must not ask for endpoint or token');
+        await page.locator('#jevModel').selectOption('jev-1.14.0');
+        assert(await page.locator('#jevModel').inputValue() === 'jev-1.14.0', 'Jev 1.14 unavailable');
+        await page.locator('#jevModel').selectOption('jev-1.13.0');
+      }
       await page.keyboard.press('Escape');
       assert(!await hud.isVisible(), `Switching to ${controller} opened instruments`);
       await toggle.click();

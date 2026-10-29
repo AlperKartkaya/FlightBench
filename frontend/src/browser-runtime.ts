@@ -85,13 +85,13 @@ export class BrowserRuntime {
     if (!this.ready) return false;
     if (message.type === 'start') {
       if (this.runId) return false;
-      const { type, proxy, invite, ...config } = message;
+      const { type, proxy: _proxy, invite: _invite, ...config } = message;
       this.config = config;
       this.runId = crypto.randomUUID();
       this.accepted = false;
       this.last = null;
       this.startedAt = new Date().toISOString();
-      this.worker.postMessage({ type, run_id: this.runId, mode: config.controller, proxy, invite });
+      this.worker.postMessage({ type, run_id: this.runId, mode: config.controller, model: config.model });
     } else if (message.type === 'reset') {
       this.runId = null;
       this.accepted = false;

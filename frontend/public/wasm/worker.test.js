@@ -10,7 +10,7 @@ const contract = {trim, action_space: {phases: {APPROACH: Object.fromEntries(
 )}}};
 const settle = () => new Promise(resolve => setImmediate(resolve));
 function fixture(replies = []) {
-  const messages = [], timers = [];
+  const messages = [], timers = [], requests = [];
   let calls = 0;
   class Landing {
     ticks = 0; done = false; observation = {time_s: 0};
@@ -23,14 +23,15 @@ function fixture(replies = []) {
     validateControl: command => command, URL, AbortController, performance,
     postMessage: message => messages.push(message), clearTimeout() {},
     setTimeout: fn => {timers.push(fn); return timers.length;},
-    fetch: async url => {
+    fetch: async (url, options) => {
       if (url === './flightbench.json') return {ok: true, json: async () => contract};
+      requests.push({url, options});
       calls++;
       return replies.shift() ?? {ok: false, status: 429};
     },
   });
   vm.runInContext(source, context);
-  return {messages, timers, calls: () => calls, send: data => context.onmessage({data})};
+  return {messages, timers, requests, calls: () => calls, send: data => context.onmessage({data})};
 }
 
 test('Worker tags acknowledgements and ignores a stopped generation timer', async () => {
@@ -52,14 +53,14 @@ test('Worker tags acknowledgements and ignores a stopped generation timer', asyn
   assert.equal(f.messages.at(-1).run_id, 'second');
 });
 
-test('Worker rejects unsafe Jev URLs before fetch and quota rejection ends the run', async () => {
+test('Worker rejects unsupported Jev models before fetch and rate rejection ends the run', async () => {
   const f = fixture();
   await f.send({type: 'init'});
-  await f.send({type: 'start', mode: 'jev', run_id: 'bad', proxy: 'http://example.org/decide', invite: 'x'.repeat(43)});
+  await f.send({type: 'start', mode: 'jev', run_id: 'bad', model: 'jev-latest'});
   assert.equal(f.messages.at(-1).type, 'error');
   assert.equal(f.messages.at(-1).run_id, 'bad');
   assert.equal(f.calls(), 0);
-  await f.send({type: 'start', mode: 'jev', run_id: 'quota', proxy: 'https://example.workers.dev/decide', invite: 'x'.repeat(43)});
+  await f.send({type: 'start', mode: 'jev', run_id: 'quota', model: 'jev-1.14.0'});
   await settle();
   assert.equal(f.messages.at(-1).type, 'error');
   assert.equal(f.messages.at(-1).run_id, 'quota');
@@ -83,4 +84,26 @@ test('Jev UI metadata uses canonical phase criteria, never the invitation', asyn
   assert.equal(state.decision_info.choices.aileron.confidence, null);
   assert.equal(state.decision_info.input.time_s, 0);
   assert.ok(!JSON.stringify(state).includes('private-invite'));
+});
+
+test('public Jev uses the fixed proxy without credentials and validates the selected version', async () => {
+  for (const model of ['jev-1.13.0', 'jev-1.14.0']) {
+    const f = fixture([{ok: true, json: async () => ({model,
+      action_ids: Object.fromEntries(Object.keys(trim).map(k => [k, '0'])), command: {...trim}})}]);
+    await f.send({type: 'init'});
+    await f.send({type: 'start', mode: 'jev', run_id: model, model});
+    await settle();
+    assert.equal(f.messages.at(-1).decision_info.model, model);
+    const {url, options} = f.requests[0];
+    assert.equal(url, 'https://flightbench-jev.alperkartkaya.workers.dev/decide');
+    assert.equal(options.headers.Authorization, undefined);
+    assert.equal(JSON.parse(options.body).model, model);
+    assert.equal(options.redirect, 'error');
+  }
+  const f = fixture([{ok: true, json: async () => ({model: 'jev-1.13.0'})}]);
+  await f.send({type: 'init'});
+  await f.send({type: 'start', mode: 'jev', run_id: 'mismatch', model: 'jev-1.14.0'});
+  await settle();
+  assert.equal(f.messages.at(-1).type, 'error');
+  assert.match(f.messages.at(-1).message, /Unexpected Jev model/);
 });

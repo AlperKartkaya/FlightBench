@@ -64,6 +64,7 @@ Reuse the same 3D workbench, keyboard/onscreen controls, assistance, cameras and
 dialog. Pages connects it to a Web Worker; default local builds keep Python. Use
 concise product labels, no separate demonstration page or development notices.
 Completed browser sessions are not labeled Saved; persistence remains documented in
-setup instructions. Settings are fixed to easy/seed 42, 2 Hz AI and Jev 1.13; Codex
-remains local only. Jev settings accept an endpoint and a separate access token,
-never a provider API key. Preserve recording links under an archive, not the site root.
+setup instructions. Settings are fixed to easy/seed 42 and 2 Hz AI; Jev offers 1.13
+and 1.14. Codex remains local only. Public Jev uses the fixed rate-limited proxy
+without credential/endpoint fields; both secrets stay in the Worker. Preserve
+recording links under an archive, not the site root.

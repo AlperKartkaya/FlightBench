@@ -1763,7 +1763,6 @@ function updateControllerUi() {
 
   byId("modelGroup").hidden = !isCodex;
   byId("jevModelGroup").hidden = controllerSelect.value !== "jev";
-  if (pagesRuntime) byId("jevProxyGroup").hidden = controllerSelect.value !== "jev";
   byId("reasoningEffortGroup").hidden = !isCodex;
   byId("decisionRateGroup").hidden = isHuman;
   const cadence = isHuman ? "Manual" : `${byId<HTMLSelectElement>("decisionRate").value} Hz`;
@@ -1816,22 +1815,12 @@ for (const select of [byId("decisionRate"), modelSelect, jevModelSelect, reasoni
 }
 if (pagesRuntime) {
   controllerSelect.querySelector('option[value="codex"]')?.remove();
-  for (const [select, value] of [["jevModel", "jev-1.13.0"], ["decisionRate", "2"]]) {
-    const input = byId<HTMLSelectElement>(select);
-    for (const option of [...input.options]) if (option.value !== value) option.remove();
-  }
+  const decisionRate = byId<HTMLSelectElement>("decisionRate");
+  for (const option of [...decisionRate.options]) if (option.value !== "2") option.remove();
   byId<HTMLInputElement>("seed").readOnly = true;
   byId<HTMLInputElement>("seed").title = "Initial conditions: easy, seed 42.";
   byId("stop").setAttribute("aria-label", "Stop flight");
   document.querySelector(".model-credit")?.insertAdjacentHTML("beforeend", `<br><a href="/FlightBench/recordings/">Flight recordings</a>`);
-  byId("experimentSettings").insertAdjacentHTML("beforeend", `
-    <div id="jevProxyGroup" hidden>
-      <label for="jevProxy">Jev endpoint</label>
-      <input id="jevProxy" class="select-input" type="url" value="https://flightbench-jev.alperkartkaya.workers.dev/decide" autocomplete="off" />
-      <label for="jevInvite">Jev access token</label>
-      <input id="jevInvite" class="select-input" type="password" autocomplete="off" minlength="43" maxlength="128" />
-    </div>
-  `);
 }
 updateControllerUi();
 
@@ -1890,12 +1879,6 @@ byId("start").addEventListener("click", () => {
   const seedInput = byId<HTMLInputElement>("seed");
   if (!seedInput.reportValidity()) return;
   if (controllerSelect.value === "codex" && !modelSelect.value) { showError("No Codex model is available. Check local authentication and refresh."); return; }
-  if (pagesRuntime && controllerSelect.value === "jev") {
-    const proxy = byId<HTMLInputElement>("jevProxy"), invite = byId<HTMLInputElement>("jevInvite");
-    if (!proxy.value || !proxy.reportValidity() || invite.value.length < 43) {
-      showError("Enter an HTTPS Jev endpoint ending /decide and a valid access token."); return;
-    }
-  }
   closeDialog("outcomeModal");
   hideError();
   clearDecisionView();
@@ -1913,10 +1896,7 @@ byId("start").addEventListener("click", () => {
     model: controllerSelect.value === "codex" ? modelSelect.value : controllerSelect.value === "jev" ? jevModelSelect.value : null,
     reasoning_effort: controllerSelect.value === "codex" ? reasoningEffortSelect.value : "low",
   };
-  const proxy = pagesRuntime ? byId<HTMLInputElement>("jevProxy").value : undefined;
-  const invite = pagesRuntime ? byId<HTMLInputElement>("jevInvite").value : undefined;
-  if (pagesRuntime) byId<HTMLInputElement>("jevInvite").value = "";
-  if (!send({ type: "start", ...config, ...(pagesRuntime ? {proxy, invite} : {}) })) { transitionRun("disconnect"); return; }
+  if (!send({ type: "start", ...config })) { transitionRun("disconnect"); return; }
   transitionRun("start");
 });
 byId("stop").addEventListener("click", () => {

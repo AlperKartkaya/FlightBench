@@ -204,3 +204,30 @@ has not been updated in this step.
 - Frontend tests (18), engine/proxy tests (13), TypeScript and both frontend builds
   passed. Existing Three.js bundle-size warning remains. Screenshots were visually
   checked; physical phones/Safari and authenticated provider calls were not tested.
+
+## Public Jev and version selection — 2026-10-29
+
+- At the owner's request, `PUBLIC_ACCESS=true` enables sponsored anonymous use.
+  Browser endpoint/token inputs are removed; the physics Worker calls the fixed
+  proxy with the selected 1.13 or 1.14 model and no Authorization header. Both
+  secrets remain Worker secrets; their values were not retrieved. The bearer secret
+  remains server-side for salted IP hashes and optional private-mode authentication.
+- The proxy and Durable Object independently allow only the two exact versions;
+  arbitrary models, prompts, routes, and invalid telemetry remain rejected. The
+  existing 120/client-IP and 180/global minute rates and object identity are unchanged.
+  This deliberately permits public callers to consume the owner's credit. CORS is
+  not authentication and there is still no total-spend cap. The endpoint is absent
+  from settings, not secret from browser network tools.
+- Live testing exposed a pre-existing Workers incompatibility: `redirect: 'error'`
+  throws before fetching. The proxy now uses `manual` and rejects non-2xx status
+  before consuming a body, so redirects still cannot relay credentials.
+  [Cloudflare Request reference](https://developers.cloudflare.com/workers/runtime-apis/request/).
+- Worker version `31f330e1-1a56-4147-bbb0-92acc54b4fde` was deployed with the existing
+  secrets. Token-free requests for **both versions returned HTTP 200**, the requested
+  exact model, four validated action IDs and four control commands. No upstream body
+  or secret was logged; only the filtered public response was examined.
+- 18 frontend and 16 engine/proxy tests passed, including public-mode rate enforcement,
+  private-mode fallback, both version boundaries and model mismatch. TypeScript,
+  normal/Pages builds and the four-size local mobile smoke passed. The manual
+  `tests/browser_jev_smoke.js` checks two real decisions per version and stops promptly;
+  it consumes provider credit and is not an automatic CI test.

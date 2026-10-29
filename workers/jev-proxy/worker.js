@@ -2,6 +2,7 @@ import actionSpace from './action-space.json' with {type: 'json'};
 
 const AXES = ['aileron', 'elevator', 'rudder', 'throttle'];
 export const MODEL = 'jev-1.13.0';
+export const MODELS = [MODEL, 'jev-1.14.0'];
 const ENDPOINT = 'https://api.typesafe.ai/v1/systemone';
 const json = (body, status = 200, headers = {}) => Response.json(body, {status, headers: {
   'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers,
@@ -80,12 +81,13 @@ export default {
     if (!env.ALLOWED_ORIGIN || origin !== env.ALLOWED_ORIGIN) return json({error: 'Origin denied'}, 403);
     if (request.method === 'OPTIONS') return new Response(null, {status: 204, headers: cors});
     if (request.method !== 'POST') return json({error: 'Method denied'}, 405, cors);
-    if (!env.TYPESAFE_API_KEY || !env.BUDGET || env.ENABLED !== 'true') return json({error: 'Jev disabled'}, 503, cors);
-    if (!await authorized(request.headers.get('Authorization'), env.JEV_ACCESS_TOKEN)) return json({error: 'Unauthorized'}, 401, cors);
+    if (!env.TYPESAFE_API_KEY || !env.BUDGET || env.ENABLED !== 'true' ||
+        typeof env.JEV_ACCESS_TOKEN !== 'string' || env.JEV_ACCESS_TOKEN.length < 43) return json({error: 'Jev disabled'}, 503, cors);
+    if (env.PUBLIC_ACCESS !== 'true' && !await authorized(request.headers.get('Authorization'), env.JEV_ACCESS_TOKEN)) return json({error: 'Unauthorized'}, 401, cors);
     try {
-      let state;
-      try {state = await boundedJSON(request);} catch {return json({error: 'Invalid telemetry'}, 400, cors);}
-      if (!validState(state)) return json({error: 'Invalid telemetry'}, 400, cors);
+      let state, model;
+      try {({model = MODEL, ...state} = await boundedJSON(request));} catch {return json({error: 'Invalid telemetry'}, 400, cors);}
+      if (!MODELS.includes(model) || !validState(state)) return json({error: 'Invalid telemetry'}, 400, cors);
       // Keep the deployed singleton identity; all POPs share the same minute rates.
       const budget = env.BUDGET.get(env.BUDGET.idFromName('lifetime-v1'));
       const ip = request.headers.get('CF-Connecting-IP');
@@ -94,7 +96,7 @@ export default {
       const client = Array.from(hash, b => b.toString(16).padStart(2, '0')).join('');
       const response = await budget.fetch(new Request('https://budget.internal/decide', {
         method: 'POST', headers: {'Content-Type': 'application/json', 'X-Client': client},
-        body: JSON.stringify(state),
+        body: JSON.stringify({...state, model}),
       }));
       return new Response(response.body, {status: response.status, headers: {...cors,
         'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'}});
@@ -121,9 +123,9 @@ export class Budget {
   }
   async fetch(request) {
     if (this.env.ENABLED !== 'true' || !this.env.TYPESAFE_API_KEY) return json({error: 'Jev disabled'}, 503);
-    let state;
-    try {state = await boundedJSON(request);} catch {return json({error: 'Invalid telemetry'}, 400);}
-    if (!validState(state)) return json({error: 'Invalid telemetry'}, 400);
+    let state, model;
+    try {({model = MODEL, ...state} = await boundedJSON(request));} catch {return json({error: 'Invalid telemetry'}, 400);}
+    if (!MODELS.includes(model) || !validState(state)) return json({error: 'Invalid telemetry'}, 400);
     const client = request.headers.get('X-Client');
     if (!/^[a-f0-9]{64}$/.test(client ?? '')) return json({error: 'Invalid client'}, 400);
     if (!await this.reserve(client)) return json({error: 'Rate limited'}, 429);
@@ -132,26 +134,29 @@ export class Budget {
       instructions: axes[axis].instructions,
       criteria: Object.fromEntries(axes[axis].actions.map(a => [a.id, a.criterion])),
     }]));
+    let received = false;
     try {
-      // Exactly one fixed, non-redirecting request; no arbitrary URL/model/question relay or retries.
-      const response = await fetch(ENDPOINT, {method: 'POST', redirect: 'error',
+      // Exactly one fixed request with an allowlisted version; no URL/question relay or retries.
+      // Workers supports manual, not redirect:error; !ok below rejects every redirect.
+      const response = await fetch(ENDPOINT, {method: 'POST', redirect: 'manual',
         signal: AbortSignal.timeout(10000), headers: {'Content-Type': 'application/json',
           Authorization: `Bearer ${this.env.TYPESAFE_API_KEY}`},
-        body: JSON.stringify({model: MODEL, state, questions})});
+        body: JSON.stringify({model, state, questions})});
       if (!response.ok) {await response.body?.cancel(); return json({error: 'Jev request failed'}, 502);}
+      received = true;
       const data = await boundedJSON(response, 32768);
-      if (data.model !== MODEL || data.truncated === true ||
-          (data.truncation && Object.keys(data.truncation).length) ||
-          !exact(data.answers, AXES)) throw Error('Invalid upstream response');
+      if (data.model !== model) return json({error: 'Unexpected Jev model'}, 502);
+      if (data.truncated === true || (data.truncation && Object.keys(data.truncation).length)) return json({error: 'Jev context truncated'}, 502);
+      if (!exact(data.answers, AXES)) return json({error: 'Invalid Jev answers'}, 502);
       const action_ids = {}, command = {};
       for (const axis of AXES) {
         const answer = data.answers[axis];
-        if (answer?.type !== 'choice' || typeof answer.choice !== 'string') throw Error('Invalid choice');
+        if (answer?.type !== 'choice' || typeof answer.choice !== 'string') return json({error: 'Invalid Jev choice'}, 502);
         const action = axes[axis].actions.find(a => a.id === answer.choice);
-        if (!action) throw Error('Invalid action ID');
+        if (!action) return json({error: 'Invalid Jev action'}, 502);
         action_ids[axis] = action.id; command[axis] = action.command;
       }
-      return json({model: MODEL, action_ids, command});
-    } catch {return json({error: 'Jev response unavailable'}, 502);}
+      return json({model, action_ids, command});
+    } catch {return json({error: received ? 'Invalid Jev response' : 'Jev request unavailable'}, 502);}
   }
 }

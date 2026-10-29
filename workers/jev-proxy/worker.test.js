@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import proxy, {Budget, MODEL, validState, boundedJSON} from './worker.js';
+import proxy, {Budget, MODEL, MODELS, validState, boundedJSON} from './worker.js';
 import {Landing, loadRuntime} from '../../frontend/public/wasm/engine.js';
 
 const contract = JSON.parse(readFileSync(new URL('../../frontend/public/wasm/flightbench.json', import.meta.url)));
@@ -49,7 +49,7 @@ test('strict numeric telemetry only; cannot inject instructions, model, URLs or 
 test('auth is required even with a spoofed allowed Origin; fail closed config/routes', async () => {
   const {env} = setup();
   assert.equal((await proxy.fetch(request(state, {Authorization: ''}), env)).status, 401);
-  assert.equal((await proxy.fetch(request(), {...env, JEV_ACCESS_TOKEN: ''})).status, 401);
+  assert.equal((await proxy.fetch(request(), {...env, JEV_ACCESS_TOKEN: ''})).status, 503);
   assert.equal((await proxy.fetch(request(state, {Origin: 'https://evil.example'}), env)).status, 403);
   assert.equal((await proxy.fetch(request(state, {'CF-Connecting-IP': ''}), env)).status, 403);
   assert.equal((await proxy.fetch(request(), {...env, ENABLED: 'false'})).status, 503);
@@ -59,6 +59,47 @@ test('auth is required even with a spoofed allowed Origin; fail closed config/ro
   const preflight = await proxy.fetch(new Request('https://x/decide', {method: 'OPTIONS', headers: {Origin: env.ALLOWED_ORIGIN}}), env);
   assert.equal(preflight.status, 204);
   assert.equal(preflight.headers.get('Access-Control-Allow-Origin'), env.ALLOWED_ORIGIN);
+});
+
+test('explicit public access needs no browser token, but keeps global rates and secrets server-side', async t => {
+  t.mock.method(Date, 'now', () => 60000);
+  const {env, ctx} = setup(); env.PUBLIC_ACCESS = 'true';
+  await ctx.storage.put('budget', {minute: 1, count: 178, clients: {}});
+  const calls = [];
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(url, 'https://api.typesafe.ai/v1/systemone');
+    assert.equal(options.redirect, 'manual');
+    assert.equal(options.headers.Authorization, `Bearer ${env.TYPESAFE_API_KEY}`);
+    const body = JSON.parse(options.body); calls.push(body);
+    assert(validState(body.state));
+    return Response.json({...good(), model: body.model, private: env.TYPESAFE_API_KEY});
+  });
+  for (const model of MODELS) {
+    const response = await proxy.fetch(request({...state, model}, {Authorization: ''}), env);
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.model, model);
+    assert.deepEqual(Object.keys(body).sort(), ['action_ids', 'command', 'model']);
+    assert(!JSON.stringify(body).includes(env.TYPESAFE_API_KEY));
+    assert(!JSON.stringify(body).includes(token));
+  }
+  assert.deepEqual(calls.map(c => c.model), MODELS);
+  assert.equal((await proxy.fetch(request(state, {Authorization: ''}), env)).status, 429);
+  assert.equal(calls.length, 2);
+  assert.equal((await proxy.fetch(request(state, {Authorization: '', Origin: 'https://evil.example'}), env)).status, 403);
+  assert.equal((await proxy.fetch(request(state, {Authorization: ''}), {...env, PUBLIC_ACCESS: 'yes'})).status, 401);
+});
+
+test('both proxy boundaries reject arbitrary model names before reserving a rate slot', async () => {
+  const {env, ctx, budget} = setup(); env.PUBLIC_ACCESS = 'true';
+  for (const model of ['jev-latest', 'other-provider', null, {}, ['jev-1.14.0']]) {
+    assert.equal((await proxy.fetch(request({...state, model}, {Authorization: ''}), env)).status, 400);
+    const r = new Request('https://budget.internal/decide', {method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Client': 'a'.repeat(64)},
+      body: JSON.stringify({...state, model})});
+    assert.equal((await budget.fetch(r)).status, 400);
+  }
+  assert.equal(await ctx.storage.get('budget'), undefined);
 });
 
 test('bounded streaming JSON rejects oversized, invalid and unknown fields before spending', async () => {
@@ -115,7 +156,7 @@ test('one bounded pinned upstream request; filtered output; failed rate slots ne
   try {
     globalThis.fetch = async (url, options) => {
       calls++; assert.equal(url, 'https://api.typesafe.ai/v1/systemone');
-      assert.equal(options.redirect, 'error');
+      assert.equal(options.redirect, 'manual');
       assert.equal(options.headers.Authorization, `Bearer ${env.TYPESAFE_API_KEY}`);
       const body = JSON.parse(options.body); assert.equal(body.model, MODEL);
       assert.deepEqual(Object.keys(body.questions).sort(), ['aileron','elevator','rudder','throttle']);
@@ -137,7 +178,7 @@ test('one bounded pinned upstream request; filtered output; failed rate slots ne
 test('reject model drift, truncation, invalid action IDs and upstream redirects without relay', async () => {
   const original = globalThis.fetch;
   try {
-    for (const body of [{...good(), model: 'jev-latest'}, {...good(), truncated: true},
+    for (const body of [{...good(), model: 'jev-latest'}, {...good(), model: 'jev-1.14.0'}, {...good(), truncated: true},
       {...good(), truncation: {dropped: 1}}, {...good(), answers: {...good().answers,
         aileron: {type: 'choice', choice: '99'}}}, {...good(), answers: {...good().answers,
         elevator: {type: 'choice', choice: 3}}}]) {

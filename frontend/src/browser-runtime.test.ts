@@ -76,7 +76,10 @@ test('reset rejects stale state and finish; a new run can complete without stori
   const old = w.sent.at(-1).run_id;
   w.emit(state(old));
   r.send({type: 'reset'});
-  r.send({type: 'start', controller: 'jev', proxy: 'https://example.org/decide', invite: 'private-invite'});
+  r.send({type: 'start', controller: 'jev', model: 'jev-1.14.0', proxy: 'https://example.org/decide', invite: 'private-invite'});
+  assert.equal(w.sent.at(-1).model, 'jev-1.14.0');
+  assert.equal(w.sent.at(-1).invite, undefined);
+  assert.equal(w.sent.at(-1).proxy, undefined);
   const id = w.sent.at(-1).run_id;
   const count = received.length;
   w.emit(state(old, true));
@@ -89,6 +92,7 @@ test('reset rejects stale state and finish; a new run can complete without stori
   assert.equal(record.outcome.success, true);
   assert.equal(record.config.invite, undefined);
   assert.equal(record.config.proxy, undefined);
+  assert.equal(record.config.model, 'jev-1.14.0');
   assert.equal(record.diagnostics.persistence, 'none');
   assert.equal(record.source, 'browser-wasm');
 });
