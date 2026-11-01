@@ -38,3 +38,13 @@ No external feedback report or source upload was authorized or sent.
 
 Validation: frontend unit tests and TypeScript/Vite build. Browser visual checks
 and real successful simulator flights have not been verified for this change.
+
+## Browser follow-up
+
+Verified in headless Chrome with SwiftShader: real WASM startup and human flight,
+Off default, unavailable-opponent messages, PB replay after a synthetic successful
+result, reset, and 390px mobile layout without horizontal overflow or page errors.
+Inspected desktop/mobile screenshots. Fixed the ghost selector to reuse existing
+select styling. `tests/browser_ghost_smoke.js` preserves the fixture-driven check.
+The synthetic outcome is not evidence of a real successful landing. Recorded Jev
+and simultaneous two-ghost rendering still need browser coverage.
