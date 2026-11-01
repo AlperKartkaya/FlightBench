@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Control } from "./controls.ts";
-import { updateHumanControls, defaultControls, adjustControl, centerSurfaces, humanKey } from "./controls.ts";
+import { copyControls, updateHumanControls, defaultControls, adjustControl, centerSurfaces, humanKey } from "./controls.ts";
 import { nextRunState, outcomeLabel, touchdownValues } from "./results.ts";
 import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./results.ts";
 import { isRunwayLightOn } from "./runway-lights.ts";
@@ -1784,7 +1784,7 @@ function applyFlightBenchState(message: StateMessage) {
 
   updateHudAndTelemetry(message);
   if (byId<HTMLSelectElement>("controller").value !== "human") {
-    Object.assign(controls, message.observation.controls);
+    copyControls(controls, message.observation.controls);
     showControls(controls);
   }
 }

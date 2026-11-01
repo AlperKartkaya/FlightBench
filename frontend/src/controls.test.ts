@@ -174,3 +174,11 @@ test("arrow keys match WASD in both control modes without doubling held aliases"
     assert.ok(controls.elevator < defaultControls().elevator, "releasing W leaves ArrowUp active");
   }
 });
+
+test("AI telemetry cannot leak read-only fields into later human commands", async () => {
+  const { copyControls } = await import('./controls.ts');
+  const controls = defaultControls();
+  const telemetry = { aileron: 0.1, elevator: 0.2, rudder: 0.3, throttle: 0.4, flaps_deg: 10 };
+  copyControls(controls, telemetry);
+  assert.deepEqual(controls, { aileron: 0.1, elevator: 0.2, rudder: 0.3, throttle: 0.4 });
+});
