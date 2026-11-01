@@ -8,7 +8,7 @@ import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./result
 import { isRunwayLightOn } from "./runway-lights.ts";
 import { BrowserRuntime } from "./browser-runtime.ts";
 import "./style.css";
-import { selectGhost, poseAt, smoothReplayTime, ghostMaterial, type Ghost, type Sample } from "./ghosts.ts";
+import { selectGhost, poseAt, smoothReplayTime, ghostMaterial, spinGhostPropeller, type Ghost, type Sample } from "./ghosts.ts";
 
 const pagesRuntime = import.meta.env.MODE === "pages";
 
@@ -843,6 +843,7 @@ let renderRaceTime = 0;
 let liveJevAvailable = false;
 let liveGhost: Ghost | null = null;
 let liveGhostRunId: string | null = null;
+let watchingJev = false;
 const selectedGhosts = new Set<string>();
 const ghostLegend = document.createElement("div");
 ghostLegend.id = "ghostLegend"; ghostLegend.hidden = true;
@@ -909,7 +910,7 @@ function createGhostVisual(controller: string): THREE.Group {
 }
 function startGhosts(config: RunConfig) {
   clearGhosts();
-  ghostSamples = []; raceTime = 0; renderRaceTime = 0; liveGhost = null; liveGhostRunId = null;
+  ghostSamples = []; raceTime = 0; renderRaceTime = 0; liveGhost = null; liveGhostRunId = null; watchingJev = false;
   recordingController = String(config.controller);
   ghostKey = ghostSetupKey(config);
   if (config.controller !== "human") return;
@@ -1169,7 +1170,7 @@ function transitionRun(event: RunEvent) {
   byId<HTMLButtonElement>("configureToggle").disabled = busy;
   if (busy) setConfigOpen(false);
   byId<HTMLButtonElement>("start").disabled = busy || runState === "offline";
-  byId<HTMLButtonElement>("stop").disabled = runState !== "running";
+  byId<HTMLButtonElement>("stop").disabled = runState !== "running" && !liveGhostRunId;
   byId<HTMLButtonElement>("reset").disabled = runState === "starting" || runState === "offline";
   for (const id of ["autoCenterToggle", "wingLevelerToggle"]) byId<HTMLInputElement>(id).disabled = busy;
   const text: Record<RunState, string> = {
@@ -1716,6 +1717,9 @@ function showOutcomeModal(record: RunRecord) {
   byId("outcomeScoreVal").textContent = `${(result.quality ?? 0).toFixed(1)} / 100`;
   const values = touchdownValues(result);
   ["outcomeIasVal", "outcomeVsiVal", "outcomeXtrackVal", "outcomePitchVal", "outcomeRollVal"].forEach((id, i) => byId(id).textContent = values[i]);
+  const watchButton = document.querySelector<HTMLElement>('[data-close="outcomeModal"]');
+  if (watchButton) watchButton.textContent = liveGhostRunId ? "Watch Jev · API usage continues" : "Close result";
+  byId("outcomeRestartBtn").textContent = liveGhostRunId ? "Stop Jev & start next run" : "Start Next Run";
   openDialog("outcomeModal");
 }
 
@@ -1780,6 +1784,7 @@ function receiveMessage(message: any) {
       liveGhost = { key: ghostKey, controller: "jev", score: 0, status: "running", samples: [] };
     } else if (event.type === "state" && event.run_id === liveGhostRunId && liveGhost) {
       const time = event.observation.time_s;
+      if (watchingJev && !activeRunId && Number.isFinite(time)) { raceTime = time; updateHudAndTelemetry(event); }
       if (Number.isFinite(time) && (!liveGhost.samples.length || time > liveGhost.samples.at(-1)!.time)) {
         liveGhost.samples.push({ time, position: event.position, quaternion: event.quaternion });
         if (liveGhost.samples.length === 1) {
@@ -1793,6 +1798,11 @@ function receiveMessage(message: any) {
       Object.assign(liveGhost, { score: event.record.outcome.quality ?? 0, status: event.record.outcome.status, success: event.record.outcome.success });
       if (liveGhost.samples.length > 1) ghostRuns.push(liveGhost);
       liveGhostRunId = null; refreshGhostStatus();
+      byId<HTMLButtonElement>("stop").disabled = runState !== "running";
+      if (watchingJev) byId("flightStatePill").textContent = "JEV FINISHED";
+      const watchButton = document.querySelector<HTMLElement>('[data-close="outcomeModal"]');
+      if (watchButton) watchButton.textContent = "Close result";
+      byId("outcomeRestartBtn").textContent = "Start Next Run";
     } else if (event.type === "error") {
       if (liveGhost) liveGhost.status = "controller_error";
       showError(`Live Jev: ${event.message}`);
@@ -1835,6 +1845,12 @@ function receiveMessage(message: any) {
         ghostRuns.splice(oldest >= 0 ? oldest : 0, 1);
       }
       refreshGhostStatus();
+    }
+    watchingJev = Boolean(liveGhostRunId);
+    byId<HTMLButtonElement>("stop").disabled = !liveGhostRunId;
+    if (watchingJev) {
+      byId("flightStatePill").textContent = "WATCHING JEV";
+      byId("overlayController").textContent = "WATCHING JEV";
     }
     showOutcomeModal(message.record);
     return;
@@ -2072,11 +2088,11 @@ byId("start").addEventListener("click", () => {
   transitionRun("start");
 });
 byId("stop").addEventListener("click", () => {
-  if (runState === "running" && send({ type: "stop" })) byId<HTMLButtonElement>("stop").disabled = true;
+  if ((runState === "running" || liveGhostRunId) && send({ type: "stop" })) byId<HTMLButtonElement>("stop").disabled = true;
 });
 byId("reset").addEventListener("click", () => {
   if (!send({ type: "reset" })) return;
-  clearGhosts();
+  clearGhosts(); watchingJev = false;
   closeDialog("outcomeModal");
   hideError();
   clearDecisionView();
@@ -2128,6 +2144,7 @@ function animate(now: number) {
     const { run, visual } = ghost;
     const pose = poseAt(run.samples, renderRaceTime);
     visual.visible = true; visual.position.copy(pose.position); visual.quaternion.copy(pose.quaternion);
+    if (renderRaceTime < run.samples.at(-1)!.time || (run === liveGhost && liveGhostRunId)) spinGhostPropeller(visual, dt);
 
   }
   if (activeGhosts.length) ghostLegend.textContent = `GHOST RACE · ${raceTime.toFixed(1)} s\n` + activeGhosts.map(({run, label}) =>
@@ -2167,24 +2184,25 @@ function animate(now: number) {
     }
   }
 
+  const cameraSubject = watchingJev ? activeGhosts.find(ghost => ghost.run === liveGhost)?.visual ?? aircraft : aircraft;
   if (cameraMode === "chase") {
     // Chase camera behind and slightly above aircraft, looking down towards runway
-    const targetCamPos = aircraft.position.clone().add(chaseOffset.clone().applyQuaternion(aircraft.quaternion));
+    const targetCamPos = cameraSubject.position.clone().add(chaseOffset.clone().applyQuaternion(cameraSubject.quaternion));
     camera.position.lerp(targetCamPos, 1 - Math.exp(-6 * dt));
     camera.up.set(0, 1, 0);
-    const lookTarget = aircraft.position.clone().add(chaseLookAtOffset.clone().applyQuaternion(aircraft.quaternion));
+    const lookTarget = cameraSubject.position.clone().add(chaseLookAtOffset.clone().applyQuaternion(cameraSubject.quaternion));
     camera.lookAt(lookTarget);
   } else if (cameraMode === "orbit") {
-    const delta = aircraft.position.clone().sub(lastOrbitTarget);
+    const delta = cameraSubject.position.clone().sub(lastOrbitTarget);
     camera.position.add(delta);
-    orbit.target.copy(aircraft.position);
-    lastOrbitTarget.copy(aircraft.position);
+    orbit.target.copy(cameraSubject.position);
+    lastOrbitTarget.copy(cameraSubject.position);
     orbit.update();
   } else {
     // Tower camera fixed near threshold looking at aircraft
     camera.position.set(-15, 6, 25);
     camera.up.set(0, 1, 0);
-    camera.lookAt(aircraft.position);
+    camera.lookAt(cameraSubject.position);
   }
 
   camera.updateMatrixWorld();

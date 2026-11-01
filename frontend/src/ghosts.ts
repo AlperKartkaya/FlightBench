@@ -1,4 +1,4 @@
-import { Color, Material, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
+import { Color, Object3D, Material, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
 
 export type Sample = { time: number; position: number[]; quaternion: number[] };
 export type Ghost = { key: string; controller: string; score: number; success?: boolean; status?: string; samples: Sample[] };
@@ -48,4 +48,9 @@ export function ghostMaterial(source: Material, color: number): Material {
     copy.emissiveIntensity = 0.4;
   }
   return copy;
+}
+
+export function spinGhostPropeller(visual: Object3D, dt: number): void {
+  const propeller = visual.getObjectByName('Propeller_Cone');
+  if (propeller) propeller.rotation.z += dt * 65;
 }

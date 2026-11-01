@@ -56,8 +56,8 @@ Clones: `~/.local/share/flightbench-references/`.
 The local backend now supports Live Jev: one `start_race` operation initializes
 independent human/Jev simulations behind a shared asyncio barrier and gives both
 the same realtime clock origin. Seed, scenario, cadence, and environment match.
-Jev latency never pauses human physics. Stop, reset, disconnect, and human terminal
-outcomes stop the opponent; Jev failure leaves the human running. Both runs use the
+Jev latency never pauses human physics. Stop, reset, disconnect, and starting another run stop the opponent. Human
+terminal outcomes leave Jev flying in spectator mode; Jev failure leaves the human running. Both runs use the
 normal JSON record store. An in-flight provider request may finish after cancellation;
 existing outstanding-request diagnostics retain that distinction.
 
@@ -76,3 +76,17 @@ slow/failing provider), TypeScript/Vite builds, and Ruff. A short real local-bro
 Live Jev race returned two actual Jev decisions, streamed 29 states per aircraft,
 and stopped both runs without errors. Desktop and 390px mobile UI screenshots were
 inspected. This is not a safe-landing or full-flight performance result.
+
+
+## Spectator continuation and propellers
+
+After the human finishes, closing the result follows Jev with the camera and live
+telemetry. The replay clock continues from Jev telemetry rather than the finished
+human clock. Stop/Reset remain available; starting another run first stops the old
+opponent. The result button discloses that provider usage continues while watching.
+Ghost propellers animate on their own cloned scene nodes; they do not mutate the
+human model. Completed replay ghosts remain frozen at the terminal pose.
+
+Validation includes a fixture-driven browser spectator test (not a real landing),
+a cloned-propeller regression, and backend lifecycle tests covering continuation,
+explicit stop, and replacement by both solo flights and new races.

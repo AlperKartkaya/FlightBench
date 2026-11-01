@@ -83,7 +83,7 @@ Controller choice uses single-select cards; opponents use independent checkbox
 cards, never combination presets. Hide unavailable opponents and controllers.
 Show live Jev only when the local backend reports configured credentials; Pages
 remains replay-only because its worker currently uses lockstep. Live Jev must use
-a separate realtime simulator behind a shared start barrier, stop when the human
-ends, and never block human physics on provider latency. API usage is disclosed
+a separate realtime simulator behind a shared start barrier, continue in spectator mode when the human
+ends, stopping only on explicit Stop/Reset, disconnect, or a new run, and never block human physics on provider latency. API usage is disclosed
 on its card. Replay poses and human visuals share the same smoothing time constant;
 project labels after updating the camera to avoid one-frame wobble.

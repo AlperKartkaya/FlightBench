@@ -2,6 +2,8 @@
 import asyncio
 import time
 
+import pytest
+
 from flightbench import server
 from flightbench.controllers import ControlCommand
 
@@ -78,5 +80,36 @@ def test_opponent_failure_does_not_end_human(monkeypatch, tmp_path):
         await asyncio.sleep(.15)
         assert human.task is not None and not human.task.done()
         assert human.opponent.task is None
+        await human.stop()
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize("next_action", ["stop", "start", "start_race"])
+def test_human_finish_keeps_jev_alive_until_explicit_stop(monkeypatch, tmp_path, next_action):
+    monkeypatch.setenv('TYPESAFE_API_KEY', 'test-only')
+    monkeypatch.setattr(server, 'make_controller', lambda *a, **k: SlowJev())
+    monkeypatch.setattr(server, 'RUNS_DIR', tmp_path)
+    async def check():
+        human = server.Session(Socket())
+        await human.start_race({'controller': 'human', 'mode': 'realtime'})
+        # End only the primary run, as a terminal landing does.
+        human.task.cancel()
+        try:
+            await human.task
+        except asyncio.CancelledError:
+            pass
+        human.task = None
+        await human.finish()
+        before = human.opponent.observation['time_s']
+        await asyncio.sleep(.08)
+        assert human.run_id is None
+        assert human.opponent.task is not None
+        assert human.opponent.observation['time_s'] > before
+        previous = human.opponent
+        if next_action == "stop":
+            await human.stop()
+        else:
+            await getattr(human, next_action)({'controller': 'human', 'mode': 'realtime'})
+        assert previous.task is None and previous.run_id is None
         await human.stop()
     asyncio.run(check())

@@ -57,3 +57,12 @@ test('ghost materials avoid coplanar flicker without mutating the human material
   assert.equal(human.color.getHex(), 0xffffff);
   ghost.dispose(); human.dispose();
 });
+test('ghost propeller rotates independently of the human visual', async () => {
+  const { Group, Object3D } = await import('three');
+  const { spinGhostPropeller } = await import('./ghosts.ts');
+  const human = new Group(); const propeller = new Object3D(); propeller.name = 'Propeller_Cone'; human.add(propeller);
+  const ghost = human.clone(true);
+  spinGhostPropeller(ghost, .1);
+  assert.equal(propeller.rotation.z, 0);
+  assert.equal(ghost.getObjectByName('Propeller_Cone')!.rotation.z, 6.5);
+});

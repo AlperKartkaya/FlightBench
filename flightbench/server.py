@@ -265,6 +265,8 @@ class Session:
         await self.send({"type": "error", "code": code, "message": message})
 
     async def stop(self, reason: str = "interrupted", *, idle: bool = False) -> None:
+        if self.opponent is not None:
+            await self.opponent.stop("interrupted")
         task = self.task
         if task and task is not asyncio.current_task():
             self.task.cancel()
@@ -280,8 +282,6 @@ class Session:
             await self.send({"type": "idle"})
 
     async def finish(self, status: str | None = None) -> None:
-        if self.opponent is not None:
-            await self.opponent.stop("interrupted")
         if not self.run_id or not self.env:
             return
         final_state = self.env.snapshot()
@@ -363,16 +363,18 @@ class Session:
             return
         if self.run_id or (self.task and not self.task.done()):
             raise ValueError("run already active")
+        if self.opponent is not None:
+            await self.opponent.stop("interrupted")
         gate = asyncio.Event()
         self.start_gate = gate
         self.opponent = Session(self.websocket, parent=self, start_gate=gate)
         try:
             await self.opponent.start({**message, "controller": "jev", "model": None,
-                                       "human_assistance": {"auto_center": False, "wing_leveler": False}})
+                                       "human_assistance": {"auto_center": False, "wing_leveler": False}}, race_member=True)
             if self.opponent.task is None:
                 await self.error("controller_unavailable")
                 return
-            await self.start(message)
+            await self.start(message, race_member=True)
             self.race_start = self.opponent.race_start = asyncio.get_running_loop().time()
             gate.set()
         finally:
@@ -380,7 +382,7 @@ class Session:
                 await self.opponent.stop("interrupted")
                 await self.stop("interrupted")
 
-    async def start(self, message: dict) -> None:
+    async def start(self, message: dict, *, race_member: bool = False) -> None:
         if self.task and not self.task.done():
             raise ValueError("run already active")
         if self.run_id:
@@ -388,6 +390,11 @@ class Session:
         settings = RunSettings.model_validate(
             {key: value for key, value in message.items() if key != "type"}
         )
+        if not race_member:
+            if self.opponent is not None:
+                await self.opponent.stop("interrupted")
+            self.start_gate = None
+            self.race_start = None
         controller_name = settings.controller
         mode = settings.mode
         seed = settings.seed
