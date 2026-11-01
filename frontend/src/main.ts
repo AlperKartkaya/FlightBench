@@ -8,7 +8,7 @@ import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./result
 import { isRunwayLightOn } from "./runway-lights.ts";
 import { BrowserRuntime } from "./browser-runtime.ts";
 import "./style.css";
-import { bestGhost, poseAt, type Ghost, type Sample } from "./ghosts.ts";
+import { selectGhost, poseAt, type Ghost, type Sample } from "./ghosts.ts";
 
 const pagesRuntime = import.meta.env.MODE === "pages";
 
@@ -172,7 +172,7 @@ app.innerHTML = `
                 <div class="config-item" id="jevModelGroup" hidden><label for="jevModel">Jev version</label><select id="jevModel" class="select-input"><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
                 <div class="config-item" id="reasoningEffortGroup" hidden><label for="reasoningEffort">Reasoning effort</label><select id="reasoningEffort" class="select-input"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh">xhigh</option><option value="max">max</option></select></div>
                 <div class="config-item" id="decisionRateGroup"><label for="decisionRate">Decision rate</label><select id="decisionRate" class="select-input"><option value="2" selected>2 Hz</option><option value="5">5 Hz</option><option value="10">10 Hz</option></select></div>
-                <div class="config-item" id="ghostSettings"><label for="ghostRace">Ghost Race · this session</label><select id="ghostRace" class="select-input"><option value="off">Off</option><option value="human">Personal Best (cyan)</option><option value="jev">Jev replay (violet)</option><option value="both">PB + Jev</option></select><small id="ghostStatus" role="status">Successful flights are kept until reload. No API calls.</small></div>
+                <div class="config-item" id="ghostSettings"><label for="ghostRace">Ghost Race <span class="ghost-tag">REPLAY</span></label><select id="ghostRace" class="select-input" aria-describedby="ghostStatus ghostHelp"><option value="off">Off</option><option value="previous">Previous flight</option><option value="human">Personal best · safe landing</option><option value="jev">Latest Jev flight</option><option value="both">Personal best + Jev</option><option value="previous-jev">Previous flight + Jev</option></select><div id="ghostStatus" role="status"></div><small id="ghostHelp">Records every flight in this tab, even with Ghost Race off. Replays use no API calls. Reload clears recordings.</small></div>
                 <div class="config-item"><label for="seed">Seed</label><input class="number-input" id="seed" type="number" value="42" min="0" max="4294967295" step="1" required /></div>
               </div>
             </fieldset>
@@ -838,12 +838,17 @@ orbit.target.copy(aircraft.position);
 let cameraMode: "chase" | "orbit" | "tower" = "chase";
 // Session-only storage avoids replaying trajectories across simulator upgrades.
 const ghostRuns: Ghost[] = [];
+let raceTime = 0;
+const ghostLegend = document.createElement("div");
+ghostLegend.id = "ghostLegend"; ghostLegend.hidden = true;
+document.querySelector("#viewport")!.parentElement!.append(ghostLegend);
 let ghostKey = "";
 let recordingController = "";
 let ghostSamples: Sample[] = [];
-let activeGhosts: { run: Ghost; visual: THREE.Group }[] = [];
+let activeGhosts: { run: Ghost; visual: THREE.Group; label: string; marker: HTMLDivElement }[] = [];
 function clearGhosts() {
-  for (const { visual } of activeGhosts) {
+  for (const { visual, marker } of activeGhosts) {
+    marker.remove();
     scene.remove(visual);
     visual.traverse(object => {
       if (object instanceof THREE.Mesh) {
@@ -852,37 +857,65 @@ function clearGhosts() {
     });
   }
   activeGhosts = [];
+  ghostLegend.hidden = true;
 }
-function startGhosts(config: RunConfig) {
-  clearGhosts();
-  ghostSamples = [];
-  recordingController = String(config.controller);
-  ghostKey = JSON.stringify([pagesRuntime, config.scenario, config.seed, config.mode, config.decision_hz, config.human_assistance]);
-  const selection = byId<HTMLSelectElement>("ghostRace").value;
-  if (config.controller !== "human" || selection === "off") return;
-  const labels: string[] = [];
-  for (const controller of selection === "both" ? ["human", "jev"] : [selection]) {
-    const run = bestGhost(ghostRuns, ghostKey, controller);
-    const label = controller === "human" ? "PB (cyan)" : "Jev (violet)";
-    if (!run) { labels.push(`${label}: unavailable for this setup`); continue; }
+function ghostSetupKey(config?: RunConfig): string {
+  return JSON.stringify([pagesRuntime, config?.scenario ?? "easy", config?.seed ?? Number(byId<HTMLInputElement>("seed").value),
+    config?.mode ?? (pagesRuntime ? "lockstep" : "realtime"), config?.decision_hz ?? Number(byId<HTMLSelectElement>("decisionRate").value)]);
+}
+function ghostChoices(selection: string): string[] {
+  return selection === "both" ? ["human", "jev"] : selection === "previous-jev" ? ["previous", "jev"] : selection === "off" ? [] : [selection];
+}
+function ghostTitle(choice: string): string {
+  return choice === "human" ? "Personal best" : choice === "jev" ? "Jev replay" : "Previous flight";
+}
+function refreshGhostStatus() {
+  const choices = ghostChoices(byId<HTMLSelectElement>("ghostRace").value);
+  byId("ghostStatus").textContent = choices.length ? choices.map(choice => {
+    const run = selectGhost(ghostRuns, ghostSetupKey(), choice);
+    return run ? `${ghostTitle(choice)} · ${run.controller} · ${run.score.toFixed(1)} pts · ${run.samples.at(-1)!.time.toFixed(1)} s · ${outcomeLabel(run.status, run.success)}`
+      : `${ghostTitle(choice)} unavailable: ${choice === "human" ? "land safely first" : "finish or stop a compatible flight first"}.`;
+  }).join("\n") : "Off · your next flight will still be recorded.";
+}
+function createGhostVisual(controller: string): THREE.Group {
     const visual = aircraft.clone(true);
     visual.traverse(object => {
       if (object instanceof THREE.Mesh) {
         const clone = (material: THREE.Material) => {
           const copy = material.clone();
-          copy.transparent = true; copy.opacity = 0.35; copy.depthWrite = false;
+          copy.transparent = true; copy.opacity = 0.45; copy.depthWrite = false;
           if ("color" in copy) (copy.color as THREE.Color).set(controller === "human" ? 0x00ffff : 0xcc66ff);
+          if (copy instanceof THREE.MeshStandardMaterial) { copy.emissive.set(controller === "human" ? 0x00aaaa : 0x8833bb); copy.emissiveIntensity = 0.65; }
           return copy;
         };
         object.material = Array.isArray(object.material) ? object.material.map(clone) : clone(object.material);
         object.castShadow = false; object.receiveShadow = false;
       }
     });
+    return visual;
+}
+function startGhosts(config: RunConfig) {
+  clearGhosts();
+  ghostSamples = []; raceTime = 0;
+  recordingController = String(config.controller);
+  ghostKey = ghostSetupKey(config);
+  const selection = byId<HTMLSelectElement>("ghostRace").value;
+  if (config.controller !== "human" || selection === "off") return;
+  for (const choice of ghostChoices(selection)) {
+    const run = selectGhost(ghostRuns, ghostKey, choice);
+    if (!run || activeGhosts.some(ghost => ghost.run === run)) continue;
+    const controller = choice === "jev" ? "jev" : "human";
+    const label = ghostTitle(choice);
+    const visual = createGhostVisual(controller);
     visual.visible = false;
-    scene.add(visual); activeGhosts.push({ run, visual });
-    labels.push(`${label}: score ${run.score.toFixed(1)} · ${run.samples.at(-1)!.time.toFixed(1)} s`);
+    const marker = document.createElement("div");
+    marker.className = `ghost-marker ${controller === "jev" ? "ghost-jev" : ""}`;
+    marker.textContent = label;
+    ghostLegend.parentElement!.append(marker);
+    scene.add(visual); activeGhosts.push({ run, visual, label, marker });
   }
-  byId("ghostStatus").textContent = labels.join(" | ");
+  refreshGhostStatus();
+  ghostLegend.hidden = activeGhosts.length === 0;
 }
 const desiredPosition = aircraft.position.clone();
 const desiredQuaternion = aircraft.quaternion.clone();
@@ -1753,13 +1786,16 @@ function receiveMessage(message: any) {
     activeRunId = null;
     transitionRun("finished");
     const quality = message.record.outcome.quality;
-    if (message.record.outcome.success === true && Number.isFinite(quality) && ghostSamples.length > 1 && ["human", "jev"].includes(recordingController)) {
-      const previous = bestGhost(ghostRuns, ghostKey, recordingController);
-      if (!previous || quality > previous.score) {
-        if (previous) ghostRuns.splice(ghostRuns.indexOf(previous), 1);
-        ghostRuns.push({ key: ghostKey, controller: recordingController, score: quality, samples: ghostSamples });
-        if (ghostRuns.length > 12) ghostRuns.shift();
+    if (ghostSamples.length > 1) {
+      ghostRuns.push({ key: ghostKey, controller: recordingController, score: Number.isFinite(quality) ? quality : 0,
+        success: message.record.outcome.success === true, status: message.record.outcome.status,
+        samples: ghostSamples });
+      // Retain latest flights plus each setup's PB, rather than evicting PB after a failed attempt.
+      if (ghostRuns.length > 24) {
+        const oldest = ghostRuns.findIndex(run => run !== selectGhost(ghostRuns, run.key, "human"));
+        ghostRuns.splice(oldest >= 0 ? oldest : 0, 1);
       }
+      refreshGhostStatus();
     }
     showOutcomeModal(message.record);
     return;
@@ -1774,11 +1810,7 @@ function applyFlightBenchState(message: StateMessage) {
   if (Number.isFinite(time) && (!ghostSamples.length || time > ghostSamples.at(-1)!.time)) {
     ghostSamples.push({ time, position: [...message.position], quaternion: [...message.quaternion] });
   }
-  for (const { run, visual } of activeGhosts) {
-    if (!Number.isFinite(time)) continue;
-    const pose = poseAt(run.samples, time);
-    visual.visible = true; visual.position.copy(pose.position); visual.quaternion.copy(pose.quaternion);
-  }
+  if (Number.isFinite(time)) raceTime = time;
   desiredPosition.fromArray(message.position);
   desiredQuaternion.fromArray(message.quaternion).normalize();
 
@@ -1827,6 +1859,7 @@ document.addEventListener("keydown", (event) => {
 function updateControllerUi() {
   const isCodex = controllerSelect.value === "codex";
   const isHuman = controllerSelect.value === "human";
+  refreshGhostStatus();
   byId("ghostSettings").hidden = !isHuman;
   const isJevOrAi = controllerSelect.value === "jev" || isCodex;
   document.querySelector<HTMLElement>(".workspace")!.dataset.controller = controllerSelect.value;
@@ -1879,6 +1912,9 @@ function updateControllerUi() {
 
 
 }
+byId("ghostRace").addEventListener("change", refreshGhostStatus);
+byId("seed").addEventListener("input", refreshGhostStatus);
+byId("decisionRate").addEventListener("change", refreshGhostStatus);
 controllerSelect.addEventListener("change", () => { clearDecisionView(); updateControllerUi(); });
 for (const select of [byId("decisionRate"), modelSelect, jevModelSelect, reasoningEffortSelect]) {
   select.addEventListener("change", updateControllerUi);
@@ -1975,7 +2011,7 @@ byId("stop").addEventListener("click", () => {
 });
 byId("reset").addEventListener("click", () => {
   if (!send({ type: "reset" })) return;
-  clearGhosts(); ghostSamples = [];
+  clearGhosts();
   closeDialog("outcomeModal");
   hideError();
   clearDecisionView();
@@ -2017,6 +2053,23 @@ function animate(now: number) {
   previous = now;
   updateEdgeLights(now);
 
+  for (const ghost of activeGhosts) {
+    if (!ghost.visual.getObjectByName("aircraftGLB") && aircraft.getObjectByName("aircraftGLB")) {
+      scene.remove(ghost.visual);
+      ghost.visual = createGhostVisual(ghost.label === "Jev replay" ? "jev" : "human");
+      scene.add(ghost.visual);
+    }
+    const { run, visual } = ghost;
+    const pose = poseAt(run.samples, raceTime);
+    visual.visible = true; visual.position.copy(pose.position); visual.quaternion.copy(pose.quaternion);
+    const projected = pose.position.clone().add(new THREE.Vector3(0, 3, 0)).project(camera);
+    const bounds = ghostLegend.parentElement!.getBoundingClientRect();
+    ghost.marker.hidden = projected.z < -1 || projected.z > 1 || Math.abs(projected.x) > 1 || Math.abs(projected.y) > 1;
+    ghost.marker.style.left = `${(projected.x + 1) * bounds.width / 2}px`;
+    ghost.marker.style.top = `${(1 - projected.y) * bounds.height / 2}px`;
+  }
+  if (activeGhosts.length) ghostLegend.textContent = `GHOST RACE · ${raceTime.toFixed(1)} s\n` + activeGhosts.map(({run, label}) =>
+    `${label} · ${run.controller} · ${raceTime >= run.samples.at(-1)!.time ? outcomeLabel(run.status, run.success) : "Replaying"} · ${run.score.toFixed(1)} pts`).join("\n");
   aircraft.position.lerp(desiredPosition, 1 - Math.exp(-10 * dt));
   aircraft.quaternion.slerp(desiredQuaternion, 1 - Math.exp(-10 * dt));
   sun.position.copy(aircraft.position).add(sunOffset);

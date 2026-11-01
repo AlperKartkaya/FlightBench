@@ -24,3 +24,15 @@ test('best score requires matching setup and controller; higher score replaces P
   assert.equal(bestGhost(runs, 'a', 'jev')?.score, 90);
   assert.equal(bestGhost(runs, 'missing', 'human'), undefined);
 });
+test('previous flight includes failures while PB only includes safe landings', async () => {
+  const { selectGhost } = await import('./ghosts.ts');
+  const runs = [
+    { key: 'a', controller: 'human', score: 70, success: true, status: 'landed', samples },
+    { key: 'a', controller: 'human', score: 90, success: false, status: 'interrupted', samples },
+    { key: 'a', controller: 'jev', score: 0, success: false, status: 'crash', samples },
+  ];
+  assert.equal(selectGhost(runs, 'a', 'previous')?.score, 0);
+  assert.equal(selectGhost(runs, 'a', 'human')?.score, 70);
+  assert.equal(selectGhost(runs, 'a', 'jev')?.status, 'crash');
+  assert.equal(selectGhost(runs, 'other', 'previous'), undefined);
+});

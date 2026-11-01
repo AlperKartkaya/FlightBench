@@ -68,3 +68,12 @@ setup instructions. Settings are fixed to easy/seed 42 and 2 Hz AI; Jev offers 1
 and 1.14. Codex remains local only. Public Jev uses the fixed rate-limited proxy
 without credential/endpoint fields; both secrets stay in the Worker. Preserve
 recording links under an archive, not the site root.
+
+## Ghost Race correction — 2026-11-01
+Replay is opt-in and records flights even when disabled. Previous flight includes
+stopped and failed flights; Personal Best means highest-score successful human
+landing only. Recorded Jev means latest compatible Jev flight, not necessarily a
+successful landing. Explain unavailable choices before Start, show duration and
+outcome, and keep a visible in-scene legend while racing. Use full-width settings,
+existing dark selects, 44px targets, and text labels in addition to tint. Session
+scope must be explicit. Do not imply that replay is live Jev.

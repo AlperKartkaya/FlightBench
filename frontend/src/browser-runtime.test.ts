@@ -76,6 +76,7 @@ test('reset rejects stale state and finish; a new run can complete without stori
   const old = w.sent.at(-1).run_id;
   w.emit(state(old));
   r.send({type: 'reset'});
+  assert.equal(received.at(-2).record.outcome.status, 'reset');
   r.send({type: 'start', controller: 'jev', model: 'jev-1.14.0', proxy: 'https://example.org/decide', invite: 'private-invite'});
   assert.equal(w.sent.at(-1).model, 'jev-1.14.0');
   assert.equal(w.sent.at(-1).invite, undefined);
