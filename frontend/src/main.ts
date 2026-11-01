@@ -8,10 +8,12 @@ import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./result
 import { isRunwayLightOn } from "./runway-lights.ts";
 import { BrowserRuntime } from "./browser-runtime.ts";
 import "./style.css";
+import { bestGhost, poseAt, type Ghost, type Sample } from "./ghosts.ts";
 
 const pagesRuntime = import.meta.env.MODE === "pages";
 
 type Observation = {
+  time_s: number;
   runway: {
     distance_to_threshold_m: number;
     along_track_m?: number;
@@ -170,6 +172,7 @@ app.innerHTML = `
                 <div class="config-item" id="jevModelGroup" hidden><label for="jevModel">Jev version</label><select id="jevModel" class="select-input"><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
                 <div class="config-item" id="reasoningEffortGroup" hidden><label for="reasoningEffort">Reasoning effort</label><select id="reasoningEffort" class="select-input"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh">xhigh</option><option value="max">max</option></select></div>
                 <div class="config-item" id="decisionRateGroup"><label for="decisionRate">Decision rate</label><select id="decisionRate" class="select-input"><option value="2" selected>2 Hz</option><option value="5">5 Hz</option><option value="10">10 Hz</option></select></div>
+                <div class="config-item" id="ghostSettings"><label for="ghostRace">Ghost Race · this session</label><select id="ghostRace"><option value="off">Off</option><option value="human">Personal Best (cyan)</option><option value="jev">Jev replay (violet)</option><option value="both">PB + Jev</option></select><small id="ghostStatus" role="status">Successful flights are kept until reload. No API calls.</small></div>
                 <div class="config-item"><label for="seed">Seed</label><input class="number-input" id="seed" type="number" value="42" min="0" max="4294967295" step="1" required /></div>
               </div>
             </fieldset>
@@ -833,6 +836,54 @@ orbit.maxDistance = 120;
 orbit.target.copy(aircraft.position);
 
 let cameraMode: "chase" | "orbit" | "tower" = "chase";
+// Session-only storage avoids replaying trajectories across simulator upgrades.
+const ghostRuns: Ghost[] = [];
+let ghostKey = "";
+let recordingController = "";
+let ghostSamples: Sample[] = [];
+let activeGhosts: { run: Ghost; visual: THREE.Group }[] = [];
+function clearGhosts() {
+  for (const { visual } of activeGhosts) {
+    scene.remove(visual);
+    visual.traverse(object => {
+      if (object instanceof THREE.Mesh) {
+        for (const material of Array.isArray(object.material) ? object.material : [object.material]) material.dispose();
+      }
+    });
+  }
+  activeGhosts = [];
+}
+function startGhosts(config: RunConfig) {
+  clearGhosts();
+  ghostSamples = [];
+  recordingController = String(config.controller);
+  ghostKey = JSON.stringify([pagesRuntime, config.scenario, config.seed, config.mode, config.decision_hz, config.human_assistance]);
+  const selection = byId<HTMLSelectElement>("ghostRace").value;
+  if (config.controller !== "human" || selection === "off") return;
+  const labels: string[] = [];
+  for (const controller of selection === "both" ? ["human", "jev"] : [selection]) {
+    const run = bestGhost(ghostRuns, ghostKey, controller);
+    const label = controller === "human" ? "PB (cyan)" : "Jev (violet)";
+    if (!run) { labels.push(`${label}: unavailable for this setup`); continue; }
+    const visual = aircraft.clone(true);
+    visual.traverse(object => {
+      if (object instanceof THREE.Mesh) {
+        const clone = (material: THREE.Material) => {
+          const copy = material.clone();
+          copy.transparent = true; copy.opacity = 0.35; copy.depthWrite = false;
+          if ("color" in copy) (copy.color as THREE.Color).set(controller === "human" ? 0x00ffff : 0xcc66ff);
+          return copy;
+        };
+        object.material = Array.isArray(object.material) ? object.material.map(clone) : clone(object.material);
+        object.castShadow = false; object.receiveShadow = false;
+      }
+    });
+    visual.visible = false;
+    scene.add(visual); activeGhosts.push({ run, visual });
+    labels.push(`${label}: score ${run.score.toFixed(1)} · ${run.samples.at(-1)!.time.toFixed(1)} s`);
+  }
+  byId("ghostStatus").textContent = labels.join(" | ");
+}
 const desiredPosition = aircraft.position.clone();
 const desiredQuaternion = aircraft.quaternion.clone();
 const lastOrbitTarget = aircraft.position.clone();
@@ -1701,6 +1752,15 @@ function receiveMessage(message: any) {
     if (message.run_id !== activeRunId) return;
     activeRunId = null;
     transitionRun("finished");
+    const quality = message.record.outcome.quality;
+    if (message.record.outcome.success === true && Number.isFinite(quality) && ghostSamples.length > 1 && ["human", "jev"].includes(recordingController)) {
+      const previous = bestGhost(ghostRuns, ghostKey, recordingController);
+      if (!previous || quality > previous.score) {
+        if (previous) ghostRuns.splice(ghostRuns.indexOf(previous), 1);
+        ghostRuns.push({ key: ghostKey, controller: recordingController, score: quality, samples: ghostSamples });
+        if (ghostRuns.length > 12) ghostRuns.shift();
+      }
+    }
     showOutcomeModal(message.record);
     return;
   }
@@ -1710,6 +1770,15 @@ function receiveMessage(message: any) {
 }
 
 function applyFlightBenchState(message: StateMessage) {
+  const time = message.observation.time_s;
+  if (Number.isFinite(time) && (!ghostSamples.length || time > ghostSamples.at(-1)!.time)) {
+    ghostSamples.push({ time, position: [...message.position], quaternion: [...message.quaternion] });
+  }
+  for (const { run, visual } of activeGhosts) {
+    if (!Number.isFinite(time)) continue;
+    const pose = poseAt(run.samples, time);
+    visual.visible = true; visual.position.copy(pose.position); visual.quaternion.copy(pose.quaternion);
+  }
   desiredPosition.fromArray(message.position);
   desiredQuaternion.fromArray(message.quaternion).normalize();
 
@@ -1758,6 +1827,7 @@ document.addEventListener("keydown", (event) => {
 function updateControllerUi() {
   const isCodex = controllerSelect.value === "codex";
   const isHuman = controllerSelect.value === "human";
+  byId("ghostSettings").hidden = !isHuman;
   const isJevOrAi = controllerSelect.value === "jev" || isCodex;
   document.querySelector<HTMLElement>(".workspace")!.dataset.controller = controllerSelect.value;
 
@@ -1897,6 +1967,7 @@ byId("start").addEventListener("click", () => {
     reasoning_effort: controllerSelect.value === "codex" ? reasoningEffortSelect.value : "low",
   };
   if (!send({ type: "start", ...config })) { transitionRun("disconnect"); return; }
+  startGhosts(config);
   transitionRun("start");
 });
 byId("stop").addEventListener("click", () => {
@@ -1904,6 +1975,7 @@ byId("stop").addEventListener("click", () => {
 });
 byId("reset").addEventListener("click", () => {
   if (!send({ type: "reset" })) return;
+  clearGhosts(); ghostSamples = [];
   closeDialog("outcomeModal");
   hideError();
   clearDecisionView();
