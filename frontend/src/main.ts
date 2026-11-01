@@ -8,7 +8,7 @@ import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./result
 import { isRunwayLightOn } from "./runway-lights.ts";
 import { BrowserRuntime } from "./browser-runtime.ts";
 import "./style.css";
-import { selectGhost, poseAt, type Ghost, type Sample } from "./ghosts.ts";
+import { selectGhost, poseAt, smoothReplayTime, ghostMaterial, type Ghost, type Sample } from "./ghosts.ts";
 
 const pagesRuntime = import.meta.env.MODE === "pages";
 
@@ -165,14 +165,14 @@ app.innerHTML = `
           <div class="viewer-config-panel" id="configPanel" hidden>
             <fieldset id="experimentSettings"><legend class="sr-only">Experiment settings</legend>
               <div class="config-group">
-                <div class="config-item"><label for="controller">Controller</label><select id="controller" class="select-input">
+                <div class="config-item"><div class="settings-heading">Your controller</div><div id="controllerCards" class="controller-cards" role="radiogroup" aria-label="Your controller"></div><select id="controller" aria-label="Controller" hidden>
                   <option value="human" selected>Human pilot</option><option value="baseline">Baseline · rule-based</option>
                   <option value="jev">Jev</option><option value="codex">Codex model</option></select></div>
                 <div class="config-item" id="modelGroup" hidden><label for="model">Model</label><select id="model" class="select-input"></select></div>
                 <div class="config-item" id="jevModelGroup" hidden><label for="jevModel">Jev version</label><select id="jevModel" class="select-input"><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
                 <div class="config-item" id="reasoningEffortGroup" hidden><label for="reasoningEffort">Reasoning effort</label><select id="reasoningEffort" class="select-input"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh">xhigh</option><option value="max">max</option></select></div>
                 <div class="config-item" id="decisionRateGroup"><label for="decisionRate">Decision rate</label><select id="decisionRate" class="select-input"><option value="2" selected>2 Hz</option><option value="5">5 Hz</option><option value="10">10 Hz</option></select></div>
-                <div class="config-item" id="ghostSettings"><label for="ghostRace">Ghost Race <span class="ghost-tag">REPLAY</span></label><select id="ghostRace" class="select-input" aria-describedby="ghostStatus ghostHelp"><option value="off">Off</option><option value="previous">Previous flight</option><option value="human">Personal best · safe landing</option><option value="jev">Latest Jev flight</option><option value="both">Personal best + Jev</option><option value="previous-jev">Previous flight + Jev</option></select><div id="ghostStatus" role="status"></div><small id="ghostHelp">Records every flight in this tab, even with Ghost Race off. Replays use no API calls. Reload clears recordings.</small></div>
+                <div class="config-item" id="ghostSettings"><div class="settings-heading">Race opponents <span class="ghost-tag">MULTI-SELECT</span></div><div id="ghostChoices" class="opponent-grid" role="group" aria-label="Race opponents"></div><div id="ghostStatus" role="status"></div><small id="ghostHelp">Choose any combination. Replays stay in this tab. Live Jev uses your server's TypeSafe key and incurs API usage.</small></div>
                 <div class="config-item"><label for="seed">Seed</label><input class="number-input" id="seed" type="number" value="42" min="0" max="4294967295" step="1" required /></div>
               </div>
             </fieldset>
@@ -839,6 +839,11 @@ let cameraMode: "chase" | "orbit" | "tower" = "chase";
 // Session-only storage avoids replaying trajectories across simulator upgrades.
 const ghostRuns: Ghost[] = [];
 let raceTime = 0;
+let renderRaceTime = 0;
+let liveJevAvailable = false;
+let liveGhost: Ghost | null = null;
+let liveGhostRunId: string | null = null;
+const selectedGhosts = new Set<string>();
 const ghostLegend = document.createElement("div");
 ghostLegend.id = "ghostLegend"; ghostLegend.hidden = true;
 document.querySelector("#viewport")!.parentElement!.append(ghostLegend);
@@ -863,31 +868,39 @@ function ghostSetupKey(config?: RunConfig): string {
   return JSON.stringify([pagesRuntime, config?.scenario ?? "easy", config?.seed ?? Number(byId<HTMLInputElement>("seed").value),
     config?.mode ?? (pagesRuntime ? "lockstep" : "realtime"), config?.decision_hz ?? Number(byId<HTMLSelectElement>("decisionRate").value)]);
 }
-function ghostChoices(selection: string): string[] {
-  return selection === "both" ? ["human", "jev"] : selection === "previous-jev" ? ["previous", "jev"] : selection === "off" ? [] : [selection];
-}
 function ghostTitle(choice: string): string {
-  return choice === "human" ? "Personal best" : choice === "jev" ? "Jev replay" : "Previous flight";
+  return choice === "human" ? "Personal best" : choice === "jev" ? "Jev replay" : choice === "live" ? "Live Jev" : "Previous flight";
 }
 function refreshGhostStatus() {
-  const choices = ghostChoices(byId<HTMLSelectElement>("ghostRace").value);
-  byId("ghostStatus").textContent = choices.length ? choices.map(choice => {
-    const run = selectGhost(ghostRuns, ghostSetupKey(), choice);
-    return run ? `${ghostTitle(choice)} · ${run.controller} · ${run.score.toFixed(1)} pts · ${run.samples.at(-1)!.time.toFixed(1)} s · ${outcomeLabel(run.status, run.success)}`
-      : `${ghostTitle(choice)} unavailable: ${choice === "human" ? "land safely first" : "finish or stop a compatible flight first"}.`;
-  }).join("\n") : "Off · your next flight will still be recorded.";
+  const host = byId("ghostChoices");
+  const available = ["previous", "human", "jev", "live"].filter(choice =>
+    choice === "live" ? liveJevAvailable : Boolean(selectGhost(ghostRuns, ghostSetupKey(), choice)));
+  for (const choice of selectedGhosts) if (!available.includes(choice)) selectedGhosts.delete(choice);
+  host.replaceChildren();
+  for (const choice of available) {
+    const run = choice === "live" ? null : selectGhost(ghostRuns, ghostSetupKey(), choice);
+    const label = document.createElement("label"); label.className = "opponent-card";
+    const input = document.createElement("input"); input.type = "checkbox"; input.value = choice;
+    input.checked = selectedGhosts.has(choice); input.setAttribute("aria-label", ghostTitle(choice));
+    input.addEventListener("change", () => {
+      if (input.checked) selectedGhosts.add(choice); else selectedGhosts.delete(choice);
+      byId("ghostStatus").textContent = selectedGhosts.size ? `${selectedGhosts.size} opponent(s) selected` : "Solo flight · recording stays on";
+    });
+    const text = document.createElement("span"); const title = document.createElement("strong"); title.textContent = ghostTitle(choice);
+    const detail = document.createElement("small"); detail.textContent = run
+      ? `${run.score.toFixed(1)} pts · ${run.samples.at(-1)!.time.toFixed(1)} s · ${outcomeLabel(run.status, run.success)}`
+      : "Independent realtime opponent · API usage";
+    text.append(title, detail); label.append(input, text); host.append(label);
+  }
+  byId("ghostStatus").textContent = available.length
+    ? selectedGhosts.size ? `${selectedGhosts.size} opponent(s) selected` : "Solo flight · recording stays on"
+    : "Finish a flight to unlock replay opponents.";
 }
 function createGhostVisual(controller: string): THREE.Group {
     const visual = aircraft.clone(true);
     visual.traverse(object => {
       if (object instanceof THREE.Mesh) {
-        const clone = (material: THREE.Material) => {
-          const copy = material.clone();
-          copy.transparent = true; copy.opacity = 0.45; copy.depthWrite = false;
-          if ("color" in copy) (copy.color as THREE.Color).set(controller === "human" ? 0x00ffff : 0xcc66ff);
-          if (copy instanceof THREE.MeshStandardMaterial) { copy.emissive.set(controller === "human" ? 0x00aaaa : 0x8833bb); copy.emissiveIntensity = 0.65; }
-          return copy;
-        };
+        const clone = (material: THREE.Material) => ghostMaterial(material, controller === "human" ? 0x00ffff : 0xcc66ff);
         object.material = Array.isArray(object.material) ? object.material.map(clone) : clone(object.material);
         object.castShadow = false; object.receiveShadow = false;
       }
@@ -896,12 +909,12 @@ function createGhostVisual(controller: string): THREE.Group {
 }
 function startGhosts(config: RunConfig) {
   clearGhosts();
-  ghostSamples = []; raceTime = 0;
+  ghostSamples = []; raceTime = 0; renderRaceTime = 0; liveGhost = null; liveGhostRunId = null;
   recordingController = String(config.controller);
   ghostKey = ghostSetupKey(config);
-  const selection = byId<HTMLSelectElement>("ghostRace").value;
-  if (config.controller !== "human" || selection === "off") return;
-  for (const choice of ghostChoices(selection)) {
+  if (config.controller !== "human") return;
+  for (const choice of selectedGhosts) {
+    if (choice === "live") continue;
     const run = selectGhost(ghostRuns, ghostKey, choice);
     if (!run || activeGhosts.some(ghost => ghost.run === run)) continue;
     const controller = choice === "jev" ? "jev" : "human";
@@ -1760,6 +1773,32 @@ function connect() {
 }
 
 function receiveMessage(message: any) {
+  if (message.type === "ghost") {
+    const event = message.message;
+    if (event.type === "run_started") {
+      liveGhostRunId = event.run_id;
+      liveGhost = { key: ghostKey, controller: "jev", score: 0, status: "running", samples: [] };
+    } else if (event.type === "state" && event.run_id === liveGhostRunId && liveGhost) {
+      const time = event.observation.time_s;
+      if (Number.isFinite(time) && (!liveGhost.samples.length || time > liveGhost.samples.at(-1)!.time)) {
+        liveGhost.samples.push({ time, position: event.position, quaternion: event.quaternion });
+        if (liveGhost.samples.length === 1) {
+          const visual = createGhostVisual("jev"); visual.visible = false;
+          const marker = document.createElement("div"); marker.className = "ghost-marker ghost-jev"; marker.textContent = "LIVE JEV";
+          ghostLegend.parentElement!.append(marker); scene.add(visual);
+          activeGhosts.push({run: liveGhost, visual, label: "Live Jev", marker}); ghostLegend.hidden = false;
+        }
+      }
+    } else if (event.type === "run_finished" && event.run_id === liveGhostRunId && liveGhost) {
+      Object.assign(liveGhost, { score: event.record.outcome.quality ?? 0, status: event.record.outcome.status, success: event.record.outcome.success });
+      if (liveGhost.samples.length > 1) ghostRuns.push(liveGhost);
+      liveGhostRunId = null; refreshGhostStatus();
+    } else if (event.type === "error") {
+      if (liveGhost) liveGhost.status = "controller_error";
+      showError(`Live Jev: ${event.message}`);
+    }
+    return;
+  }
   if (message.type === "ready") {
     byId("connectionDot").classList.add("online");
     byId("connectionText").textContent = "WASM · LOCAL PHYSICS";
@@ -1791,7 +1830,7 @@ function receiveMessage(message: any) {
         success: message.record.outcome.success === true, status: message.record.outcome.status,
         samples: ghostSamples });
       // Retain latest flights plus each setup's PB, rather than evicting PB after a failed attempt.
-      if (ghostRuns.length > 24) {
+      while (ghostRuns.length > 24) {
         const oldest = ghostRuns.findIndex(run => run !== selectGhost(ghostRuns, run.key, "human"));
         ghostRuns.splice(oldest >= 0 ? oldest : 0, 1);
       }
@@ -1857,6 +1896,20 @@ document.addEventListener("keydown", (event) => {
 });
 
 function updateControllerUi() {
+  const restoreControllerFocus = (document.activeElement as HTMLInputElement)?.name === "controller-choice";
+  const cards = byId("controllerCards"); cards.replaceChildren();
+  const descriptions: Record<string, string> = {human: "Keyboard & touch", baseline: "Rule-based autopilot", jev: "TypeSafe AI", codex: "Local Codex"};
+  for (const option of controllerSelect.options) {
+    if (option.disabled || option.hidden) continue;
+    const label = document.createElement("label"); label.className = "controller-card";
+    const radio = document.createElement("input"); radio.type = "radio"; radio.name = "controller-choice";
+    radio.value = option.value; radio.checked = controllerSelect.value === option.value;
+    radio.addEventListener("change", () => {controllerSelect.value = option.value; controllerSelect.dispatchEvent(new Event("change"));});
+    const text = document.createElement("span"); const title = document.createElement("strong"); title.textContent = option.text.split(" · ")[0];
+    const detail = document.createElement("small"); detail.textContent = descriptions[option.value];
+    text.append(title, detail); label.append(radio, text); cards.append(label);
+  }
+  if (restoreControllerFocus) cards.querySelector<HTMLInputElement>("input:checked")?.focus();
   const isCodex = controllerSelect.value === "codex";
   const isHuman = controllerSelect.value === "human";
   refreshGhostStatus();
@@ -1912,7 +1965,7 @@ function updateControllerUi() {
 
 
 }
-byId("ghostRace").addEventListener("change", refreshGhostStatus);
+
 byId("seed").addEventListener("input", refreshGhostStatus);
 byId("decisionRate").addEventListener("change", refreshGhostStatus);
 controllerSelect.addEventListener("change", () => { clearDecisionView(); updateControllerUi(); });
@@ -1930,13 +1983,25 @@ if (pagesRuntime) {
 }
 updateControllerUi();
 
+if (!pagesRuntime) {
+  for (const value of ["jev", "codex"]) controllerSelect.querySelector<HTMLOptionElement>(`option[value="${value}"]`)!.hidden = true;
+  updateControllerUi();
+}
+if (!pagesRuntime) fetch("/api/capabilities").then(res => res.json()).then(data => {
+  liveJevAvailable = data.live_jev === true;
+  if (liveJevAvailable) controllerSelect.querySelector<HTMLOptionElement>('option[value="jev"]')!.hidden = false;
+  if (!liveJevAvailable) controllerSelect.querySelector('option[value="jev"]')?.remove();
+  updateControllerUi();
+}).catch(() => { liveJevAvailable = false; refreshGhostStatus(); });
+
 if (!pagesRuntime) fetch("/api/models")
   .then((res) => (res.ok ? res.json() : Promise.reject()))
   .then(({ models }: { models: string[] }) => {
     modelSelect.replaceChildren(
       ...(models.length ? models.map((m) => new Option(m, m)) : [new Option("No Codex models", "")]),
     );
-    if (!models.length) modelSelect.options[0].disabled = true;
+    if (models.length) controllerSelect.querySelector<HTMLOptionElement>('option[value="codex"]')!.hidden = false;
+    if (!models.length) {modelSelect.options[0].disabled = true; controllerSelect.querySelector('option[value="codex"]')?.remove();}
     updateControllerUi();
   })
   .catch(() => {
@@ -2002,7 +2067,7 @@ byId("start").addEventListener("click", () => {
     model: controllerSelect.value === "codex" ? modelSelect.value : controllerSelect.value === "jev" ? jevModelSelect.value : null,
     reasoning_effort: controllerSelect.value === "codex" ? reasoningEffortSelect.value : "low",
   };
-  if (!send({ type: "start", ...config })) { transitionRun("disconnect"); return; }
+  if (!send({ type: !pagesRuntime && config.controller === "human" && selectedGhosts.has("live") ? "start_race" : "start", ...config })) { transitionRun("disconnect"); return; }
   startGhosts(config);
   transitionRun("start");
 });
@@ -2053,23 +2118,20 @@ function animate(now: number) {
   previous = now;
   updateEdgeLights(now);
 
+  renderRaceTime = smoothReplayTime(renderRaceTime, raceTime, dt);
   for (const ghost of activeGhosts) {
     if (!ghost.visual.getObjectByName("aircraftGLB") && aircraft.getObjectByName("aircraftGLB")) {
       scene.remove(ghost.visual);
-      ghost.visual = createGhostVisual(ghost.label === "Jev replay" ? "jev" : "human");
+      ghost.visual = createGhostVisual(ghost.label.includes("Jev") ? "jev" : "human");
       scene.add(ghost.visual);
     }
     const { run, visual } = ghost;
-    const pose = poseAt(run.samples, raceTime);
+    const pose = poseAt(run.samples, renderRaceTime);
     visual.visible = true; visual.position.copy(pose.position); visual.quaternion.copy(pose.quaternion);
-    const projected = pose.position.clone().add(new THREE.Vector3(0, 3, 0)).project(camera);
-    const bounds = ghostLegend.parentElement!.getBoundingClientRect();
-    ghost.marker.hidden = projected.z < -1 || projected.z > 1 || Math.abs(projected.x) > 1 || Math.abs(projected.y) > 1;
-    ghost.marker.style.left = `${(projected.x + 1) * bounds.width / 2}px`;
-    ghost.marker.style.top = `${(1 - projected.y) * bounds.height / 2}px`;
+
   }
   if (activeGhosts.length) ghostLegend.textContent = `GHOST RACE · ${raceTime.toFixed(1)} s\n` + activeGhosts.map(({run, label}) =>
-    `${label} · ${run.controller} · ${raceTime >= run.samples.at(-1)!.time ? outcomeLabel(run.status, run.success) : "Replaying"} · ${run.score.toFixed(1)} pts`).join("\n");
+    `${label} · ${run.controller} · ${run === liveGhost && liveGhostRunId ? "Live" : raceTime >= run.samples.at(-1)!.time ? outcomeLabel(run.status, run.success) : "Replaying"} · ${run.score.toFixed(1)} pts`).join("\n");
   aircraft.position.lerp(desiredPosition, 1 - Math.exp(-10 * dt));
   aircraft.quaternion.slerp(desiredQuaternion, 1 - Math.exp(-10 * dt));
   sun.position.copy(aircraft.position).add(sunOffset);
@@ -2125,6 +2187,14 @@ function animate(now: number) {
     camera.lookAt(aircraft.position);
   }
 
+  camera.updateMatrixWorld();
+  for (const ghost of activeGhosts) {
+    const projected = ghost.visual.position.clone().add(new THREE.Vector3(0, 3, 0)).project(camera);
+    const bounds = ghostLegend.parentElement!.getBoundingClientRect();
+    ghost.marker.hidden = projected.z < -1 || projected.z > 1 || Math.abs(projected.x) > 1 || Math.abs(projected.y) > 1;
+    ghost.marker.style.left = `${(projected.x + 1) * bounds.width / 2}px`;
+    ghost.marker.style.top = `${(1 - projected.y) * bounds.height / 2}px`;
+  }
   renderer?.render(scene, camera);
 }
 requestAnimationFrame(animate);

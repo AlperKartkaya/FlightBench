@@ -77,3 +77,13 @@ successful landing. Explain unavailable choices before Start, show duration and
 outcome, and keep a visible in-scene legend while racing. Use full-width settings,
 existing dark selects, 44px targets, and text labels in addition to tint. Session
 scope must be explicit. Do not imply that replay is live Jev.
+
+## Live race and setup controls — 2026-11-01
+Controller choice uses single-select cards; opponents use independent checkbox
+cards, never combination presets. Hide unavailable opponents and controllers.
+Show live Jev only when the local backend reports configured credentials; Pages
+remains replay-only because its worker currently uses lockstep. Live Jev must use
+a separate realtime simulator behind a shared start barrier, stop when the human
+ends, and never block human physics on provider latency. API usage is disclosed
+on its card. Replay poses and human visuals share the same smoothing time constant;
+project labels after updating the camera to avoid one-frame wobble.

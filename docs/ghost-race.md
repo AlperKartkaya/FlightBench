@@ -1,7 +1,8 @@
 # Ghost Race
 
-Human Pilot settings offer **Previous flight**, **Personal best**, **Latest Jev
-flight**, or combined opponents. Off is the default. Every flight is recorded
+Human Pilot settings offer separate **Previous flight**, **Personal best**,
+**Jev replay**, and **Live Jev** cards when available. Select any combination; none
+are selected by default. Every flight is recorded
 regardless of this setting. Finish or stop a flight, choose an opponent, then
 start another human flight. Availability, outcome, score, and duration appear
 before Start. In-flight labels identify the ghost aircraft and a persistent legend
@@ -34,9 +35,8 @@ paid provider requests. Desktop and 390px screenshots were inspected. See
 `tests/browser_previous_ghost_smoke.js`. The separate Pages PB smoke uses a synthetic
 success to test PB plumbing; it does not prove a successful landing.
 
-Issue #3 is not fully implemented: durable saved-trajectory import, Live Jev dual
-simulations, and time-winner results remain absent. Recorded Jev selection has unit
-coverage; paid live Jev racing is not claimed.
+Issue #3 still lacks durable saved-trajectory import and time-winner results.
+Live Jev support and its validation are described below.
 
 ## Reference coding
 
@@ -50,3 +50,29 @@ Clones: `~/.local/share/flightbench-references/`.
   from physics information.
 - Project `frontend/src` and `flightbench` indexed as `flightbench` and
   `flightbench-python`. No source uploads or external feedback were sent.
+
+## Live Jev and multi-select setup (2026-11-01)
+
+The local backend now supports Live Jev: one `start_race` operation initializes
+independent human/Jev simulations behind a shared asyncio barrier and gives both
+the same realtime clock origin. Seed, scenario, cadence, and environment match.
+Jev latency never pauses human physics. Stop, reset, disconnect, and human terminal
+outcomes stop the opponent; Jev failure leaves the human running. Both runs use the
+normal JSON record store. An in-flight provider request may finish after cancellation;
+existing outstanding-request diagnostics retain that distinction.
+
+The UI shows live Jev only after `/api/capabilities` confirms configured credentials.
+Secrets remain server-side. Local credential presence is not proof of validity.
+Pages has replay opponents only: its existing browser worker uses lockstep, not the
+realtime semantics required for live racing. Controller cards are single-select;
+available opponent cards are independent checkboxes. No combination presets remain.
+
+Replay now follows the same exponential visual smoothing clock as the human aircraft.
+Labels are projected after the camera update, eliminating the previous-frame offset.
+Ghost materials use polygon offset to prevent coplanar depth flicker when aircraft overlap.
+
+Validation: 24 frontend tests, 38 backend tests (including real JSBSim with a fake
+slow/failing provider), TypeScript/Vite builds, and Ruff. A short real local-browser
+Live Jev race returned two actual Jev decisions, streamed 29 states per aircraft,
+and stopped both runs without errors. Desktop and 390px mobile UI screenshots were
+inspected. This is not a safe-landing or full-flight performance result.

@@ -29,7 +29,7 @@ async page => {
     assert(!await hud.isVisible(), 'Escape did not close instruments');
     for (const controller of ['baseline', 'jev', 'human']) {
       await page.locator('#configureToggle').click();
-      await page.locator('#controller').selectOption(controller);
+      await page.locator(`input[name="controller-choice"][value="${controller}"]`).check();
       if (controller === 'jev') {
         assert(await page.locator('#jevProxy, #jevInvite').count() === 0, 'Public Jev must not ask for endpoint or token');
         await page.locator('#jevModel').selectOption('jev-1.14.0');

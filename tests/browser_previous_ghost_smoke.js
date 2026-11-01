@@ -4,13 +4,13 @@ async page => {
 await page.addInitScript(()=>{window.messages=[];const Native=WebSocket;window.WebSocket=class extends Native{constructor(...args){super(...args);this.addEventListener('message',e=>window.messages.push(JSON.parse(e.data)));}send(data){window.messages.push({sent:JSON.parse(data)});super.send(data);}}});
 await page.reload();await page.waitForFunction(()=>!document.querySelector('#start').disabled);
 await page.locator('#configureToggle').click();
-await page.locator('#controller').selectOption('human');
-if(await page.locator('#ghostRace').inputValue()!=='off')throw Error('not off');
+await page.locator('input[name="controller-choice"][value="human"]').check();
+if(await page.locator('#ghostChoices input:checked').count())throw Error('not off');
 await page.locator('#start').click();await page.waitForTimeout(5000);
 await page.locator('#stop').click();await page.waitForFunction(()=>!document.querySelector('#start').disabled);
 await page.keyboard.press('Escape');await page.locator('#configureToggle').click();
-await page.locator('#ghostRace').selectOption('previous');
-const meta=await page.locator('#ghostStatus').textContent();if(!meta.includes('Interrupted'))throw Error(meta);
+await page.getByRole('checkbox', {name:'Previous flight', exact:true}).check();
+const meta=await page.locator('#ghostChoices').textContent();if(!meta.includes('Interrupted'))throw Error(meta);
 await page.screenshot({path:'/tmp/ghost-settings-new.png'});
 await page.locator('#start').click();await page.keyboard.down('a');await page.waitForTimeout(2000);await page.keyboard.up('a');
 await page.screenshot({path:'/tmp/ghost-previous-new.png'});

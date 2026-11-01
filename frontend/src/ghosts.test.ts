@@ -36,3 +36,24 @@ test('previous flight includes failures while PB only includes safe landings', a
   assert.equal(selectGhost(runs, 'a', 'jev')?.status, 'crash');
   assert.equal(selectGhost(runs, 'other', 'previous'), undefined);
 });
+test('replay clock advances smoothly between telemetry updates without overshoot', async () => {
+  const { smoothReplayTime } = await import('./ghosts.ts');
+  const first = smoothReplayTime(1, 1.1, 1 / 60);
+  const second = smoothReplayTime(first, 1.1, 1 / 60);
+  assert.ok(first > 1 && second > first && second < 1.1);
+  assert.equal(smoothReplayTime(1, 1.1, 0), 1);
+});
+test('ghost materials avoid coplanar flicker without mutating the human material', async () => {
+  const { MeshStandardMaterial } = await import('three');
+  const { ghostMaterial } = await import('./ghosts.ts');
+  const human = new MeshStandardMaterial({color: 0xffffff});
+  const ghost = ghostMaterial(human, 0x00ffff);
+  assert.notEqual(ghost, human);
+  assert.equal(ghost.polygonOffset, true);
+  assert.equal(ghost.depthWrite, false);
+  assert.equal(ghost.transparent, true);
+  assert.equal(human.transparent, false);
+  assert.equal(human.depthWrite, true);
+  assert.equal(human.color.getHex(), 0xffffff);
+  ghost.dispose(); human.dispose();
+});
