@@ -1770,3 +1770,16 @@ html, body { height: 100%; overflow: hidden; }
   .controller-card, .opponent-card { padding: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .controller-card, .opponent-card { transition: none; } }
+
+.race-result-button {
+  position: absolute;
+  right: 16px;
+  bottom: 56px;
+  z-index: 5;
+}
+.race-result-button[hidden] { display: none; }
+.viewport-container:has(#configPanel:not([hidden])) .race-result-button { visibility: hidden; }
+@media (max-width: 600px) {
+  .race-result-button { right: 10px; bottom: 10px; }
+  .workspace:not([data-controller="human"]) #ghostLegend { bottom: 180px; }
+}

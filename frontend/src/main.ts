@@ -843,7 +843,19 @@ let renderRaceTime = 0;
 let liveJevAvailable = false;
 let liveGhost: Ghost | null = null;
 let liveGhostRunId: string | null = null;
-let watchingJev = false;
+let watchedGhost: Ghost | null = null;
+let spectatorRunning = false;
+let lastLiveState: StateMessage | null = null;
+let primaryResult: RunRecord | null = null;
+let dismissingRace = false;
+let resettingRace = false;
+const ghostRecords = new WeakMap<Ghost, RunRecord>();
+const primaryResultButton = document.createElement("button");
+primaryResultButton.className = "btn-secondary race-result-button";
+primaryResultButton.textContent = "Your result";
+primaryResultButton.hidden = true;
+primaryResultButton.addEventListener("click", () => { if (primaryResult) showOutcomeModal(primaryResult, "Your flight"); });
+document.querySelector("#viewport")!.parentElement!.append(primaryResultButton);
 const selectedGhosts = new Set<string>();
 const ghostLegend = document.createElement("div");
 ghostLegend.id = "ghostLegend"; ghostLegend.hidden = true;
@@ -910,7 +922,8 @@ function createGhostVisual(controller: string): THREE.Group {
 }
 function startGhosts(config: RunConfig) {
   clearGhosts();
-  ghostSamples = []; raceTime = 0; renderRaceTime = 0; liveGhost = null; liveGhostRunId = null; watchingJev = false;
+  ghostSamples = []; raceTime = 0; renderRaceTime = 0; liveGhost = null; liveGhostRunId = null; watchedGhost = null; spectatorRunning = false;
+  lastLiveState = null; primaryResult = null; primaryResultButton.hidden = true; dismissingRace = false; resettingRace = false;
   recordingController = String(config.controller);
   ghostKey = ghostSetupKey(config);
   if (config.controller !== "human") return;
@@ -1704,13 +1717,13 @@ function updateHudAndTelemetry(message: StateMessage) {
   updateDecisionCards(message.decision_info, message.decision_count, message.latency_ms);
 }
 
-function showOutcomeModal(record: RunRecord) {
+function showOutcomeModal(record: RunRecord, owner = "Your flight") {
   const result = record.outcome;
   const success = Boolean(result.success);
   byId("outcomeCard").className = `modal-card outcome-modal-card ${success ? "landed" : ""}`;
   byId("outcomeTitle").className = `outcome-title ${success ? "landed" : ""}`;
   byId("outcomeIcon").textContent = success ? "✓" : "—";
-  byId("outcomeTitle").textContent = outcomeLabel(result.status, success);
+  byId("outcomeTitle").textContent = `${owner} · ${outcomeLabel(result.status, success)}`;
   byId("outcomeDesc").textContent = success
     ? "Safe main-gear contact and rollout completed. Values below are frozen at touchdown."
     : `Recorded outcome: ${outcomeLabel(result.status)}. ${result.touchdown ? "Values below are frozen at touchdown." : "No main-gear touchdown was recorded."}`;
@@ -1718,7 +1731,7 @@ function showOutcomeModal(record: RunRecord) {
   const values = touchdownValues(result);
   ["outcomeIasVal", "outcomeVsiVal", "outcomeXtrackVal", "outcomePitchVal", "outcomeRollVal"].forEach((id, i) => byId(id).textContent = values[i]);
   const watchButton = document.querySelector<HTMLElement>('[data-close="outcomeModal"]');
-  if (watchButton) watchButton.textContent = liveGhostRunId ? "Watch Jev · API usage continues" : "Close result";
+  if (watchButton) watchButton.textContent = spectatorRunning ? liveGhostRunId ? "Watch Jev · API usage continues" : "Continue watching" : "Close result";
   byId("outcomeRestartBtn").textContent = liveGhostRunId ? "Stop Jev & start next run" : "Start Next Run";
   openDialog("outcomeModal");
 }
@@ -1758,7 +1771,8 @@ function connect() {
     if (socket !== connection) return;
     byId("connectionDot").classList.remove("online");
     byId("connectionText").textContent = "OFFLINE";
-    activeRunId = null;
+    activeRunId = null; liveGhostRunId = null; spectatorRunning = false;
+    closeDialog("outcomeModal");
     transitionRun("disconnect");
     clearTimeout(reconnectTimer);
     reconnectTimer = window.setTimeout(connect, 1500);
@@ -1780,11 +1794,13 @@ function receiveMessage(message: any) {
   if (message.type === "ghost") {
     const event = message.message;
     if (event.type === "run_started") {
+      if (dismissingRace || (runState !== "starting" && runState !== "running")) return;
       liveGhostRunId = event.run_id;
       liveGhost = { key: ghostKey, controller: "jev", score: 0, status: "running", samples: [] };
     } else if (event.type === "state" && event.run_id === liveGhostRunId && liveGhost) {
       const time = event.observation.time_s;
-      if (watchingJev && !activeRunId && Number.isFinite(time)) { raceTime = time; updateHudAndTelemetry(event); }
+      lastLiveState = event;
+      if (watchedGhost === liveGhost && spectatorRunning && Number.isFinite(time)) { raceTime = time; updateHudAndTelemetry(event); }
       if (Number.isFinite(time) && (!liveGhost.samples.length || time > liveGhost.samples.at(-1)!.time)) {
         liveGhost.samples.push({ time, position: event.position, quaternion: event.quaternion });
         if (liveGhost.samples.length === 1) {
@@ -1796,13 +1812,13 @@ function receiveMessage(message: any) {
       }
     } else if (event.type === "run_finished" && event.run_id === liveGhostRunId && liveGhost) {
       Object.assign(liveGhost, { score: event.record.outcome.quality ?? 0, status: event.record.outcome.status, success: event.record.outcome.success });
+      ghostRecords.set(liveGhost, event.record);
       if (liveGhost.samples.length > 1) ghostRuns.push(liveGhost);
       liveGhostRunId = null; refreshGhostStatus();
       byId<HTMLButtonElement>("stop").disabled = runState !== "running";
-      if (watchingJev) byId("flightStatePill").textContent = "JEV FINISHED";
-      const watchButton = document.querySelector<HTMLElement>('[data-close="outcomeModal"]');
-      if (watchButton) watchButton.textContent = "Close result";
-      byId("outcomeRestartBtn").textContent = "Start Next Run";
+      if (!activeRunId && !resettingRace) {
+        if (dismissingRace || !followRemainingOpponent()) finishSpectating(liveGhost);
+      }
     } else if (event.type === "error") {
       if (liveGhost) liveGhost.status = "controller_error";
       showError(`Live Jev: ${event.message}`);
@@ -1815,6 +1831,8 @@ function receiveMessage(message: any) {
     hideError(); transitionRun("connect"); return;
   }
   if (message.type === "offline") {
+    liveGhostRunId = null; spectatorRunning = false;
+    closeDialog("outcomeModal");
     byId("connectionDot").classList.remove("online");
     byId("connectionText").textContent = "OFFLINE";
     activeRunId = null; transitionRun("disconnect"); showError(message.message); return;
@@ -1836,9 +1854,11 @@ function receiveMessage(message: any) {
     transitionRun("finished");
     const quality = message.record.outcome.quality;
     if (ghostSamples.length > 1) {
-      ghostRuns.push({ key: ghostKey, controller: recordingController, score: Number.isFinite(quality) ? quality : 0,
+      const recordedGhost: Ghost = { key: ghostKey, controller: recordingController, score: Number.isFinite(quality) ? quality : 0,
         success: message.record.outcome.success === true, status: message.record.outcome.status,
-        samples: ghostSamples });
+        samples: ghostSamples };
+      ghostRecords.set(recordedGhost, message.record);
+      ghostRuns.push(recordedGhost);
       // Retain latest flights plus each setup's PB, rather than evicting PB after a failed attempt.
       while (ghostRuns.length > 24) {
         const oldest = ghostRuns.findIndex(run => run !== selectGhost(ghostRuns, run.key, "human"));
@@ -1846,16 +1866,19 @@ function receiveMessage(message: any) {
       }
       refreshGhostStatus();
     }
-    watchingJev = Boolean(liveGhostRunId);
-    byId<HTMLButtonElement>("stop").disabled = !liveGhostRunId;
-    if (watchingJev) {
-      byId("flightStatePill").textContent = "WATCHING JEV";
-      byId("overlayController").textContent = "WATCHING JEV";
-    }
-    showOutcomeModal(message.record);
+    primaryResult = message.record;
+    primaryResultButton.hidden = resettingRace;
+    if (resettingRace) return;
+    if (!dismissingRace && !followRemainingOpponent()) showOutcomeModal(message.record);
+    else if (dismissingRace) showOutcomeModal(message.record);
     return;
   }
-  if (message.type === "idle") { transitionRun("reset"); return; }
+  if (message.type === "idle") {
+    transitionRun("reset");
+    if (spectatorRunning) { updateSpectatorLabel(); byId<HTMLButtonElement>("stop").disabled = false; }
+    else if (watchedGhost && !resettingRace) byId("flightStatePill").textContent = "RACE FINISHED";
+    return;
+  }
   if (message.type !== "state" || message.run_id !== activeRunId) return;
   applyFlightBenchState(message as StateMessage);
 }
@@ -1930,8 +1953,9 @@ function updateControllerUi() {
   const isHuman = controllerSelect.value === "human";
   refreshGhostStatus();
   byId("ghostSettings").hidden = !isHuman;
-  const isJevOrAi = controllerSelect.value === "jev" || isCodex;
-  document.querySelector<HTMLElement>(".workspace")!.dataset.controller = controllerSelect.value;
+  const viewController = watchedGhost?.controller ?? controllerSelect.value;
+  const isJevOrAi = viewController === "jev" || viewController === "codex";
+  document.querySelector<HTMLElement>(".workspace")!.dataset.controller = viewController;
 
   byId("modelGroup").hidden = !isCodex;
   byId("jevModelGroup").hidden = controllerSelect.value !== "jev";
@@ -1943,10 +1967,10 @@ function updateControllerUi() {
   byId("configureToggle").textContent = `${controllerSelect.selectedOptions[0]?.textContent?.split(" · ")[0] ?? "Controller"}${isHuman ? "" : ` · ${cadence}`} ▾`;
   byId("overlayController").textContent = controllerSelect.selectedOptions[0]?.textContent ?? "Controller";
   byId("liveDecisionCard").hidden = !isJevOrAi;
-  byId("decisionInput").hidden = controllerSelect.value !== "jev";
-  byId("decisionOutputTitle").textContent = controllerSelect.value === "jev" ? "JEV CHOSE · REQUESTED CONTROLS" : "MODEL CHOSE · REQUESTED CONTROLS";
+  byId("decisionInput").hidden = viewController !== "jev";
+  byId("decisionOutputTitle").textContent = viewController === "jev" ? "JEV CHOSE · REQUESTED CONTROLS" : "MODEL CHOSE · REQUESTED CONTROLS";
   byId("overlayDecision").hidden = !isJevOrAi;
-  if (manualPanel) manualPanel.style.display = isHuman ? "flex" : "none";
+  if (manualPanel) manualPanel.style.display = isHuman && !watchedGhost ? "flex" : "none";
 
   const aiCards = ["jointDecisionCard", "consequenceCard", "inputSummaryCard", "decisionHistoryCard"]
     .map((id) => byId<HTMLElement>(id))
@@ -1961,7 +1985,10 @@ function updateControllerUi() {
 
   const brandTitle = byId("ctrlBrandTitle");
   const modelTag = byId("ctrlModelTag");
-  if (isHuman) {
+  if (watchedGhost) {
+    if (brandTitle) brandTitle.textContent = `${viewController.toUpperCase()} · Spectator`;
+    if (modelTag) modelTag.textContent = watchedGhost === liveGhost ? "Live opponent · API usage" : "Recorded flight";
+  } else if (isHuman) {
     if (brandTitle) brandTitle.textContent = "Human Pilot";
     if (modelTag) modelTag.textContent = "Keyboard / touch controls";
   } else if (controllerSelect.value === "baseline") {
@@ -2085,14 +2112,26 @@ byId("start").addEventListener("click", () => {
   };
   if (!send({ type: !pagesRuntime && config.controller === "human" && selectedGhosts.has("live") ? "start_race" : "start", ...config })) { transitionRun("disconnect"); return; }
   startGhosts(config);
+  updateControllerUi();
+  setCamera(cameraMode);
   transitionRun("start");
 });
 byId("stop").addEventListener("click", () => {
-  if ((runState === "running" || liveGhostRunId) && send({ type: "stop" })) byId<HTMLButtonElement>("stop").disabled = true;
+  if ((runState === "running" || liveGhostRunId || spectatorRunning) && send({ type: "stop" })) {
+    dismissingRace = true;
+    spectatorRunning = false;
+    byId<HTMLButtonElement>("stop").disabled = true;
+    if (!activeRunId && watchedGhost && !liveGhostRunId) finishSpectating(watchedGhost);
+  }
 });
 byId("reset").addEventListener("click", () => {
-  if (!send({ type: "reset" })) return;
-  clearGhosts(); watchingJev = false;
+  const wasDismissing = dismissingRace;
+  dismissingRace = true; resettingRace = true;
+  if (!send({ type: "reset" })) { dismissingRace = wasDismissing; resettingRace = false; return; }
+  liveGhostRunId = null;
+  clearGhosts(); watchedGhost = null; spectatorRunning = false;
+  primaryResultButton.hidden = true;
+  updateControllerUi();
   closeDialog("outcomeModal");
   hideError();
   clearDecisionView();
@@ -2103,18 +2142,74 @@ byId("reset").addEventListener("click", () => {
   desiredQuaternion.identity();
   aircraft.position.copy(desiredPosition);
   aircraft.quaternion.identity();
+  setCamera(cameraMode);
   for (const id of ["hudAgl", "hudIas", "hudVsi", "hudFpa", "hudXtrack", "hudGlide", "hudHdgErr", "hudAoa", "stripAlong", "stripThresh", "stripRoll", "stripPitch", "stripScore"]) byId(id).textContent = "—";
   byId("stripPhase").textContent = "READY";
   transitionRun("reset");
 });
 
+function cameraSubject(): THREE.Object3D {
+  return activeGhosts.find(ghost => ghost.run === watchedGhost)?.visual ?? aircraft;
+}
+function updateSpectatorLabel() {
+  const label = activeGhosts.find(ghost => ghost.run === watchedGhost)?.label ?? "Jev";
+  byId("flightStatePill").textContent = `WATCHING ${label.toUpperCase()}`;
+  byId("overlayController").textContent = `WATCHING ${label.toUpperCase()}`;
+  byId("runStatus").textContent = watchedGhost === liveGhost ? "Watching Jev · API usage continues" : `Watching ${label}`;
+}
+function followRemainingOpponent(): boolean {
+  const next = liveGhostRunId && liveGhost ? liveGhost : activeGhosts.find(({run}) => run !== liveGhost && run.samples.at(-1)!.time > raceTime)?.run;
+  if (!next) return false;
+  watchedGhost = next; spectatorRunning = true;
+  closeDialog("outcomeModal");
+  clearDecisionView();
+  updateControllerUi();
+  if (next === liveGhost && lastLiveState) {
+    raceTime = lastLiveState.observation.time_s;
+    updateHudAndTelemetry(lastLiveState);
+  }
+  // Snap to the new subject before smoothing subsequent motion.
+  renderRaceTime = raceTime;
+  const visual = cameraSubject();
+  if (next.samples.length) {
+    const pose = poseAt(next.samples, raceTime);
+    visual.position.copy(pose.position); visual.quaternion.copy(pose.quaternion);
+  }
+  camera.position.copy(visual.position).add(chaseOffset.clone().applyQuaternion(visual.quaternion));
+  setCamera(cameraMode);
+  if (next !== liveGhost) {
+    for (const id of ["hudAgl", "hudIas", "hudVsi", "hudFpa", "hudXtrack", "hudGlide", "hudHdgErr", "hudAoa", "stripAlong", "stripThresh", "stripRoll", "stripPitch", "stripScore"]) byId(id).textContent = "—";
+    byId("stripPhase").textContent = "REPLAY";
+  }
+  updateSpectatorLabel();
+  byId<HTMLButtonElement>("stop").disabled = false;
+  return true;
+}
+function finishSpectating(run: Ghost) {
+  spectatorRunning = false;
+  byId<HTMLButtonElement>("stop").disabled = !activeRunId && !liveGhostRunId;
+  const label = activeGhosts.find(ghost => ghost.run === run)?.label ?? "Jev";
+  byId("flightStatePill").textContent = `${label.toUpperCase()} FINISHED`;
+  byId("runStatus").textContent = `${label} · ${outcomeLabel(run.status, run.success)}`;
+  const record = ghostRecords.get(run);
+  if (record) showOutcomeModal(record, label);
+}
+
 // Camera controls
 function setCamera(mode: typeof cameraMode) {
   cameraMode = mode;
   orbit.enabled = mode === "orbit";
+  if (mode === "chase") {
+    const subject = cameraSubject();
+    camera.position.copy(subject.position).add(chaseOffset.clone().applyQuaternion(subject.quaternion));
+  }
   if (orbit.enabled) {
-    orbit.target.copy(aircraft.position);
-    lastOrbitTarget.copy(aircraft.position);
+    const subject = cameraSubject();
+    // Preserve the camera offset when changing the orbit center.
+    orbit.target.copy(subject.position);
+    lastOrbitTarget.copy(subject.position);
+    if (camera.position.distanceTo(subject.position) > orbit.maxDistance) camera.position.copy(subject.position).add(chaseOffset);
+    orbit.update();
   }
   document.querySelectorAll<HTMLButtonElement>("[data-camera]").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.camera === mode);
@@ -2134,6 +2229,10 @@ function animate(now: number) {
   previous = now;
   updateEdgeLights(now);
 
+  if (spectatorRunning && watchedGhost && watchedGhost !== liveGhost) {
+    raceTime = Math.min(raceTime + dt, watchedGhost.samples.at(-1)!.time);
+    if (raceTime >= watchedGhost.samples.at(-1)!.time && !followRemainingOpponent()) finishSpectating(watchedGhost);
+  }
   renderRaceTime = smoothReplayTime(renderRaceTime, raceTime, dt);
   for (const ghost of activeGhosts) {
     if (!ghost.visual.getObjectByName("aircraftGLB") && aircraft.getObjectByName("aircraftGLB")) {
@@ -2151,7 +2250,7 @@ function animate(now: number) {
     `${label} · ${run.controller} · ${run === liveGhost && liveGhostRunId ? "Live" : raceTime >= run.samples.at(-1)!.time ? outcomeLabel(run.status, run.success) : "Replaying"} · ${run.score.toFixed(1)} pts`).join("\n");
   aircraft.position.lerp(desiredPosition, 1 - Math.exp(-10 * dt));
   aircraft.quaternion.slerp(desiredQuaternion, 1 - Math.exp(-10 * dt));
-  sun.position.copy(aircraft.position).add(sunOffset);
+  sun.position.copy(cameraSubject().position).add(sunOffset);
 
   const propeller = aircraft.userData.propeller as THREE.Object3D | undefined;
   if (propeller) propeller.rotation.z += dt * (20 + controls.throttle * 90);
@@ -2184,25 +2283,27 @@ function animate(now: number) {
     }
   }
 
-  const cameraSubject = watchingJev ? activeGhosts.find(ghost => ghost.run === liveGhost)?.visual ?? aircraft : aircraft;
+  const subject = cameraSubject();
+  canvas.dataset.subject = watchedGhost ? "opponent" : "primary";
+  canvas.dataset.camera = cameraMode;
   if (cameraMode === "chase") {
     // Chase camera behind and slightly above aircraft, looking down towards runway
-    const targetCamPos = cameraSubject.position.clone().add(chaseOffset.clone().applyQuaternion(cameraSubject.quaternion));
+    const targetCamPos = subject.position.clone().add(chaseOffset.clone().applyQuaternion(subject.quaternion));
     camera.position.lerp(targetCamPos, 1 - Math.exp(-6 * dt));
     camera.up.set(0, 1, 0);
-    const lookTarget = cameraSubject.position.clone().add(chaseLookAtOffset.clone().applyQuaternion(cameraSubject.quaternion));
+    const lookTarget = subject.position.clone().add(chaseLookAtOffset.clone().applyQuaternion(subject.quaternion));
     camera.lookAt(lookTarget);
   } else if (cameraMode === "orbit") {
-    const delta = cameraSubject.position.clone().sub(lastOrbitTarget);
+    const delta = subject.position.clone().sub(lastOrbitTarget);
     camera.position.add(delta);
-    orbit.target.copy(cameraSubject.position);
-    lastOrbitTarget.copy(cameraSubject.position);
+    orbit.target.copy(subject.position);
+    lastOrbitTarget.copy(subject.position);
     orbit.update();
   } else {
     // Tower camera fixed near threshold looking at aircraft
     camera.position.set(-15, 6, 25);
     camera.up.set(0, 1, 0);
-    camera.lookAt(cameraSubject.position);
+    camera.lookAt(subject.position);
   }
 
   camera.updateMatrixWorld();

@@ -87,3 +87,12 @@ a separate realtime simulator behind a shared start barrier, continue in spectat
 ends, stopping only on explicit Stop/Reset, disconnect, or a new run, and never block human physics on provider latency. API usage is disclosed
 on its card. Replay poses and human visuals share the same smoothing time constant;
 project labels after updating the camera to avoid one-frame wobble.
+
+
+## Race camera and results — 2026-11-03
+On primary completion, automatically follow an unfinished opponent (live first,
+then replay). Do not block this transition with the primary modal; retain it behind
+Your result. Label terminal dialogs by flight owner. Opponent-first completion must
+not steal input or camera. All camera modes share the same viewed aircraft. Hide
+manual controls when spectating, and never label primary telemetry as replay data.
+Stop ends viewing; Reset clears it and must not reopen delayed result dialogs.

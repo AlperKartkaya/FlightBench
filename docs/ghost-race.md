@@ -80,8 +80,11 @@ inspected. This is not a safe-landing or full-flight performance result.
 
 ## Spectator continuation and propellers
 
-After the human finishes, closing the result follows Jev with the camera and live
-telemetry. The replay clock continues from Jev telemetry rather than the finished
+After the primary finishes, the camera automatically follows a remaining opponent
+without a blocking primary-result dialog. Live Jev takes priority, then unfinished
+replays. The primary result stays accessible through **Your result**. When the
+last watched opponent finishes, its labeled result opens automatically. An opponent
+finishing before the primary does not interrupt primary flight. Live spectating follows Jev telemetry. The replay clock continues from Jev telemetry rather than the finished
 human clock. Stop/Reset remain available; starting another run first stops the old
 opponent. The result button discloses that provider usage continues while watching.
 Ghost propellers animate on their own cloned scene nodes; they do not mutate the
@@ -90,3 +93,12 @@ human model. Completed replay ghosts remain frozen at the terminal pose.
 Validation includes a fixture-driven browser spectator test (not a real landing),
 a cloned-propeller regression, and backend lifecycle tests covering continuation,
 explicit stop, and replacement by both solo flights and new races.
+
+
+Spectator transition regression: `tests/browser_spectator_smoke.js` covers automatic
+live/replay handoff, Chase/Orbit/Tower selection, separate primary/opponent results,
+replay completion, opponent-first completion, reset stale events, and disconnect.
+It uses real local human telemetry plus synthetic opponent lifecycle events; it
+makes no provider calls and does not prove a real successful landing. Recorded
+replays store poses, not full telemetry: spectator HUD measurements are blank rather
+than showing stale primary values. Live spectating retains provider API usage.
