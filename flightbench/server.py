@@ -113,6 +113,11 @@ def models() -> dict[str, list[str]]:
         return {"models": []}
 
 
+@app.get("/api/capabilities")
+def capabilities() -> dict:
+    return {"live_jev": bool(os.environ.get("TYPESAFE_API_KEY"))}
+
+
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -187,8 +192,15 @@ class Session:
     decisions: list[dict] = field(default_factory=list)
     identity: dict | None = None
     pending_record: dict | None = None
+    opponent: Session | None = None
+    parent: Session | None = None
+    start_gate: asyncio.Event | None = None
+    race_start: float | None = None
 
     async def send(self, message: dict) -> None:
+        if self.parent is not None:
+            await self.parent.send({"type": "ghost", "message": message})
+            return
         async with self.send_lock:
             try:
                 await self.websocket.send_json(message)
@@ -253,6 +265,8 @@ class Session:
         await self.send({"type": "error", "code": code, "message": message})
 
     async def stop(self, reason: str = "interrupted", *, idle: bool = False) -> None:
+        if self.opponent is not None:
+            await self.opponent.stop("interrupted")
         task = self.task
         if task and task is not asyncio.current_task():
             self.task.cancel()
@@ -340,7 +354,35 @@ class Session:
         except (RuntimeError, WebSocketDisconnect):
             pass
 
-    async def start(self, message: dict) -> None:
+    async def start_race(self, message: dict) -> None:
+        settings = RunSettings.model_validate({k: v for k, v in message.items() if k != "type"})
+        if settings.controller != "human" or settings.mode != "realtime":
+            raise ValueError("live race requires realtime human control")
+        if not os.environ.get("TYPESAFE_API_KEY"):
+            await self.error("controller_unavailable")
+            return
+        if self.run_id or (self.task and not self.task.done()):
+            raise ValueError("run already active")
+        if self.opponent is not None:
+            await self.opponent.stop("interrupted")
+        gate = asyncio.Event()
+        self.start_gate = gate
+        self.opponent = Session(self.websocket, parent=self, start_gate=gate)
+        try:
+            await self.opponent.start({**message, "controller": "jev", "model": None,
+                                       "human_assistance": {"auto_center": False, "wing_leveler": False}}, race_member=True)
+            if self.opponent.task is None:
+                await self.error("controller_unavailable")
+                return
+            await self.start(message, race_member=True)
+            self.race_start = self.opponent.race_start = asyncio.get_running_loop().time()
+            gate.set()
+        finally:
+            if not gate.is_set():
+                await self.opponent.stop("interrupted")
+                await self.stop("interrupted")
+
+    async def start(self, message: dict, *, race_member: bool = False) -> None:
         if self.task and not self.task.done():
             raise ValueError("run already active")
         if self.run_id:
@@ -348,6 +390,11 @@ class Session:
         settings = RunSettings.model_validate(
             {key: value for key, value in message.items() if key != "type"}
         )
+        if not race_member:
+            if self.opponent is not None:
+                await self.opponent.stop("interrupted")
+            self.start_gate = None
+            self.race_start = None
         controller_name = settings.controller
         mode = settings.mode
         seed = settings.seed
@@ -434,6 +481,8 @@ class Session:
 
     async def run(self, target) -> None:
         try:
+            if self.start_gate is not None:
+                await self.start_gate.wait()
             await target()
             await self.finish()
         except asyncio.CancelledError:
@@ -577,7 +626,7 @@ class Session:
         pending: asyncio.Task | None = None
         ticks = 0
         loop = asyncio.get_running_loop()
-        deadline = loop.time()
+        deadline = self.race_start if self.race_start is not None else loop.time()
         cadence_deadline_ms = (
             getattr(self.env, "decision_interval_s", 1 / self.decision_hz) / self.time_scale * 1000
         )
@@ -697,7 +746,11 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             kind = message.get("type")
             try:
                 if kind == "start":
+                    session.start_gate = None
+                    session.race_start = None
                     await session.start(message)
+                elif kind == "start_race":
+                    await session.start_race(message)
                 elif kind == "reset" or kind == "stop":
                     await session.stop("interrupted", idle=True)
                 elif kind == "action":

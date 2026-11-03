@@ -49,13 +49,13 @@ def main():
         expect(jev_options).to_have_count(1)
         assert page.locator("#scenario").count() == 0
         assert page.locator("#mode").count() == 0
-        page.locator("#controller").select_option("jev")
+        page.locator('input[name="controller-choice"][value="jev"]').check()
         expect(page.locator("#jevModel")).to_be_visible()
         assert page.locator("#jevModel option").evaluate_all(
             "options => options.map(o => o.value)"
         ) == ["jev-1.13.0", "jev-1.14.0"]
         page.locator("#jevModel").select_option("jev-1.14.0")
-        page.locator("#controller").select_option("codex")
+        page.locator('input[name="controller-choice"][value="codex"]').check()
         expect(page.locator("#reasoningEffort")).to_be_visible()
         assert page.locator("#reasoningEffort option").all_text_contents() == [
             "low",
@@ -64,14 +64,14 @@ def main():
             "xhigh",
             "max",
         ]
-        page.locator("#controller").select_option("jev")
+        page.locator('input[name="controller-choice"][value="jev"]').check()
         page.locator("#decisionRate").select_option("5")
         expect(page.locator("#configureToggle")).to_contain_text("Jev · 5 Hz")
         expect(page.locator("#liveDecisionCard")).to_be_visible()
         expect(page.locator("#overlayDecision")).to_be_visible()
-        page.locator("#controller").select_option("codex")
+        page.locator('input[name="controller-choice"][value="codex"]').check()
         expect(page.locator("#ctrlBrandTitle")).to_have_text("Codex Controller")
-        page.locator("#controller").select_option("baseline")
+        page.locator('input[name="controller-choice"][value="baseline"]').check()
         page.locator("#decisionRate").select_option("2")
         page.locator("#configureToggle").click()
         page.screenshot(path=str(output / "desktop.png"), full_page=True)
@@ -89,7 +89,7 @@ def main():
         page.screenshot(path=str(output / "result.png"), full_page=True)
         page.get_by_text("Close result", exact=True).click()
         page.locator("#configureToggle").click()
-        page.locator("#controller").select_option("human")
+        page.locator('input[name="controller-choice"][value="human"]').check()
         page.locator("#configureToggle").click()
         page.locator("#start").click()
         expect(page.locator("#stop")).to_be_enabled()
@@ -130,7 +130,7 @@ def main():
         frame.update(type="state", run_id=None, decision_count=1, latency_ms=25)
         for call, controller in enumerate(("codex", "jev"), 1):
             page.locator("#configureToggle").click()
-            page.locator("#controller").select_option(controller)
+            page.locator(f'input[name="controller-choice"][value="{controller}"]').check()
             page.locator("#configureToggle").click()
             info = {
                 "controller": controller,
@@ -237,7 +237,7 @@ def main():
         assert page.evaluate("document.documentElement.scrollHeight <= innerHeight")
         # Capture only the outbound config: do not make a Codex provider request.
         page.locator("#configureToggle").click()
-        page.locator("#controller").select_option("codex")
+        page.locator('input[name="controller-choice"][value="codex"]').check()
         page.locator("#configureToggle").click()
         page.evaluate("""() => {
             const model = document.querySelector('#model');

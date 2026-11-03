@@ -68,3 +68,31 @@ setup instructions. Settings are fixed to easy/seed 42 and 2 Hz AI; Jev offers 1
 and 1.14. Codex remains local only. Public Jev uses the fixed rate-limited proxy
 without credential/endpoint fields; both secrets stay in the Worker. Preserve
 recording links under an archive, not the site root.
+
+## Ghost Race correction — 2026-11-01
+Replay is opt-in and records flights even when disabled. Previous flight includes
+stopped and failed flights; Personal Best means highest-score successful human
+landing only. Recorded Jev means latest compatible Jev flight, not necessarily a
+successful landing. Explain unavailable choices before Start, show duration and
+outcome, and keep a visible in-scene legend while racing. Use full-width settings,
+existing dark selects, 44px targets, and text labels in addition to tint. Session
+scope must be explicit. Do not imply that replay is live Jev.
+
+## Live race and setup controls — 2026-11-01
+Controller choice uses single-select cards; opponents use independent checkbox
+cards, never combination presets. Hide unavailable opponents and controllers.
+Show live Jev only when the local backend reports configured credentials; Pages
+remains replay-only because its worker currently uses lockstep. Live Jev must use
+a separate realtime simulator behind a shared start barrier, continue in spectator mode when the human
+ends, stopping only on explicit Stop/Reset, disconnect, or a new run, and never block human physics on provider latency. API usage is disclosed
+on its card. Replay poses and human visuals share the same smoothing time constant;
+project labels after updating the camera to avoid one-frame wobble.
+
+
+## Race camera and results — 2026-11-03
+On primary completion, automatically follow an unfinished opponent (live first,
+then replay). Do not block this transition with the primary modal; retain it behind
+Your result. Label terminal dialogs by flight owner. Opponent-first completion must
+not steal input or camera. All camera modes share the same viewed aircraft. Hide
+manual controls when spectating, and never label primary telemetry as replay data.
+Stop ends viewing; Reset clears it and must not reopen delayed result dialogs.

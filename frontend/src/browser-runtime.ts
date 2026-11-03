@@ -93,6 +93,7 @@ export class BrowserRuntime {
       this.startedAt = new Date().toISOString();
       this.worker.postMessage({ type, run_id: this.runId, mode: config.controller, model: config.model });
     } else if (message.type === 'reset') {
+      this.finish('reset');
       this.runId = null;
       this.accepted = false;
       this.worker.postMessage({ type: 'stop' });
