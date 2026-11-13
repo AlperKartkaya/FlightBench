@@ -273,3 +273,27 @@ def test_excursion_after_safe_contact(monkeypatch):
     *_, info = env.advance([0, 0, 0, 0.5])
     assert env.done and info["result"]["reason"] == "runway_excursion"
     assert not info["result"]["success"]
+
+
+def test_rollout_steering_keeps_angled_touchdown_on_runway():
+    env = FixedWingLandingEnv("easy")
+    env.reset(seed=42)
+    env.start_x = 400.0
+    env.start_z = 10.04
+    env.fdm["ic/h-agl-ft"] = 4.35
+    env.fdm["ic/vc-kts"] = 52.0
+    env.fdm["ic/psi-true-deg"] = 97.67
+    env.fdm["ic/gamma-deg"] = -1.5
+    env.fdm["ic/alpha-deg"] = 4.0
+    assert env.fdm.run_ic()
+    env.fdm["propulsion/set-running"] = -1
+    env._last_obs = env.observe()
+    max_yaw_rate_deg_s = 0.0
+    while not env.done:
+        obs, _, _, _, info = env.advance([0, 0, 0, 0.5], ticks=1)
+        max_yaw_rate_deg_s = max(max_yaw_rate_deg_s, abs(math.degrees(obs["flight"]["r_rad_s"])))
+    assert info["result"]["reason"] == "landed"
+    assert info["result"]["success"] is True
+    assert abs(obs["runway"]["centerline_offset_m"]) < 6.0
+    assert max_yaw_rate_deg_s < 10.0
+    env.close()

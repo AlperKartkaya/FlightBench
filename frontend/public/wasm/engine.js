@@ -246,10 +246,23 @@ export class Landing {
       const previous = this.observation;
       if (this.scenario === 'hard') this.applyWind((this.ticks + 1) / this.hz, previous.runway.altitude_agl_m);
       if (this.touchdown) {
+        const pr = previous.runway, pf = previous.flight;
+        const zM = pr.centerline_offset_m ?? pr.cross_track_error_m;
+        const gs = pf.groundspeed_mps;
+        const targetHdg = clip(-0.75 * zM, -10, 10) * Math.min(1, gs / 8);
+        const yawErr = pr.heading_error_deg - targetHdg;
+        const uYaw = clip(0.045 * yawErr + 0.30 * pf.r_rad_s, -0.45, 0.45);
+        const ail = clip(this.contract.trim.aileron - 0.06 * pf.roll_deg - 0.20 * pf.p_rad_s, -0.35, 0.35);
+        const elev = 0.08;
+        const rud = clip(this.contract.trim.rudder + 0.75 * uYaw, -0.30, 0.30);
+        const diff = clip(0.65 * uYaw, -0.32, 0.32);
+        this.f.SetPropertyValue('fcs/aileron-cmd-norm', ail);
+        this.f.SetPropertyValue('fcs/elevator-cmd-norm', elev);
+        this.f.SetPropertyValue('fcs/rudder-cmd-norm', rud);
         this.f.SetPropertyValue('fcs/throttle-cmd-norm', 0);
-        this.f.SetPropertyValue('fcs/left-brake-cmd-norm', .7);
-        this.f.SetPropertyValue('fcs/right-brake-cmd-norm', .7);
-        this.control.throttle = 0;
+        this.f.SetPropertyValue('fcs/left-brake-cmd-norm', clip(0.65 + diff, 0, 0.92));
+        this.f.SetPropertyValue('fcs/right-brake-cmd-norm', clip(0.65 - diff, 0, 0.92));
+        this.control = {aileron: ail, elevator: elev, rudder: rud, throttle: 0};
       }
       if (!this.f.Run()) {this.done = true; this.reason = 'simulation_failure'; break;}
       this.ticks++;

@@ -387,11 +387,29 @@ class FixedWingLandingEnv(gym.Env):
                     previous["runway"]["altitude_agl_m"],
                 )
             if self.touchdown is not None:
-                # Environment-owned rollout: idle engine and symmetric braking.
-                self.fdm["fcs/throttle-cmd-norm"] = 0
-                self.fdm["fcs/left-brake-cmd-norm"] = 0.7
-                self.fdm["fcs/right-brake-cmd-norm"] = 0.7
-                self.action = action.model_copy(update={"throttle": 0.0})
+                # Environment-owned rollout: gentle nose-lowering, centerline steering, and braking.
+                prev_r, prev_f = previous["runway"], previous["flight"]
+                z_m = prev_r.get("centerline_offset_m", prev_r["cross_track_error_m"])
+                gs = prev_f["groundspeed_mps"]
+                target_hdg = max(-10.0, min(10.0, -0.75 * z_m)) * min(1.0, gs / 8.0)
+                yaw_err = prev_r["heading_error_deg"] - target_hdg
+                u_yaw = max(-0.45, min(0.45, 0.045 * yaw_err + 0.30 * prev_f["r_rad_s"]))
+                ail = max(
+                    -0.35,
+                    min(0.35, TRIM_AILERON - 0.06 * prev_f["roll_deg"] - 0.20 * prev_f["p_rad_s"]),
+                )
+                elev = 0.08
+                rud = max(-0.30, min(0.30, TRIM_RUDDER + 0.75 * u_yaw))
+                diff = max(-0.32, min(0.32, 0.65 * u_yaw))
+                self.fdm["fcs/aileron-cmd-norm"] = ail
+                self.fdm["fcs/elevator-cmd-norm"] = elev
+                self.fdm["fcs/rudder-cmd-norm"] = rud
+                self.fdm["fcs/throttle-cmd-norm"] = 0.0
+                self.fdm["fcs/left-brake-cmd-norm"] = max(0.0, min(0.92, 0.65 + diff))
+                self.fdm["fcs/right-brake-cmd-norm"] = max(0.0, min(0.92, 0.65 - diff))
+                self.action = ControlCommand(
+                    aileron=ail, elevator=elev, rudder=rud, throttle=0.0
+                )
             if not self.fdm.run():
                 self.done, self.reason = True, "simulation_failure"
                 break
