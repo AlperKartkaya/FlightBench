@@ -115,21 +115,23 @@ class BaselineController:
         cmd = ControlCommand(
             aileron=_clip(
                 TRIM_AILERON
-                - 0.015 * runway.get("centerline_offset_m", runway["cross_track_error_m"])
-                - 0.025 * runway["heading_error_deg"]
-                - 0.08 * flight["roll_deg"]
-                - 0.3 * flight.get("p_rad_s", 0.0)
+                - 0.013
+                - 0.022 * runway.get("centerline_offset_m", runway["cross_track_error_m"])
+                - 0.030 * runway["heading_error_deg"]
+                - 0.085 * flight["roll_deg"]
+                - 0.30 * flight.get("p_rad_s", 0.0)
             ),
             # JSBSim c172x positive elevator command is nose-down.
             elevator=_clip(
                 TRIM_ELEVATOR
-                + 0.10 * runway["glideslope_error_deg"]
-                + 0.08 * (flight["vertical_speed_mps"] + 1.5)
-                + 0.04 * (flight["pitch_deg"] - 3.0)
-                - 0.2 * flight.get("q_rad_s", 0.0)
+                + 0.12 * runway["glideslope_error_deg"]
+                + 0.08 * (flight["vertical_speed_mps"] + 1.65)
+                + 0.04 * (flight["pitch_deg"] - 2.5)
+                - 0.20 * flight.get("q_rad_s", 0.0)
             ),
             rudder=_clip(
                 TRIM_RUDDER
+                - 0.03
                 + 0.03 * runway["heading_error_deg"]
                 - 0.04 * flight["beta_deg"]
                 - 0.15 * flight.get("r_rad_s", 0.0)
@@ -138,12 +140,17 @@ class BaselineController:
         )
         alt = runway.get("altitude_agl_m")
         if alt is not None and alt < 20.0:
-            target_sink = -0.8
+            target_sink = max(-2.4, -0.35 - 0.28 * max(0.0, alt - 1.4))
             current_vs = flight.get("vertical_speed_mps", -1.5)
             cmd = cmd.model_copy(
                 update={
-                    "elevator": _clip(-0.05 + 0.15 * (current_vs - target_sink)),
-                    "throttle": _clip(cmd.throttle - 0.25, 0.0, 0.25),
+                    "elevator": _clip(
+                        -0.02
+                        + 0.12 * (current_vs - target_sink)
+                        + 0.03 * (flight["pitch_deg"] - 2.5)
+                        - 0.25 * flight.get("q_rad_s", 0.0)
+                    ),
+                    "throttle": 0.0 if alt < 16.0 else _clip(cmd.throttle - 0.25, 0.0, 0.25),
                 }
             )
         self.last_decision = {

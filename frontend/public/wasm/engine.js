@@ -17,16 +17,18 @@ export function validateControl(command) {
 export function baseline(o, trim) {
   const r = o.runway, f = o.flight;
   const command = {
-    aileron: clip(trim.aileron - .015 * r.centerline_offset_m - .025 * r.heading_error_deg -
-      .08 * f.roll_deg - .3 * f.p_rad_s),
-    elevator: clip(trim.elevator + .10 * r.glideslope_error_deg + .08 * (f.vertical_speed_mps + 1.5) +
-      .04 * (f.pitch_deg - 3) - .2 * f.q_rad_s),
-    rudder: clip(trim.rudder + .03 * r.heading_error_deg - .04 * f.beta_deg - .15 * f.r_rad_s),
+    aileron: clip(trim.aileron - .013 - .022 * r.centerline_offset_m - .030 * r.heading_error_deg -
+      .085 * f.roll_deg - .30 * f.p_rad_s),
+    elevator: clip(trim.elevator + .12 * r.glideslope_error_deg + .08 * (f.vertical_speed_mps + 1.65) +
+      .04 * (f.pitch_deg - 2.5) - .20 * f.q_rad_s),
+    rudder: clip(trim.rudder - .03 + .03 * r.heading_error_deg - .04 * f.beta_deg - .15 * f.r_rad_s),
     throttle: clip(.5 + .05 * (30 - f.airspeed_mps), 0, 1),
   };
   if (r.altitude_agl_m < 20) {
-    command.elevator = clip(-.05 + .15 * (f.vertical_speed_mps + .8));
-    command.throttle = clip(command.throttle - .25, 0, .25);
+    const targetSink = Math.max(-2.4, -.35 - .28 * Math.max(0, r.altitude_agl_m - 1.4));
+    command.elevator = clip(-.02 + .12 * (f.vertical_speed_mps - targetSink) +
+      .03 * (f.pitch_deg - 2.5) - .25 * f.q_rad_s);
+    command.throttle = r.altitude_agl_m < 16 ? 0 : clip(command.throttle - .25, 0, .25);
   }
   return command;
 }
