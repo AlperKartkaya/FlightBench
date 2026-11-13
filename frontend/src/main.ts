@@ -747,7 +747,7 @@ for (const z of [-19.5, 19.5]) {
   edge.position.set(500, 0.06, z);
   markings.add(edge);
 }
-for (const z of [-10, -6, -2, 2, 6, 10]) {
+for (const z of [-14, -10, -6, -2, 2, 6, 10, 14]) {
   const threshold = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 1.2),
     markingMaterial,

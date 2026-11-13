@@ -31,7 +31,7 @@ class ScoringConfig:
     flare_altitude_m: float = 6
     glide_normalization_m: float = 15
     touchdown_sink_normalization_mps: float = 3
-    touchdown_lateral_normalization_m: float = 15
+    touchdown_lateral_normalization_m: float = 20
     touchdown_target_m: float = 200
     touchdown_longitudinal_normalization_m: float = 200
 

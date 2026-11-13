@@ -54,7 +54,7 @@
         "flare_altitude_m": 6,
         "glide_normalization_m": 15,
         "touchdown_sink_normalization_mps": 3,
-        "touchdown_lateral_normalization_m": 15,
+        "touchdown_lateral_normalization_m": 20,
         "touchdown_target_m": 200,
         "touchdown_longitudinal_normalization_m": 200
       },
@@ -136,7 +136,7 @@
         "flare_altitude_m": 6,
         "glide_normalization_m": 15,
         "touchdown_sink_normalization_mps": 3,
-        "touchdown_lateral_normalization_m": 15,
+        "touchdown_lateral_normalization_m": 20,
         "touchdown_target_m": 200,
         "touchdown_longitudinal_normalization_m": 200
       },
@@ -218,7 +218,7 @@
         "flare_altitude_m": 6,
         "glide_normalization_m": 15,
         "touchdown_sink_normalization_mps": 3,
-        "touchdown_lateral_normalization_m": 15,
+        "touchdown_lateral_normalization_m": 20,
         "touchdown_target_m": 200,
         "touchdown_longitudinal_normalization_m": 200
       },
@@ -300,7 +300,7 @@
         "flare_altitude_m": 6,
         "glide_normalization_m": 15,
         "touchdown_sink_normalization_mps": 3,
-        "touchdown_lateral_normalization_m": 15,
+        "touchdown_lateral_normalization_m": 20,
         "touchdown_target_m": 200,
         "touchdown_longitudinal_normalization_m": 200
       },

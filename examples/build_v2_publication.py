@@ -41,7 +41,7 @@ EXCLUDED_MAX_GROUPS = {(model, "max") for model in (*FAMILIES[:3], "gpt-6-sol")}
     ("gpt-6-sol", effort) for effort in EFFORTS
 }
 DATE_RE = re.compile(r"20\d\d-\d\d-\d\d")
-CANONICAL_SCORING = asdict(ScoringConfig(runway_width_m=30))
+CANONICAL_SCORING = asdict(ScoringConfig(runway_width_m=30, touchdown_lateral_normalization_m=15))
 CANONICAL_SCORING_CONFIG_SHA256 = hashlib.sha256(
     json.dumps(CANONICAL_SCORING, sort_keys=True, separators=(",", ":")).encode()
 ).hexdigest()
