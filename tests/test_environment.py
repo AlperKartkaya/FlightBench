@@ -38,6 +38,39 @@ def test_determinism_and_gym():
     assert initial != other
 
 
+def test_scenario_wind_profiles_and_seed_independence():
+    easy = FixedWingLandingEnv("easy")
+    obs_e1, _ = easy.reset(seed=1)
+    obs_e2, _ = easy.reset(seed=999)
+    assert obs_e1 == obs_e2
+    assert obs_e1["environment"] == {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0,
+        "vertical_wind_mps": 0.0,
+        "wind_speed_mps": 0.0,
+        "wind_dir_deg": 0.0,
+    }
+    easy.close()
+
+    medium = FixedWingLandingEnv("medium")
+    obs_m0, _ = medium.reset(seed=42)
+    obs_m1, *_ = medium.step([0, 0, 0, 0.5])
+    assert obs_m0["environment"]["wind_speed_mps"] > 0.0
+    assert 0.0 <= obs_m0["environment"]["wind_dir_deg"] < 360.0
+    assert obs_m0["environment"]["vertical_wind_mps"] == 0.0
+    assert obs_m0["environment"] == obs_m1["environment"]
+    medium.close()
+
+    hard = FixedWingLandingEnv("hard")
+    obs_h0, _ = hard.reset(seed=42)
+    obs_h1, *_ = hard.step([0, 0, 0, 0.5])
+    assert obs_h0["environment"]["wind_speed_mps"] > 0.0
+    assert obs_h0["environment"] != obs_h1["environment"]
+    hard_repeat, _ = hard.reset(seed=42)
+    assert obs_h0 == hard_repeat
+    hard.close()
+
+
 def test_actual_jsbsim_control_signs():
     env = FixedWingLandingEnv()
     responses = {}
@@ -235,8 +268,32 @@ def test_excursion_after_safe_contact(monkeypatch):
         "roll_deg": 0,
         "pitch_deg": 5,
     }
-    observation["runway"].update(along_track_m=250, cross_track_error_m=16)
+    observation["runway"].update(along_track_m=250, cross_track_error_m=21)
     monkeypatch.setattr(env, "observe", lambda: observation)
     *_, info = env.advance([0, 0, 0, 0.5])
     assert env.done and info["result"]["reason"] == "runway_excursion"
     assert not info["result"]["success"]
+
+
+def test_rollout_steering_keeps_angled_touchdown_on_runway():
+    env = FixedWingLandingEnv("easy")
+    env.reset(seed=42)
+    env.start_x = 400.0
+    env.start_z = 10.04
+    env.fdm["ic/h-agl-ft"] = 4.35
+    env.fdm["ic/vc-kts"] = 52.0
+    env.fdm["ic/psi-true-deg"] = 97.67
+    env.fdm["ic/gamma-deg"] = -1.5
+    env.fdm["ic/alpha-deg"] = 4.0
+    assert env.fdm.run_ic()
+    env.fdm["propulsion/set-running"] = -1
+    env._last_obs = env.observe()
+    max_yaw_rate_deg_s = 0.0
+    while not env.done:
+        obs, _, _, _, info = env.advance([0, 0, 0, 0.5], ticks=1)
+        max_yaw_rate_deg_s = max(max_yaw_rate_deg_s, abs(math.degrees(obs["flight"]["r_rad_s"])))
+    assert info["result"]["reason"] == "landed"
+    assert info["result"]["success"] is True
+    assert abs(obs["runway"]["centerline_offset_m"]) < 6.0
+    assert max_yaw_rate_deg_s < 10.0
+    env.close()

@@ -747,7 +747,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--controllers", default="hold,random,baseline")
     parser.add_argument("--seeds", default="42")
     parser.add_argument("--modes", default="lockstep")
-    parser.add_argument("--scenario", default="easy")
+    parser.add_argument("--scenario", choices=("easy", "medium", "hard"), default="easy")
     parser.add_argument("--model")
     parser.add_argument(
         "--reasoning-effort", choices=("low", "medium", "high", "xhigh", "max"), default="low"
@@ -848,7 +848,7 @@ def evaluate(argv: list[str]) -> None:
     parser.add_argument("--metadata", type=Path, help="Controller provenance JSON")
     parser.add_argument("--modes", default="lockstep,realtime")
     parser.add_argument("--seeds", default="42,101,202,303,404")
-    parser.add_argument("--scenario", choices=("easy", "medium"), default="easy")
+    parser.add_argument("--scenario", choices=("easy", "medium", "hard"), default="easy")
     parser.add_argument("--decision-hz", type=int, choices=(2, 5, 10), default=2)
     parser.add_argument("--time-scale", type=float, choices=(1.0, 0.5, 0.25), default=1.0)
     parser.add_argument(

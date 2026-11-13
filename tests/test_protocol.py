@@ -83,6 +83,13 @@ def test_canonical_observation_normalizes_phase_for_every_ai_adapter():
     assert canonical_observation(observation) == {
         "flight": observation["flight"],
         "runway": observation["runway"],
+        "environment": {
+            "headwind_mps": 0.0,
+            "crosswind_mps": 0.0,
+            "vertical_wind_mps": 0.0,
+            "wind_speed_mps": 0.0,
+            "wind_dir_deg": 0.0,
+        },
         "current_controls": observation["controls"],
         "time_s": 12.5,
         "motion": observation["temporal"]["rates"],

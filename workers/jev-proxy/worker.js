@@ -15,6 +15,7 @@ const fields = {
     'p_rad_s', 'q_rad_s', 'r_rad_s', 'beta_deg'],
   runway: ['distance_to_threshold_m', 'along_track_m', 'cross_track_error_m', 'centerline_offset_m',
     'runway_width_m', 'altitude_agl_m', 'glideslope_error_deg', 'heading_error_deg'],
+  environment: ['headwind_mps', 'crosswind_mps', 'vertical_wind_mps', 'wind_speed_mps', 'wind_dir_deg'],
   current_controls: [...AXES, 'flaps_deg'],
   motion: ['airspeed_rate_mps2', 'vertical_speed_rate_mps2', 'cross_track_rate_mps',
     'glideslope_error_rate_deg_s', 'heading_error_rate_deg_s', 'flight_path_angle_rate_deg_s',
@@ -22,7 +23,7 @@ const fields = {
 };
 
 export function validState(s) {
-  if (!exact(s, ['flight', 'runway', 'current_controls', 'time_s', 'motion', 'status', 'phase']) ||
+  if (!exact(s, ['flight', 'runway', 'environment', 'current_controls', 'time_s', 'motion', 'status', 'phase']) ||
       !Number.isFinite(s.time_s) || s.time_s < 0 || s.time_s > 120 ||
       !exact(s.status, ['on_ground', 'main_gear_on_ground']) ||
       Object.values(s.status).some(v => typeof v !== 'boolean')) return false;
@@ -31,8 +32,9 @@ export function validState(s) {
       typeof v !== 'number' || !Number.isFinite(v) || Math.abs(v) > 10000)) return false;
   }
   if (AXES.some(k => s.current_controls[k] < (k === 'throttle' ? 0 : -1) ||
-      s.current_controls[k] > 1) || s.runway.runway_width_m !== 30 ||
+      s.current_controls[k] > 1) || s.runway.runway_width_m !== 40 ||
       s.runway.altitude_agl_m < 0 || s.flight.airspeed_mps < 0 || s.flight.groundspeed_mps < 0 ||
+      s.environment.wind_speed_mps < 0 || s.environment.wind_dir_deg < 0 || s.environment.wind_dir_deg > 360 ||
       Math.abs(s.flight.roll_deg) > 180 || Math.abs(s.flight.pitch_deg) > 90) return false;
   const phase = s.status.on_ground ? 'ROLLOUT' : s.runway.altitude_agl_m < 20 ? 'FLARE' : 'APPROACH';
   return s.phase === phase;

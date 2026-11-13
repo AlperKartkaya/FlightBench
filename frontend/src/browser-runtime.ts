@@ -91,8 +91,12 @@ export class BrowserRuntime {
       this.accepted = false;
       this.last = null;
       this.startedAt = new Date().toISOString();
-      this.worker.postMessage({ type, run_id: this.runId, mode: config.controller, model: config.model });
+      this.worker.postMessage({
+        type, run_id: this.runId, mode: config.controller, model: config.model,
+        scenario: config.scenario ?? 'easy', seed: typeof config.seed === 'number' ? config.seed : 42,
+      });
     } else if (message.type === 'reset') {
+      this.finish('reset');
       this.runId = null;
       this.accepted = false;
       this.worker.postMessage({ type: 'stop' });

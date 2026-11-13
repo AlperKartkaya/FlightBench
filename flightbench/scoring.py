@@ -10,7 +10,7 @@ from numbers import Real
 class ScoringConfig:
     version: str = "v2"
     runway_length_m: float = 1000
-    runway_width_m: float = 30
+    runway_width_m: float = 40
     zone_start_m: float = 50
     zone_end_m: float = 350
     max_sink_mps: float = 3
@@ -31,7 +31,7 @@ class ScoringConfig:
     flare_altitude_m: float = 6
     glide_normalization_m: float = 15
     touchdown_sink_normalization_mps: float = 3
-    touchdown_lateral_normalization_m: float = 15
+    touchdown_lateral_normalization_m: float = 20
     touchdown_target_m: float = 200
     touchdown_longitudinal_normalization_m: float = 200
 
