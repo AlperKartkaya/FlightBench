@@ -31,7 +31,7 @@ export function validState(s) {
       typeof v !== 'number' || !Number.isFinite(v) || Math.abs(v) > 10000)) return false;
   }
   if (AXES.some(k => s.current_controls[k] < (k === 'throttle' ? 0 : -1) ||
-      s.current_controls[k] > 1) || s.runway.runway_width_m !== 30 ||
+      s.current_controls[k] > 1) || s.runway.runway_width_m !== 40 ||
       s.runway.altitude_agl_m < 0 || s.flight.airspeed_mps < 0 || s.flight.groundspeed_mps < 0 ||
       Math.abs(s.flight.roll_deg) > 180 || Math.abs(s.flight.pitch_deg) > 90) return false;
   const phase = s.status.on_ground ? 'ROLLOUT' : s.runway.altitude_agl_m < 20 ? 'FLARE' : 'APPROACH';

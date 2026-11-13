@@ -30,7 +30,7 @@
   "scoring": {
     "version": "v2",
     "runway_length_m": 1000,
-    "runway_width_m": 30,
+    "runway_width_m": 40,
     "zone_start_m": 50,
     "zone_end_m": 350,
     "max_sink_mps": 3,

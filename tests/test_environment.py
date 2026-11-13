@@ -235,7 +235,7 @@ def test_excursion_after_safe_contact(monkeypatch):
         "roll_deg": 0,
         "pitch_deg": 5,
     }
-    observation["runway"].update(along_track_m=250, cross_track_error_m=16)
+    observation["runway"].update(along_track_m=250, cross_track_error_m=21)
     monkeypatch.setattr(env, "observe", lambda: observation)
     *_, info = env.advance([0, 0, 0, 0.5])
     assert env.done and info["result"]["reason"] == "runway_excursion"

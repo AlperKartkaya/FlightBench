@@ -10,7 +10,7 @@ from numbers import Real
 class ScoringConfig:
     version: str = "v2"
     runway_length_m: float = 1000
-    runway_width_m: float = 30
+    runway_width_m: float = 40
     zone_start_m: float = 50
     zone_end_m: float = 350
     max_sink_mps: float = 3

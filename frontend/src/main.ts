@@ -711,7 +711,7 @@ ground.receiveShadow = true;
 scene.add(ground);
 
 const runway = new THREE.Mesh(
-  new THREE.PlaneGeometry(1000, 30),
+  new THREE.PlaneGeometry(1000, 40),
   new THREE.MeshStandardMaterial({
     color: 0x282632, roughness: 0.92,
     polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1,
@@ -738,7 +738,7 @@ for (let x = 25; x < 1000; x += 50) {
   line.position.set(x, 0.055, 0);
   markings.add(line);
 }
-for (const z of [-14.5, 14.5]) {
+for (const z of [-19.5, 19.5]) {
   const edge = new THREE.Mesh(
     new THREE.PlaneGeometry(1000, 0.35),
     markingMaterial,
@@ -761,7 +761,7 @@ scene.add(markings);
 const edgeLightPositions: number[] = [];
 // Twenty rows make the four-row cadence wrap without a double-lit pause.
 for (let x = 25; x < 1000; x += 50) {
-  for (const z of [-16, 16]) edgeLightPositions.push(x, 0.3, z);
+  for (const z of [-21, 21]) edgeLightPositions.push(x, 0.3, z);
 }
 const edgeLightGeometry = new THREE.BufferGeometry();
 edgeLightGeometry.setAttribute("position", new THREE.Float32BufferAttribute(edgeLightPositions, 3));
