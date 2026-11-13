@@ -53,6 +53,9 @@
         "observation.flight.beta_deg": 4.2665870836344766e-13,
         "observation.environment.headwind_mps": 0,
         "observation.environment.crosswind_mps": 0,
+        "observation.environment.vertical_wind_mps": 0,
+        "observation.environment.wind_speed_mps": 0,
+        "observation.environment.wind_dir_deg": 0,
         "observation.controls.aileron": 0,
         "observation.controls.elevator": 0,
         "observation.controls.rudder": 0,
@@ -119,6 +122,11 @@
         "canonical.runway.altitude_agl_m": 2.805336407618597e-9,
         "canonical.runway.glideslope_error_deg": 1.1261258592298873e-10,
         "canonical.runway.heading_error_deg": 7.389644451905042e-13,
+        "canonical.environment.headwind_mps": 0,
+        "canonical.environment.crosswind_mps": 0,
+        "canonical.environment.vertical_wind_mps": 0,
+        "canonical.environment.wind_speed_mps": 0,
+        "canonical.environment.wind_dir_deg": 0,
         "canonical.current_controls.aileron": 0,
         "canonical.current_controls.elevator": 0,
         "canonical.current_controls.rudder": 0,
@@ -179,7 +187,10 @@
         },
         "environment": {
           "headwind_mps": 0,
-          "crosswind_mps": 0
+          "crosswind_mps": 0,
+          "vertical_wind_mps": 0,
+          "wind_speed_mps": 0,
+          "wind_dir_deg": 0
         },
         "controls": {
           "aileron": -0.15,
@@ -234,6 +245,9 @@
         "observation.flight.beta_deg": 6.041833700010102e-13,
         "observation.environment.headwind_mps": 0,
         "observation.environment.crosswind_mps": 0,
+        "observation.environment.vertical_wind_mps": 0,
+        "observation.environment.wind_speed_mps": 0,
+        "observation.environment.wind_dir_deg": 0,
         "observation.controls.aileron": 0,
         "observation.controls.elevator": 0,
         "observation.controls.rudder": 0,
@@ -300,6 +314,11 @@
         "canonical.runway.altitude_agl_m": 2.7748967568186345e-9,
         "canonical.runway.glideslope_error_deg": 1.283551043229636e-10,
         "canonical.runway.heading_error_deg": 1.2505552149377763e-12,
+        "canonical.environment.headwind_mps": 0,
+        "canonical.environment.crosswind_mps": 0,
+        "canonical.environment.vertical_wind_mps": 0,
+        "canonical.environment.wind_speed_mps": 0,
+        "canonical.environment.wind_dir_deg": 0,
         "canonical.current_controls.aileron": 0,
         "canonical.current_controls.elevator": 0,
         "canonical.current_controls.rudder": 0,
@@ -360,7 +379,10 @@
         },
         "environment": {
           "headwind_mps": 0,
-          "crosswind_mps": 0
+          "crosswind_mps": 0,
+          "vertical_wind_mps": 0,
+          "wind_speed_mps": 0,
+          "wind_dir_deg": 0
         },
         "controls": {
           "aileron": -0.2,
@@ -415,6 +437,9 @@
         "observation.flight.beta_deg": 3.3928415632544784e-13,
         "observation.environment.headwind_mps": 0,
         "observation.environment.crosswind_mps": 0,
+        "observation.environment.vertical_wind_mps": 0,
+        "observation.environment.wind_speed_mps": 0,
+        "observation.environment.wind_dir_deg": 0,
         "observation.controls.aileron": 0,
         "observation.controls.elevator": 0,
         "observation.controls.rudder": 0,
@@ -481,6 +506,11 @@
         "canonical.runway.altitude_agl_m": 2.6495428073758376e-9,
         "canonical.runway.glideslope_error_deg": 1.1332890181847688e-10,
         "canonical.runway.heading_error_deg": 6.252776074688882e-13,
+        "canonical.environment.headwind_mps": 0,
+        "canonical.environment.crosswind_mps": 0,
+        "canonical.environment.vertical_wind_mps": 0,
+        "canonical.environment.wind_speed_mps": 0,
+        "canonical.environment.wind_dir_deg": 0,
         "canonical.current_controls.aileron": 0,
         "canonical.current_controls.elevator": 0,
         "canonical.current_controls.rudder": 0,
@@ -541,7 +571,10 @@
         },
         "environment": {
           "headwind_mps": 0,
-          "crosswind_mps": 0
+          "crosswind_mps": 0,
+          "vertical_wind_mps": 0,
+          "wind_speed_mps": 0,
+          "wind_dir_deg": 0
         },
         "controls": {
           "aileron": -0.15,
@@ -596,6 +629,9 @@
         "observation.flight.beta_deg": 7.60447260717001e-13,
         "observation.environment.headwind_mps": 0,
         "observation.environment.crosswind_mps": 0,
+        "observation.environment.vertical_wind_mps": 0,
+        "observation.environment.wind_speed_mps": 0,
+        "observation.environment.wind_dir_deg": 0,
         "observation.controls.aileron": 0,
         "observation.controls.elevator": 0,
         "observation.controls.rudder": 0,
@@ -662,6 +698,11 @@
         "canonical.runway.altitude_agl_m": 2.805336407618597e-9,
         "canonical.runway.glideslope_error_deg": 2.0784374221705093e-10,
         "canonical.runway.heading_error_deg": 9.663381206337363e-12,
+        "canonical.environment.headwind_mps": 0,
+        "canonical.environment.crosswind_mps": 0,
+        "canonical.environment.vertical_wind_mps": 0,
+        "canonical.environment.wind_speed_mps": 0,
+        "canonical.environment.wind_dir_deg": 0,
         "canonical.current_controls.aileron": 0,
         "canonical.current_controls.elevator": 0,
         "canonical.current_controls.rudder": 0,
@@ -722,7 +763,10 @@
         },
         "environment": {
           "headwind_mps": 0,
-          "crosswind_mps": 0
+          "crosswind_mps": 0,
+          "vertical_wind_mps": 0,
+          "wind_speed_mps": 0,
+          "wind_dir_deg": 0
         },
         "controls": {
           "aileron": -0.15,
@@ -777,6 +821,9 @@
         "observation.flight.beta_deg": 3.3172413815840684e-8,
         "observation.environment.headwind_mps": 0,
         "observation.environment.crosswind_mps": 0,
+        "observation.environment.vertical_wind_mps": 0,
+        "observation.environment.wind_speed_mps": 0,
+        "observation.environment.wind_dir_deg": 0,
         "observation.controls.aileron": 0,
         "observation.controls.elevator": 0,
         "observation.controls.rudder": 0,
@@ -843,6 +890,11 @@
         "canonical.runway.altitude_agl_m": 2.8221940340245055e-9,
         "canonical.runway.glideslope_error_deg": 2.1516769699303495e-8,
         "canonical.runway.heading_error_deg": 1.68079168361146e-8,
+        "canonical.environment.headwind_mps": 0,
+        "canonical.environment.crosswind_mps": 0,
+        "canonical.environment.vertical_wind_mps": 0,
+        "canonical.environment.wind_speed_mps": 0,
+        "canonical.environment.wind_dir_deg": 0,
         "canonical.current_controls.aileron": 0,
         "canonical.current_controls.elevator": 0,
         "canonical.current_controls.rudder": 0,
@@ -910,7 +962,10 @@
         },
         "environment": {
           "headwind_mps": 0,
-          "crosswind_mps": 0
+          "crosswind_mps": 0,
+          "vertical_wind_mps": 0,
+          "wind_speed_mps": 0,
+          "wind_dir_deg": 0
         },
         "controls": {
           "aileron": -0.31705857060619064,

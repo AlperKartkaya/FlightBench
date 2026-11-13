@@ -39,7 +39,7 @@ class RunSettings(BaseModel):
     controller: str = Field(default="baseline", min_length=1, max_length=4096)
     model: str | None = Field(default=None, max_length=200)
     reasoning_effort: Literal["low", "medium", "high", "xhigh", "max"] = "low"
-    scenario: Literal["easy", "medium"] = "easy"
+    scenario: Literal["easy", "medium", "hard"] = "easy"
     mode: Literal["lockstep", "realtime"] = "lockstep"
     seed: int = Field(default=42, ge=0, le=4294967295)
     decision_hz: Literal[2, 5, 10] = 2

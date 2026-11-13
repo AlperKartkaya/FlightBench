@@ -109,15 +109,26 @@ class BaselineController:
     """
 
     def decide(self, observation: Mapping[str, Any] | BaseModel) -> ControlCommand:
+        import math
+
         state = _dict(observation)
         runway = state["runway"]
         flight = state["flight"]
+        env_w = state.get("environment") or {}
+        xw = float(env_w.get("crosswind_mps", 0.0))
+        hw = float(env_w.get("headwind_mps", 0.0))
+        vw = float(env_w.get("vertical_wind_mps", 0.0))
+        w_spd = float(env_w.get("wind_speed_mps", math.hypot(hw, xw)))
+        crab = _clip(-1.85 * xw, -10.5, 10.5)
+        hdg_err = runway["heading_error_deg"] - crab
+        target_ias = 30.0 + min(0.0, hw) + 0.35 * max(0.0, hw)
+        gs_sink = 1.65 - 0.052 * hw + 0.5 * vw
         cmd = ControlCommand(
             aileron=_clip(
                 TRIM_AILERON
                 - 0.013
                 - 0.022 * runway.get("centerline_offset_m", runway["cross_track_error_m"])
-                - 0.030 * runway["heading_error_deg"]
+                - 0.030 * hdg_err
                 - 0.085 * flight["roll_deg"]
                 - 0.30 * flight.get("p_rad_s", 0.0)
             ),
@@ -125,32 +136,40 @@ class BaselineController:
             elevator=_clip(
                 TRIM_ELEVATOR
                 + 0.12 * runway["glideslope_error_deg"]
-                + 0.08 * (flight["vertical_speed_mps"] + 1.65)
+                + 0.08 * (flight["vertical_speed_mps"] + gs_sink)
                 + 0.04 * (flight["pitch_deg"] - 2.5)
                 - 0.20 * flight.get("q_rad_s", 0.0)
             ),
             rudder=_clip(
                 TRIM_RUDDER
                 - 0.03
-                + 0.03 * runway["heading_error_deg"]
+                + 0.03 * hdg_err
                 - 0.04 * flight["beta_deg"]
                 - 0.15 * flight.get("r_rad_s", 0.0)
             ),
-            throttle=_clip(0.5 + 0.05 * (30.0 - flight["airspeed_mps"]), 0.0, 1.0),
+            throttle=_clip(0.5 + 0.05 * (target_ias - flight["airspeed_mps"]), 0.0, 1.0),
         )
         alt = runway.get("altitude_agl_m")
         if alt is not None and alt < 20.0:
-            target_sink = max(-2.4, -0.35 - 0.28 * max(0.0, alt - 1.4))
+            w_blend = min(1.0, w_spd)
+            hw_factor = _clip(1.0 - 0.035 * hw, 0.55, 1.15)
+            max_desc = (-2.4 + 0.2 * w_blend) * hw_factor + 0.4 * min(0.0, vw)
+            target_sink = max(max_desc, -0.35 - (0.28 - 0.03 * w_blend) * max(0.0, alt - 1.4))
             current_vs = flight.get("vertical_speed_mps", -1.5)
+            thr_cut = 16.0 - 0.6 * max(0.0, hw)
             cmd = cmd.model_copy(
                 update={
                     "elevator": _clip(
                         -0.02
-                        + 0.12 * (current_vs - target_sink)
-                        + 0.03 * (flight["pitch_deg"] - 2.5)
-                        - 0.25 * flight.get("q_rad_s", 0.0)
+                        + (0.12 - 0.03 * w_blend) * (current_vs - target_sink)
+                        + (0.03 + 0.02 * w_blend) * (flight["pitch_deg"] - (2.5 + 0.5 * w_blend))
+                        - (0.25 - 0.09 * w_blend) * flight.get("q_rad_s", 0.0)
                     ),
-                    "throttle": 0.0 if alt < 16.0 else _clip(cmd.throttle - 0.25, 0.0, 0.25),
+                    "throttle": (
+                        0.0
+                        if alt < thr_cut
+                        else _clip(cmd.throttle - 0.25 + 0.02 * max(0.0, hw), 0.0, 0.40)
+                    ),
                 }
             )
         self.last_decision = {

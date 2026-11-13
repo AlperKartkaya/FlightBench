@@ -37,6 +37,13 @@ type Observation = {
     q_rad_s?: number;
     r_rad_s?: number;
   };
+  environment?: {
+    headwind_mps: number;
+    crosswind_mps: number;
+    vertical_wind_mps?: number;
+    wind_speed_mps?: number;
+    wind_dir_deg?: number;
+  };
   controls: Control & { flaps_deg: number };
   status?: { on_ground?: boolean; main_gear_on_ground?: boolean };
   ground_contact?: {
@@ -108,6 +115,7 @@ type DecisionInfo = {
     time_s?: number;
     flight?: Observation["flight"];
     runway?: Observation["runway"];
+    environment?: Observation["environment"];
     motion?: Record<string, number>;
     status?: Observation["status"];
     current_controls?: Record<string, number>;
@@ -172,8 +180,9 @@ app.innerHTML = `
                 <div class="config-item" id="jevModelGroup" hidden><label for="jevModel">Jev version</label><select id="jevModel" class="select-input"><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
                 <div class="config-item" id="reasoningEffortGroup" hidden><label for="reasoningEffort">Reasoning effort</label><select id="reasoningEffort" class="select-input"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh">xhigh</option><option value="max">max</option></select></div>
                 <div class="config-item" id="decisionRateGroup"><label for="decisionRate">Decision rate</label><select id="decisionRate" class="select-input"><option value="2" selected>2 Hz</option><option value="5">5 Hz</option><option value="10">10 Hz</option></select></div>
+                <div class="config-item" id="scenarioGroup" style="grid-column: 1 / -1;"><label for="scenario">Scenario</label><select id="scenario" class="select-input"><option value="easy" selected>Easy · calm air</option><option value="medium">Medium · steady wind</option><option value="hard">Hard · dynamic wind / gusts</option></select><small id="scenarioSummary" style="color: #94aaa5; font-size: 11px; line-height: 1.4;"></small></div>
+                <div class="config-item" id="seedGroup" hidden><label for="seed">Seed</label><input class="number-input" id="seed" type="number" value="42" min="0" max="4294967295" step="1" required /></div>
                 <div class="config-item" id="ghostSettings"><div class="settings-heading">Race opponents <span class="ghost-tag">MULTI-SELECT</span></div><div id="ghostChoices" class="opponent-grid" role="group" aria-label="Race opponents"></div><div id="ghostStatus" role="status"></div><small id="ghostHelp">Choose any combination. Replays stay in this tab. Live Jev uses your server's TypeSafe key and incurs API usage.</small></div>
-                <div class="config-item"><label for="seed">Seed</label><input class="number-input" id="seed" type="number" value="42" min="0" max="4294967295" step="1" required /></div>
               </div>
             </fieldset>
           </div>
@@ -267,6 +276,11 @@ app.innerHTML = `
           <span class="strip-value" id="stripPitch">—</span>
         </div>
         <div class="strip-divider"></div>
+        <div class="strip-item">
+          <span class="strip-label">WIND</span>
+          <span class="strip-value" id="stripWind">Calm</span>
+        </div>
+        <div class="strip-divider"></div>
 <div class="strip-item">
           <span class="strip-label">SCORE</span>
           <span class="strip-value" id="stripScore">0.0</span>
@@ -302,6 +316,7 @@ app.innerHTML = `
           <div class="decision-section-title">SENT TO JEV <span id="decisionInputTime">—</span></div>
           <div class="decision-input-row"><span>FLIGHT</span><strong id="decisionInputFlight">—</strong></div>
           <div class="decision-input-row"><span>RUNWAY</span><strong id="decisionInputRunway">—</strong></div>
+          <div class="decision-input-row"><span>WIND</span><strong id="decisionInputWind">—</strong></div>
           <div class="decision-input-row"><span>CURRENT</span><strong id="decisionInputControls">—</strong></div>
           <div class="decision-input-row"><span>MOTION</span><strong id="decisionInputMotion">—</strong></div>
         </div>
@@ -879,7 +894,7 @@ function clearGhosts() {
   ghostLegend.hidden = true;
 }
 function ghostSetupKey(config?: RunConfig): string {
-  return JSON.stringify([pagesRuntime, config?.scenario ?? "easy",
+  return JSON.stringify([pagesRuntime, config?.scenario ?? byId<HTMLSelectElement>("scenario").value,
     config?.mode ?? (pagesRuntime ? "lockstep" : "realtime"), config?.decision_hz ?? Number(byId<HTMLSelectElement>("decisionRate").value)]);
 }
 function ghostTitle(choice: string): string {
@@ -1307,16 +1322,30 @@ let lastRenderedDecisionCall = -1;
 let lastDetailedDecisionCall = -1;
 let lastAxisChoices: Record<string, { choice?: string; label?: string; command: number }> = {};
 
+function formatWindSummary(env?: Observation["environment"]): string {
+  if (!env) return "Calm (0.0 m/s)";
+  const hw = env.headwind_mps ?? 0;
+  const xw = env.crosswind_mps ?? 0;
+  const vw = env.vertical_wind_mps ?? 0;
+  const spd = env.wind_speed_mps ?? Math.hypot(hw, xw);
+  const dir = env.wind_dir_deg ?? (((Math.atan2(hw, xw) * 180 / Math.PI) % 360 + 360) % 360);
+  if (spd < 0.05 && Math.abs(vw) < 0.05) return "Calm (0.0 m/s)";
+  const s = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}`;
+  const vwPart = Math.abs(vw) >= 0.05 ? ` · VW ${s(vw)}` : "";
+  return `${spd.toFixed(1)} m/s @ ${dir.toFixed(0)}° (HW ${s(hw)} · XW ${s(xw)}${vwPart})`;
+}
+
 function updateLiveDecision(info: DecisionInfo, call: number, latencyMs: number | null) {
   if (call <= lastRenderedDecisionCall || (!info.choices && !info.command)) return;
   lastRenderedDecisionCall = call;
   if (info.controller === "jev" && info.input?.flight && info.input.runway) {
-    const { flight, runway, current_controls: controls, motion, status, phase, time_s } = info.input;
+    const { flight, runway, environment, current_controls: controls, motion, status, phase, time_s } = info.input;
     const num = (value: number | undefined, digits = 1) => value == null ? "—" : value.toFixed(digits);
     const signed = (value: number | undefined, digits = 1) => value == null ? "—" : `${value >= 0 ? "+" : ""}${value.toFixed(digits)}`;
     byId("decisionInputTime").textContent = `${phase ?? "—"} · t=${num(time_s)}s`;
     byId("decisionInputFlight").textContent = `IAS ${num(flight.airspeed_mps)} · V/S ${signed(flight.vertical_speed_mps)} · Roll ${signed(flight.roll_deg)}° · Pitch ${signed(flight.pitch_deg)}°`;
     byId("decisionInputRunway").textContent = `AGL ${num(runway.altitude_agl_m)}m · Offset ${signed(runway.centerline_offset_m ?? runway.cross_track_error_m)}m · Glide ${signed(runway.glideslope_error_deg)}° · Hdg ${signed(runway.heading_error_deg)}°`;
+    byId("decisionInputWind").textContent = formatWindSummary(environment ?? lastObservation?.environment);
     byId("decisionInputControls").textContent = `A ${num(controls?.aileron, 2)} · E ${num(controls?.elevator, 2)} · R ${num(controls?.rudder, 2)} · T ${num(controls?.throttle, 2)}`;
     byId("decisionInputMotion").textContent = `Drift ${signed(motion?.cross_track_rate_mps)} m/s · ${status?.on_ground ? "ON GROUND" : "AIRBORNE"}`;
   }
@@ -1710,6 +1739,7 @@ function updateHudAndTelemetry(message: StateMessage) {
   byId("stripThresh").textContent = `${r.distance_to_threshold_m.toFixed(0)} m`;
   byId("stripRoll").textContent = `${f.roll_deg >= 0 ? "+" : ""}${f.roll_deg.toFixed(1)}°`;
   byId("stripPitch").textContent = `${f.pitch_deg >= 0 ? "+" : ""}${f.pitch_deg.toFixed(1)}°`;
+  byId("stripWind").textContent = formatWindSummary(message.observation.environment);
   byId("stripScore").textContent = message.score.toFixed(1);
 
   if (runState === "running") {
@@ -1946,10 +1976,16 @@ function send(message: { type: string; [key: string]: unknown }): boolean {
 }
 
 const controllerSelect = byId<HTMLSelectElement>("controller");
+const scenarioSelect = byId<HTMLSelectElement>("scenario");
 const modelSelect = byId<HTMLSelectElement>("model");
 const jevModelSelect = byId<HTMLSelectElement>("jevModel");
 const reasoningEffortSelect = byId<HTMLSelectElement>("reasoningEffort");
 const manualPanel = byId("manualControlsCard");
+const SCENARIO_SUMMARIES: Record<string, string> = {
+  easy: "Calm air (0 m/s wind) · aligned on 3° glideslope · 65 KIAS · no seed required",
+  medium: "Steady wind (XW ±5, HW -2..+6 m/s) · offset ±35m, ±5° hdg, ±8m AGL, ±4 kt (seed-deterministic)",
+  hard: "Time & altitude-varying wind shear/gusts (XW ±8, HW -4..+10, VW -1..+0.5 m/s) · offset ±60m, ±10° hdg, ±18m AGL, ±8 kt (seed-deterministic)",
+};
 function setConfigOpen(open: boolean) {
   byId("configPanel").hidden = !open;
   byId("configureToggle").setAttribute("aria-expanded", String(open));
@@ -2000,10 +2036,13 @@ function updateControllerUi() {
   byId("jevModelGroup").hidden = controllerSelect.value !== "jev";
   byId("reasoningEffortGroup").hidden = !isCodex;
   byId("decisionRateGroup").hidden = isHuman;
+  byId("seedGroup").hidden = scenarioSelect.value === "easy";
+  byId("scenarioSummary").textContent = SCENARIO_SUMMARIES[scenarioSelect.value] ?? "";
   const cadence = isHuman ? "Manual" : `${byId<HTMLSelectElement>("decisionRate").value} Hz`;
   byId("cadenceValue").textContent = cadence;
   byId("overlayCadence").textContent = cadence;
-  byId("configureToggle").textContent = `${controllerSelect.selectedOptions[0]?.textContent?.split(" · ")[0] ?? "Controller"}${isHuman ? "" : ` · ${cadence}`} ▾`;
+  const scenarioBadge = scenarioSelect.value === "easy" ? "" : ` · ${scenarioSelect.value[0].toUpperCase()}${scenarioSelect.value.slice(1)}`;
+  byId("configureToggle").textContent = `${controllerSelect.selectedOptions[0]?.textContent?.split(" · ")[0] ?? "Controller"}${isHuman ? "" : ` · ${cadence}`}${scenarioBadge} ▾`;
   byId("overlayController").textContent = controllerSelect.selectedOptions[0]?.textContent ?? "Controller";
   byId("liveDecisionCard").hidden = !isJevOrAi;
   byId("decisionInput").hidden = viewController !== "jev";
@@ -2050,6 +2089,7 @@ function updateControllerUi() {
 
 byId("seed").addEventListener("input", refreshGhostStatus);
 byId("decisionRate").addEventListener("change", refreshGhostStatus);
+scenarioSelect.addEventListener("change", () => { updateControllerUi(); refreshGhostStatus(); });
 controllerSelect.addEventListener("change", () => { clearDecisionView(); updateControllerUi(); });
 for (const select of [byId("decisionRate"), modelSelect, jevModelSelect, reasoningEffortSelect]) {
   select.addEventListener("change", updateControllerUi);
@@ -2058,8 +2098,6 @@ if (pagesRuntime) {
   controllerSelect.querySelector('option[value="codex"]')?.remove();
   const decisionRate = byId<HTMLSelectElement>("decisionRate");
   for (const option of [...decisionRate.options]) if (option.value !== "2") option.remove();
-  byId<HTMLInputElement>("seed").readOnly = true;
-  byId<HTMLInputElement>("seed").title = "Initial conditions: easy, seed 42.";
   byId("stop").setAttribute("aria-label", "Stop flight");
   document.querySelector(".model-credit")?.insertAdjacentHTML("beforeend", `<br><a href="/FlightBench/recordings/">Flight recordings</a>`);
 }
@@ -2103,7 +2141,7 @@ function clearDecisionView() {
   byId("decisionState").removeAttribute("data-state");
   byId("decisionSequence").textContent = "#—";
   byId("decisionLatency").textContent = "— ms";
-  for (const id of ["decisionInputTime", "decisionInputFlight", "decisionInputRunway", "decisionInputControls", "decisionInputMotion"]) byId(id).textContent = "—";
+  for (const id of ["decisionInputTime", "decisionInputFlight", "decisionInputRunway", "decisionInputWind", "decisionInputControls", "decisionInputMotion"]) byId(id).textContent = "—";
   byId("overlayDecisionStatus").textContent = "MODEL DECISION";
   byId("overlayDecisionText").textContent = "Awaiting first response";
   for (const axis of ["aileron", "elevator", "rudder", "throttle"]) {
@@ -2130,7 +2168,7 @@ function clearDecisionView() {
 byId("start").addEventListener("click", () => {
   if (runState !== "ready" && runState !== "complete") return;
   const seedInput = byId<HTMLInputElement>("seed");
-  if (!seedInput.reportValidity()) return;
+  if (scenarioSelect.value !== "easy" && !seedInput.reportValidity()) return;
   if (controllerSelect.value === "codex" && !modelSelect.value) { showError("No Codex model is available. Check local authentication and refresh."); return; }
   closeDialog("outcomeModal");
   hideError();
@@ -2138,10 +2176,10 @@ byId("start").addEventListener("click", () => {
   centerSurfaces(controls);
   showControls(controls);
   const config: RunConfig = {
-    scenario: "easy",
+    scenario: scenarioSelect.value,
     controller: controllerSelect.value,
     mode: pagesRuntime || controllerSelect.value === "codex" ? "lockstep" : "realtime",
-    seed: Number(seedInput.value),
+    seed: scenarioSelect.value === "easy" ? 42 : Number(seedInput.value),
     decision_hz: Number(byId<HTMLSelectElement>("decisionRate").value),
     time_scale: 1,
     realtime_response_policy: "apply-on-arrival",
@@ -2182,7 +2220,7 @@ byId("reset").addEventListener("click", () => {
   aircraft.position.copy(desiredPosition);
   aircraft.quaternion.identity();
   setCamera(cameraMode);
-  for (const id of ["hudAgl", "hudIas", "hudVsi", "hudFpa", "hudXtrack", "hudGlide", "hudHdgErr", "hudAoa", "stripAlong", "stripThresh", "stripRoll", "stripPitch", "stripScore"]) byId(id).textContent = "—";
+  for (const id of ["hudAgl", "hudIas", "hudVsi", "hudFpa", "hudXtrack", "hudGlide", "hudHdgErr", "hudAoa", "stripAlong", "stripThresh", "stripRoll", "stripPitch", "stripWind", "stripScore"]) byId(id).textContent = "—";
   byId("stripPhase").textContent = "READY";
   transitionRun("reset");
 });
@@ -2217,7 +2255,7 @@ function followRemainingOpponent(): boolean {
   camera.position.copy(visual.position).add(chaseOffset.clone().applyQuaternion(visual.quaternion));
   setCamera(cameraMode);
   if (next !== liveGhost) {
-    for (const id of ["hudAgl", "hudIas", "hudVsi", "hudFpa", "hudXtrack", "hudGlide", "hudHdgErr", "hudAoa", "stripAlong", "stripThresh", "stripRoll", "stripPitch", "stripScore"]) byId(id).textContent = "—";
+    for (const id of ["hudAgl", "hudIas", "hudVsi", "hudFpa", "hudXtrack", "hudGlide", "hudHdgErr", "hudAoa", "stripAlong", "stripThresh", "stripRoll", "stripPitch", "stripWind", "stripScore"]) byId(id).textContent = "—";
     byId("stripPhase").textContent = "REPLAY";
   }
   updateSpectatorLabel();

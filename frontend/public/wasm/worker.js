@@ -79,7 +79,10 @@ onmessage = async ({data}) => {
         model = data.model ?? 'jev-1.13.0';
         if (!['jev-1.13.0', 'jev-1.14.0'].includes(model)) throw Error('Unsupported Jev model');
       }
-      landing = new Landing(runtime, contract); command = {...contract.trim};
+      const scenario = data.scenario ?? 'easy';
+      if (!['easy', 'medium', 'hard'].includes(scenario)) throw Error('Unknown scenario');
+      const seed = Number.isInteger(data.seed) && data.seed >= 0 && data.seed <= 0xffffffff ? data.seed : 42;
+      landing = new Landing(runtime, contract, 120, scenario, seed); command = {...contract.trim};
       emit('state'); tick(generation);
     } else if (data.type === 'control' && mode === 'human') command = {...validateControl(data.command)};
     else if (data.type === 'stop') {stop(); postMessage({type: 'stopped', run_id: runId});}

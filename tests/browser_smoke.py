@@ -47,7 +47,11 @@ def main():
         # Settings only: no provider requests are started by these selections.
         jev_options = page.locator('#controller option[value^="jev"]')
         expect(jev_options).to_have_count(1)
-        assert page.locator("#scenario").count() == 0
+        expect(page.locator("#scenario")).to_have_value("easy")
+        expect(page.locator("#seedGroup")).to_be_hidden()
+        assert page.locator("#scenario option").evaluate_all(
+            "options => options.map(o => o.value)"
+        ) == ["easy", "medium", "hard"]
         assert page.locator("#mode").count() == 0
         page.locator('input[name="controller-choice"][value="jev"]').check()
         expect(page.locator("#jevModel")).to_be_visible()
@@ -112,8 +116,12 @@ def main():
         assert len(page.request.get(f"{url}/api/runs").json()["runs"]) == before
         page.set_viewport_size({"width": 390, "height": 844})
         page.locator("#configureToggle").click()
+        page.locator("#scenario").select_option("medium")
+        expect(page.locator("#seedGroup")).to_be_visible()
         page.locator("#seed").fill("123")
         expect(page.locator("#seed")).to_have_value("123")
+        page.locator("#scenario").select_option("easy")
+        expect(page.locator("#seedGroup")).to_be_hidden()
         page.locator("#configureToggle").click()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), (
             "page overflows horizontally"

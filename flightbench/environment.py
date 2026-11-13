@@ -22,6 +22,157 @@ from .scoring import ScoringConfig, evaluate, trajectory_error_rate
 
 FT = 0.3048
 
+SCENARIOS = {
+    "easy": {
+        "label": "Easy",
+        "summary": "Calm air · aligned on 3° glideslope · 65 KIAS",
+        "seeded": False,
+        "wind_mode": "calm",
+        "ranges": {
+            "start_z_m": (0.0, 0.0),
+            "heading_offset_deg": (0.0, 0.0),
+            "altitude_offset_m": (0.0, 0.0),
+            "airspeed_offset_kts": (0.0, 0.0),
+            "crosswind_mps": (0.0, 0.0),
+            "headwind_mps": (0.0, 0.0),
+            "vertical_wind_mps": (0.0, 0.0),
+        },
+    },
+    "medium": {
+        "label": "Medium",
+        "summary": "Steady wind · moderate initial offset (±35m, ±5°, ±8m AGL, ±4 kt)",
+        "seeded": True,
+        "wind_mode": "steady",
+        "ranges": {
+            "start_z_m": (-35.0, 35.0),
+            "heading_offset_deg": (-5.0, 5.0),
+            "altitude_offset_m": (-8.0, 8.0),
+            "airspeed_offset_kts": (-4.0, 4.0),
+            "crosswind_mps": (-5.0, 5.0),
+            "headwind_mps": (-2.0, 6.0),
+            "vertical_wind_mps": (0.0, 0.0),
+        },
+    },
+    "hard": {
+        "label": "Hard",
+        "summary": "Time & altitude-varying wind shear/gusts · wide offset (±60m, ±10°, ±18m AGL, ±8 kt)",
+        "seeded": True,
+        "wind_mode": "dynamic",
+        "ranges": {
+            "start_z_m": (-60.0, 60.0),
+            "heading_offset_deg": (-10.0, 10.0),
+            "altitude_offset_m": (-18.0, 18.0),
+            "airspeed_offset_kts": (-8.0, 8.0),
+            "crosswind_mps": (-8.0, 8.0),
+            "headwind_mps": (-4.0, 10.0),
+            "vertical_wind_mps": (-1.0, 0.5),
+        },
+    },
+}
+
+
+def _splitmix32(seed: int):
+    state = int(seed) & 0xFFFFFFFF
+
+    def next_u01() -> float:
+        nonlocal state
+        state = (state + 0x9E3779B9) & 0xFFFFFFFF
+        z = state
+        z = ((z ^ (z >> 16)) * 0x85EBCA6B) & 0xFFFFFFFF
+        z = ((z ^ (z >> 13)) * 0xC2B2AE35) & 0xFFFFFFFF
+        z = (z ^ (z >> 16)) & 0xFFFFFFFF
+        return z / 4294967296.0
+
+    def uniform(low: float, high: float) -> float:
+        return low + (high - low) * next_u01()
+
+    return uniform
+
+
+def _sample_scenario_params(scenario: str, seed: int) -> dict[str, float]:
+    if scenario == "easy":
+        return {
+            "start_z_m": 0.0,
+            "heading_offset_deg": 0.0,
+            "altitude_offset_m": 0.0,
+            "airspeed_offset_kts": 0.0,
+            "base_crosswind_mps": 0.0,
+            "base_headwind_mps": 0.0,
+            "base_vertical_wind_mps": 0.0,
+        }
+    u = _splitmix32(seed)
+    ranges = SCENARIOS[scenario]["ranges"]
+    params = {
+        "start_z_m": u(*ranges["start_z_m"]),
+        "heading_offset_deg": u(*ranges["heading_offset_deg"]),
+        "altitude_offset_m": u(*ranges["altitude_offset_m"]),
+        "airspeed_offset_kts": u(*ranges["airspeed_offset_kts"]),
+        "base_crosswind_mps": u(*ranges["crosswind_mps"]),
+        "base_headwind_mps": u(*ranges["headwind_mps"]),
+        "base_vertical_wind_mps": u(*ranges["vertical_wind_mps"]),
+    }
+    if scenario == "hard":
+        params.update(
+            {
+                "gust_amp_x_mps": u(0.8, 2.6),
+                "gust_amp_h_mps": u(0.8, 2.4),
+                "gust_amp_v_mps": u(0.15, 0.55),
+                "omega1": 2.0 * math.pi / u(14.0, 24.0),
+                "omega2": 2.0 * math.pi / u(6.0, 11.0),
+                "phase_x1": u(0.0, 2.0 * math.pi),
+                "phase_x2": u(0.0, 2.0 * math.pi),
+                "phase_h1": u(0.0, 2.0 * math.pi),
+                "phase_h2": u(0.0, 2.0 * math.pi),
+                "phase_v": u(0.0, 2.0 * math.pi),
+                "veer_deg": u(-18.0, 18.0),
+            }
+        )
+    return params
+
+
+def _wind_components(
+    scenario: str, params: dict[str, float], time_s: float, altitude_agl_m: float
+) -> tuple[float, float, float]:
+    if scenario == "easy":
+        return 0.0, 0.0, 0.0
+    if scenario == "medium":
+        return (
+            params["base_headwind_mps"],
+            params["base_crosswind_mps"],
+            0.0,
+        )
+    alt = max(0.0, altitude_agl_m)
+    shear = 0.65 + 0.35 * min(1.5, (alt / 80.0) ** 0.25)
+    veer_rad = math.radians(params["veer_deg"] * min(1.0, alt / 90.0))
+    hw0 = params["base_headwind_mps"] * shear
+    xw0 = params["base_crosswind_mps"] * shear
+    cos_v, sin_v = math.cos(veer_rad), math.sin(veer_rad)
+    hw_steady = hw0 * cos_v - xw0 * sin_v
+    xw_steady = hw0 * sin_v + xw0 * cos_v
+    o1, o2 = params["omega1"], params["omega2"]
+    gust_x = params["gust_amp_x_mps"] * (
+        0.65 * math.sin(o1 * time_s + params["phase_x1"])
+        + 0.35 * math.sin(o2 * time_s + params["phase_x2"])
+    )
+    gust_h = params["gust_amp_h_mps"] * (
+        0.65 * math.sin(o1 * time_s + params["phase_h1"])
+        + 0.35 * math.sin(o2 * time_s + params["phase_h2"])
+    )
+    vw_scale = min(1.0, alt / 25.0)
+    vw = (
+        params["base_vertical_wind_mps"]
+        + params["gust_amp_v_mps"] * math.sin(o2 * time_s + params["phase_v"])
+    ) * vw_scale
+    return hw_steady + gust_h, xw_steady + gust_x, vw
+
+
+def _wind_polar(headwind_mps: float, crosswind_mps: float) -> tuple[float, float]:
+    speed = math.hypot(headwind_mps, crosswind_mps)
+    if speed < 1e-6:
+        return 0.0, 0.0
+    direction = math.degrees(math.atan2(headwind_mps, crosswind_mps)) % 360.0
+    return round(speed, 4), round(direction, 2)
+
 
 def observation_space(value):
     if isinstance(value, dict):
@@ -39,8 +190,8 @@ class FixedWingLandingEnv(gym.Env):
     metadata: ClassVar[dict] = {"render_modes": []}
 
     def __init__(self, scenario="easy", max_time_s=120, scoring=None, decision_hz=DECISION_HZ):
-        if scenario not in ("easy", "medium"):
-            raise ValueError("scenario must be easy or medium")
+        if scenario not in SCENARIOS:
+            raise ValueError("scenario must be easy, medium, or hard")
         if not math.isfinite(max_time_s) or max_time_s <= 0:
             raise ValueError("max_time_s must be positive and finite")
         self.scenario, self.max_time_s = scenario, max_time_s
@@ -50,29 +201,43 @@ class FixedWingLandingEnv(gym.Env):
             np.array([-1, -1, -1, 0], dtype=np.float64), np.ones(4), dtype=np.float64
         )
         self.fdm = None
+        self._seed = 0
         obs, _ = self.reset(seed=0)
         self.observation_space = observation_space(obs)
 
+    def _apply_wind(self, time_s: float, altitude_agl_m: float) -> None:
+        self.headwind, self.crosswind, self.vertical_wind = _wind_components(
+            self.scenario, self._scenario_params, time_s, altitude_agl_m
+        )
+        if self.scenario != "easy":
+            self.fdm["atmosphere/wind-north-fps"] = -self.crosswind / FT
+            self.fdm["atmosphere/wind-east-fps"] = -self.headwind / FT
+            self.fdm["atmosphere/wind-down-fps"] = -self.vertical_wind / FT
+
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
+        if seed is not None:
+            self._seed = int(seed) & 0xFFFFFFFF
+        else:
+            self._seed = (getattr(self, "_seed", 0) + 1) & 0xFFFFFFFF
         f = self.fdm = jsbsim.FGFDMExec(None)
         f.set_debug_level(0)
         f.disable_output()
         if not f.load_model("c172x"):
             raise RuntimeError("JSBSim c172x model unavailable")
         f.set_dt(1 / PHYSICS_HZ)
-        medium = self.scenario == "medium"
+        self._scenario_params = _sample_scenario_params(self.scenario, self._seed)
         self.start_x = -1500.0
-        self.start_z = float(self.np_random.uniform(-35, 35)) if medium else 0.0
-        self.crosswind = float(self.np_random.uniform(-5, 5)) if medium else 0.0
-        heading = 90 + (float(self.np_random.uniform(-5, 5)) if medium else 0)
-        altitude = 1500 * math.tan(math.radians(3)) + 15
+        self.start_z = self._scenario_params["start_z_m"]
+        heading = 90 + self._scenario_params["heading_offset_deg"]
+        altitude = 1500 * math.tan(math.radians(3)) + 15 + self._scenario_params["altitude_offset_m"]
+        airspeed_kts = 65 + self._scenario_params["airspeed_offset_kts"]
         for key, value in {
             "ic/lat-geod-deg": 37,
             "ic/long-gc-deg": -122,
             "ic/terrain-elevation-ft": 0,
             "ic/h-agl-ft": altitude / FT,
-            "ic/vc-kts": 65,
+            "ic/vc-kts": airspeed_kts,
             "ic/psi-true-deg": heading,
             "ic/gamma-deg": -3,
             "ic/alpha-deg": 5,
@@ -81,12 +246,13 @@ class FixedWingLandingEnv(gym.Env):
             "fcs/flap-pos-deg": 20,
             "fcs/mixture-cmd-norm": 1,
             "fcs/throttle-cmd-norm": 0.5,
-            "atmosphere/wind-north-fps": -self.crosswind / FT,
+            "atmosphere/wind-north-fps": 0.0,
         }.items():
             f[key] = value
         if not f.run_ic():
             raise RuntimeError("JSBSim initial conditions failed")
         f["propulsion/set-running"] = -1
+        self._apply_wind(0.0, altitude)
         # Apply trim offsets so the aircraft doesn't spiral from prop torque.
         f["fcs/elevator-cmd-norm"] = TRIM_ELEVATOR
         f["fcs/aileron-cmd-norm"] = TRIM_AILERON
@@ -138,6 +304,8 @@ class FixedWingLandingEnv(gym.Env):
         else:
             xtrack_error = 0.0
 
+        wind_speed, wind_dir = _wind_polar(self.headwind, self.crosswind)
+
         return {
             "time_s": self.ticks / PHYSICS_HZ,
             "decision_dt_s": self.decision_interval_s,
@@ -167,7 +335,13 @@ class FixedWingLandingEnv(gym.Env):
                 "r_rad_s": f["velocities/r-rad_sec"],
                 "beta_deg": f["aero/beta-deg"],
             },
-            "environment": {"headwind_mps": 0.0, "crosswind_mps": self.crosswind},
+            "environment": {
+                "headwind_mps": round(self.headwind, 4),
+                "crosswind_mps": round(self.crosswind, 4),
+                "vertical_wind_mps": round(self.vertical_wind, 4),
+                "wind_speed_mps": wind_speed,
+                "wind_dir_deg": wind_dir,
+            },
             "controls": {
                 "aileron": f["fcs/aileron-cmd-norm"],
                 "elevator": f["fcs/elevator-cmd-norm"],
@@ -207,6 +381,11 @@ class FixedWingLandingEnv(gym.Env):
             self.fdm[f"fcs/{key}-cmd-norm"] = value
         for _ in range(ticks):
             previous = self._last_obs
+            if self.scenario == "hard":
+                self._apply_wind(
+                    (self.ticks + 1) / PHYSICS_HZ,
+                    previous["runway"]["altitude_agl_m"],
+                )
             if self.touchdown is not None:
                 # Environment-owned rollout: idle engine and symmetric braking.
                 self.fdm["fcs/throttle-cmd-norm"] = 0

@@ -119,9 +119,30 @@ def canonical_observation(observation: Mapping[str, Any] | BaseModel) -> dict[st
         if status.get("on_ground")
         else ("FLARE" if altitude is not None and altitude < FLARE_ALTITUDE_AGL_M else "APPROACH")
     )
+    raw_env = dict(obs.get("environment") or {})
+    hw = float(raw_env.get("headwind_mps", 0.0))
+    xw = float(raw_env.get("crosswind_mps", 0.0))
+    vw = float(raw_env.get("vertical_wind_mps", 0.0))
+    if "wind_speed_mps" in raw_env and "wind_dir_deg" in raw_env:
+        wind_speed = float(raw_env["wind_speed_mps"])
+        wind_dir = float(raw_env["wind_dir_deg"])
+    else:
+        import math
+
+        spd = math.hypot(hw, xw)
+        wind_speed = round(spd, 4) if spd >= 1e-6 else 0.0
+        wind_dir = round(math.degrees(math.atan2(hw, xw)) % 360.0, 2) if spd >= 1e-6 else 0.0
+    environment = {
+        "headwind_mps": hw,
+        "crosswind_mps": xw,
+        "vertical_wind_mps": vw,
+        "wind_speed_mps": wind_speed,
+        "wind_dir_deg": wind_dir,
+    }
     return {
         "flight": dict(obs["flight"]),
         "runway": runway,
+        "environment": environment,
         "current_controls": dict(obs.get("controls", {})),
         "time_s": obs.get("time_s", 0.0),
         "motion": dict(obs.get("temporal", {}).get("rates", {})),

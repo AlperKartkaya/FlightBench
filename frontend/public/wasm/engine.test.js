@@ -27,3 +27,25 @@ test('V2 score fixtures include safe stop, unsafe contact, failure and running',
     assert(Math.abs(result.components.total_error - f.expected.components.total_error) < 1e-12);
   }
 });
+
+test('medium steady wind and hard dynamic wind are seed-deterministic', () => {
+  const med1 = new Landing(runtime, contract, 2, 'medium', 42);
+  const med2 = new Landing(runtime, contract, 2, 'medium', 42);
+  const e0 = med1.observation.environment;
+  assert.deepEqual(e0, med2.observation.environment);
+  assert(e0.wind_speed_mps > 0);
+  assert.equal(e0.vertical_wind_mps, 0);
+  med1.advance(contract.trim, 60);
+  assert.deepEqual(med1.observation.environment, e0);
+  med1.destroy(); med2.destroy();
+
+  const hard1 = new Landing(runtime, contract, 2, 'hard', 42);
+  const hard2 = new Landing(runtime, contract, 2, 'hard', 42);
+  const h0 = {...hard1.observation.environment};
+  assert.deepEqual(h0, hard2.observation.environment);
+  hard1.advance(contract.trim, 60);
+  hard2.advance(contract.trim, 60);
+  assert.notDeepEqual(hard1.observation.environment, h0);
+  assert.deepEqual(hard1.observation.environment, hard2.observation.environment);
+  hard1.destroy(); hard2.destroy();
+});

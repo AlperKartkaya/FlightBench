@@ -38,6 +38,39 @@ def test_determinism_and_gym():
     assert initial != other
 
 
+def test_scenario_wind_profiles_and_seed_independence():
+    easy = FixedWingLandingEnv("easy")
+    obs_e1, _ = easy.reset(seed=1)
+    obs_e2, _ = easy.reset(seed=999)
+    assert obs_e1 == obs_e2
+    assert obs_e1["environment"] == {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0,
+        "vertical_wind_mps": 0.0,
+        "wind_speed_mps": 0.0,
+        "wind_dir_deg": 0.0,
+    }
+    easy.close()
+
+    medium = FixedWingLandingEnv("medium")
+    obs_m0, _ = medium.reset(seed=42)
+    obs_m1, *_ = medium.step([0, 0, 0, 0.5])
+    assert obs_m0["environment"]["wind_speed_mps"] > 0.0
+    assert 0.0 <= obs_m0["environment"]["wind_dir_deg"] < 360.0
+    assert obs_m0["environment"]["vertical_wind_mps"] == 0.0
+    assert obs_m0["environment"] == obs_m1["environment"]
+    medium.close()
+
+    hard = FixedWingLandingEnv("hard")
+    obs_h0, _ = hard.reset(seed=42)
+    obs_h1, *_ = hard.step([0, 0, 0, 0.5])
+    assert obs_h0["environment"]["wind_speed_mps"] > 0.0
+    assert obs_h0["environment"] != obs_h1["environment"]
+    hard_repeat, _ = hard.reset(seed=42)
+    assert obs_h0 == hard_repeat
+    hard.close()
+
+
 def test_actual_jsbsim_control_signs():
     env = FixedWingLandingEnv()
     responses = {}
