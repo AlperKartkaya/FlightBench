@@ -613,7 +613,8 @@ app.innerHTML = `
       <div class="outcome-icon" id="outcomeIcon">🛬</div>
       <h2 class="outcome-title" id="outcomeTitle">SAFE LANDING</h2>
       <p class="outcome-desc" id="outcomeDesc">Aircraft established touchdown within safety envelopes.</p>
-      <div class="outcome-stats-grid">
+      <div id="raceStandings" class="race-standings" hidden></div>
+      <div class="outcome-stats-grid" id="outcomeStats">
         <div class="outcome-stat">
           <span class="outcome-stat-label">FINAL SCORE</span>
           <span class="outcome-stat-val" id="outcomeScoreVal">—</span>
@@ -878,7 +879,7 @@ function clearGhosts() {
   ghostLegend.hidden = true;
 }
 function ghostSetupKey(config?: RunConfig): string {
-  return JSON.stringify([pagesRuntime, config?.scenario ?? "easy", config?.seed ?? Number(byId<HTMLInputElement>("seed").value),
+  return JSON.stringify([pagesRuntime, config?.scenario ?? "easy",
     config?.mode ?? (pagesRuntime ? "lockstep" : "realtime"), config?.decision_hz ?? Number(byId<HTMLSelectElement>("decisionRate").value)]);
 }
 function ghostTitle(choice: string): string {
@@ -1718,6 +1719,8 @@ function updateHudAndTelemetry(message: StateMessage) {
 }
 
 function showOutcomeModal(record: RunRecord, owner = "Your flight") {
+  byId("raceStandings").hidden = true;
+  byId("outcomeStats").hidden = false;
   const result = record.outcome;
   const success = Boolean(result.success);
   byId("outcomeCard").className = `modal-card outcome-modal-card ${success ? "landed" : ""}`;
@@ -1734,6 +1737,43 @@ function showOutcomeModal(record: RunRecord, owner = "Your flight") {
   if (watchButton) watchButton.textContent = spectatorRunning ? liveGhostRunId ? "Watch Jev · API usage continues" : "Continue watching" : "Close result";
   byId("outcomeRestartBtn").textContent = liveGhostRunId ? "Stop Jev & start next run" : "Start Next Run";
   openDialog("outcomeModal");
+}
+
+function showRaceResults() {
+  if (!primaryResult) return;
+  const opponents = activeGhosts.map(({ run, label }) => ({ run, label }));
+  // A live controller may fail before sending its first pose.
+  if (liveGhost && !opponents.some(({ run }) => run === liveGhost)) opponents.push({ run: liveGhost, label: "Live Jev" });
+  showOutcomeModal(primaryResult);
+  if (!opponents.length) return;
+  const entries = [
+    { label: "Your flight", controller: recordingController, record: primaryResult, outcome: primaryResult.outcome },
+    ...opponents.map(({ run, label }) => ({ label, controller: run.controller, record: ghostRecords.get(run),
+      outcome: ghostRecords.get(run)?.outcome ?? { quality: run.score, status: run.status, success: run.success } })),
+  ].sort((a, b) => (b.outcome.quality ?? 0) - (a.outcome.quality ?? 0));
+  byId("outcomeTitle").textContent = "Race standings";
+  byId("outcomeTitle").className = "outcome-title";
+  byId("outcomeCard").className = "modal-card outcome-modal-card";
+  byId("outcomeIcon").textContent = "≡";
+  byId("outcomeDesc").textContent = "Highest score first · Ties share a rank. Replay scores belong to their recorded flights; seeds may differ.";
+  byId("outcomeStats").hidden = true;
+  const standings = byId("raceStandings");
+  standings.replaceChildren(); standings.hidden = false;
+  let rank = 1;
+  entries.forEach((entry, index) => {
+    const score = entry.outcome.quality ?? 0;
+    if (index && score !== (entries[index - 1].outcome.quality ?? 0)) rank = index + 1;
+    const row = document.createElement("div"); row.className = "race-standing";
+    const place = document.createElement("strong"); place.textContent = `#${rank}`;
+    const identity = document.createElement("div");
+    const name = document.createElement("strong"); name.textContent = `${entry.label} · ${entry.controller}`;
+    const detail = document.createElement("small");
+    detail.textContent = [entry.record?.config?.model, entry.record?.config?.seed != null ? `Seed ${entry.record.config.seed}` : null,
+      outcomeLabel(entry.outcome.status, entry.outcome.success)].filter(Boolean).join(" · ");
+    identity.append(name, detail);
+    const points = document.createElement("strong"); points.textContent = `${score.toFixed(1)} pts`;
+    row.append(place, identity, points); standings.append(row);
+  });
 }
 
 function showError(msg: string) {
@@ -1869,8 +1909,7 @@ function receiveMessage(message: any) {
     primaryResult = message.record;
     primaryResultButton.hidden = resettingRace;
     if (resettingRace) return;
-    if (!dismissingRace && !followRemainingOpponent()) showOutcomeModal(message.record);
-    else if (dismissingRace) showOutcomeModal(message.record);
+    if (dismissingRace || !followRemainingOpponent()) showRaceResults();
     return;
   }
   if (message.type === "idle") {
@@ -2191,8 +2230,7 @@ function finishSpectating(run: Ghost) {
   const label = activeGhosts.find(ghost => ghost.run === run)?.label ?? "Jev";
   byId("flightStatePill").textContent = `${label.toUpperCase()} FINISHED`;
   byId("runStatus").textContent = `${label} · ${outcomeLabel(run.status, run.success)}`;
-  const record = ghostRecords.get(run);
-  if (record) showOutcomeModal(record, label);
+  showRaceResults();
 }
 
 // Camera controls

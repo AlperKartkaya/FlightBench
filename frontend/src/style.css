@@ -1783,3 +1783,10 @@ html, body { height: 100%; overflow: hidden; }
   .race-result-button { right: 10px; bottom: 10px; }
   .workspace:not([data-controller="human"]) #ghostLegend { bottom: 180px; }
 }
+
+.race-standings { width: 100%; max-height: 45vh; overflow-y: auto; text-align: left; }
+.race-standings[hidden], #outcomeStats[hidden] { display: none; }
+.race-standing { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 14px 8px; border-bottom: 1px solid var(--border-subtle); }
+.race-standing > strong { color: var(--accent-mint); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.race-standing small { display: block; margin-top: 5px; color: var(--text-secondary); }
+.race-standing div { overflow-wrap: anywhere; }

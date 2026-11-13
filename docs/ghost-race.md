@@ -13,7 +13,7 @@ reports playback/terminal status. No API requests are made for playback.
 - Jev replay: latest compatible Jev flight, including failures.
 - Combined choices deduplicate an opponent if the previous flight was itself Jev.
 
-Compatibility requires the same runtime, scenario, seed, timing mode, and cadence.
+Compatibility requires the same runtime, scenario, timing mode, and cadence; seed is deliberately excluded for Personal best, Previous flight, and Jev replay.
 Controllers and assistance can differ: they are opponents, not identical policies.
 Trajectories stay in this tab, with up to 24 references. Reload clears them; source
 upgrades therefore cannot silently replay an older simulator trajectory. Existing
@@ -102,3 +102,5 @@ It uses real local human telemetry plus synthetic opponent lifecycle events; it
 makes no provider calls and does not prove a real successful landing. Recorded
 replays store poses, not full telemetry: spectator HUD measurements are blank rather
 than showing stale primary values. Live spectating retains provider API usage.
+
+The final race dialog ranks the primary and all selected opponents by descending score, with shared ranks for ties. Replay entries retain their recorded results and identify their original seed; this is not a same-seed benchmark comparison.
