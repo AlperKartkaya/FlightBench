@@ -26,7 +26,7 @@ retain timing conditions in saved records. Keep deep diagnostics optional.
 Retain dark slate/mint palette and aircraft asset. System sans for explanations,
 monospace for measurements. Restrained borders, 8/12/16/24px spacing; no new asset set.
 Status uses text plus color. Decision markers animate between categorical choices;
-changed/same badges always carry text. The 3D scene uses muted slate/amber sunset tones with a desaturated horizon and matching fog, an unseen
+changed/same badges always carry text. The 3D scene uses sunset tones, an unseen
 right-side warm sun and aircraft self-shadow; paired runway lights cycle seamlessly,
 with steady lights for reduced motion.
 Motion is informational, not celebratory.
