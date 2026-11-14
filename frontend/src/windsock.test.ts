@@ -51,3 +51,14 @@ test('wind reversal is damped; reduced motion disables fabric flutter', () => {
   assert.notDeepEqual(positions(), still);
   assert.ok(positions().every(Number.isFinite));
 });
+
+test('north-up flow bearing follows the cloth downstream, opposite the source bearing', () => {
+  for (const [headwind_mps, crosswind_mps, expected] of [[8, 0, 270], [-8, 0, 90], [0, 8, 180], [0, -8, 0]]) {
+    const sock = settle({headwind_mps, crosswind_mps});
+    const delta = ((sock.flowBearingDeg - expected + 540) % 360) - 180;
+    assert.ok(Math.abs(delta) < .001);
+  }
+  const sock = settle({headwind_mps: 8, crosswind_mps: 0});
+  sock.update({headwind_mps: -8, crosswind_mps: 0}, 10, 1 / 60, true);
+  assert.notEqual(Math.round(sock.flowBearingDeg), 90, 'Graphic must not jump ahead of damped cloth');
+});

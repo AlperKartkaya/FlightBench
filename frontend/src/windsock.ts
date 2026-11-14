@@ -90,5 +90,7 @@ export function createWindsock() {
     geometry.computeVertexNormals();
   }
   update({headwind_mps: 0, crosswind_mps: 0}, 0, 0, true);
-  return {object, update};
+  return {object, update,
+    get flowBearingDeg() { return ((90 - heading * 180 / Math.PI) % 360 + 360) % 360; },
+  };
 }

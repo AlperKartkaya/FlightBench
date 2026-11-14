@@ -10,7 +10,7 @@ import { BrowserRuntime } from "./browser-runtime.ts";
 import { updateChasePosition } from "./camera.ts";
 import { createWindsock } from "./windsock.ts";
 import "./style.css";
-import { selectGhost, poseAt, smoothReplayTime, ghostMaterial, spinGhostPropeller, type Ghost, type Sample } from "./ghosts.ts";
+import { selectGhost, poseAt, smoothReplayTime, ghostMaterial, racerColor, spinGhostPropeller, type Ghost, type Sample } from "./ghosts.ts";
 
 const pagesRuntime = import.meta.env.MODE === "pages";
 
@@ -168,6 +168,7 @@ app.innerHTML = `
         <canvas id="viewport" aria-label="3D flight simulation"></canvas>
         <div id="renderUnavailable" class="render-unavailable" hidden><strong>3D view unavailable</strong><p>This browser could not initialize WebGL. Telemetry, controls and saved results still work. Try a browser with hardware acceleration enabled.</p></div>
 
+        <div class="viewport-topbar">
         <div class="viewer-toolbar" id="viewerToolbar">
           <button class="btn-secondary" id="hudToggle" type="button" aria-label="Flight instruments" title="Flight instruments" aria-controls="hudOverlay" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4.2 17a9 9 0 1 1 15.6 0M12 3v2M3 12h2m14 0h2M12 12l4-4"/><circle cx="12" cy="12" r="1.5"/></svg></button>
           <button class="btn-secondary" id="configureToggle" type="button" aria-label="Flight settings" aria-controls="configPanel" aria-expanded="false">Human pilot ▾</button>
@@ -190,7 +191,7 @@ app.innerHTML = `
           </div>
           <div class="viewer-config-panel scenario-panel" id="scenarioPanel" hidden>
             <fieldset id="scenarioSettings"><legend class="settings-heading">Flight conditions</legend><div class="config-group">
-                <div class="config-item" id="scenarioGroup" style="grid-column: 1 / -1;"><label for="scenario">Scenario</label><select id="scenario" class="select-input"><option value="easy" selected>Easy · calm air</option><option value="medium">Medium · steady wind</option><option value="hard">Hard · dynamic wind / gusts</option></select><small id="scenarioSummary" style="color: #94aaa5; font-size: 11px; line-height: 1.4;"></small></div>
+                <div class="config-item" id="scenarioGroup" style="grid-column: 1 / -1;"><label for="scenario">Scenario</label><select id="scenario" class="select-input"><option value="easy" selected>Easy · calm air</option><option value="medium">Medium · steady wind</option><option value="hard">Hard · dynamic wind / gusts</option></select><div id="scenarioSummary" class="scenario-conditions" aria-live="polite"></div></div>
                 <div class="config-item" id="seedGroup" hidden><label for="seed">Seed</label><input class="number-input" id="seed" type="number" value="42" min="0" max="4294967295" step="1" required /></div>
             </div></fieldset>
           </div>
@@ -240,12 +241,14 @@ app.innerHTML = `
         </div>
 
         <div class="wind-instrument" id="windInstrument" hidden aria-label="Live wind">
-          <svg class="wind-compass" viewBox="0 0 80 80" role="img" aria-label="Wind from bearing">
+          <svg class="wind-compass" viewBox="0 0 80 80" role="img" aria-label="Downstream wind flow, north up">
             <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5"/>
             <text x="40" y="9">N</text><text x="74" y="43">E</text><text x="40" y="78">S</text><text x="6" y="43">W</text>
-            <g id="windArrow"><path d="M40 18l-6 13h5v29h2V31h5z"/></g><circle class="compass-hub" cx="40" cy="40" r="3"/>
+            <g id="windArrow"><path fill="#df817c" d="m38 18 4 0 1.6 8h-7.2zM34.8 34h10.4l1.6 8H33.2zM31.6 50h16.8L50 58H30z"/><path fill="#eee3ce" d="M36.4 26h7.2l1.6 8H34.8zM33.2 42h13.6l1.6 8H31.6z"/></g>
           </svg>
-          <div><span class="wind-label">WIND FROM</span><strong id="windSpeed">— m/s</strong><span id="windBearing">—°</span><small id="windVertical">Steady</small></div>
+          <div><span class="wind-label">WIND FLOW</span><strong id="windSpeed">— m/s</strong><span id="windBearing">From —°</span><small id="windVertical">Steady</small></div>
+        </div>
+
         </div>
 
         </div>
@@ -903,7 +906,7 @@ document.querySelector("#viewport")!.parentElement!.append(ghostLegend);
 let ghostKey = "";
 let recordingController = "";
 let ghostSamples: Sample[] = [];
-let activeGhosts: { run: Ghost; visual: THREE.Group; label: string; marker: HTMLDivElement }[] = [];
+let activeGhosts: { run: Ghost; visual: THREE.Group; label: string; marker: HTMLDivElement; color: number }[] = [];
 function clearGhosts() {
   for (const { visual, marker } of activeGhosts) {
     marker.remove();
@@ -915,7 +918,7 @@ function clearGhosts() {
     });
   }
   activeGhosts = [];
-  ghostLegend.hidden = true;
+  ghostLegend.hidden = true; ghostLegend.replaceChildren();
 }
 function ghostSetupKey(config?: RunConfig): string {
   return JSON.stringify([pagesRuntime, config?.scenario ?? byId<HTMLSelectElement>("scenario").value,
@@ -924,6 +927,9 @@ function ghostSetupKey(config?: RunConfig): string {
 function ghostTitle(choice: string): string {
   if (choice.startsWith("live:")) return choice === "live:baseline" ? "Live baseline" : `Live Jev ${choice.slice(9).replace(".0", "")}`;
   return choice === "human" ? "Personal best" : choice === "jev" ? "Jev replay" : "Previous flight";
+}
+function raceAccent(element: HTMLElement, color: number): void {
+  element.style.setProperty("--racer-color", `#${color.toString(16).padStart(6, "0")}`);
 }
 function choiceContent(kind: string, title: string, detail: string): DocumentFragment {
   const paths: Record<string, string> = {
@@ -957,6 +963,7 @@ function refreshGhostStatus() {
   for (const choice of available) {
     const run = choice.startsWith("live:") ? null : selectGhost(ghostRuns, ghostSetupKey(), choice);
     const label = document.createElement("label"); label.className = "opponent-card";
+    raceAccent(label, racerColor(choice.startsWith("live:") ? choice.slice(5) : `replay:${choice}`));
     const input = document.createElement("input"); input.type = "checkbox"; input.value = choice;
     input.checked = selectedGhosts.has(choice); input.setAttribute("aria-label", ghostTitle(choice));
     input.addEventListener("change", () => {
@@ -984,11 +991,11 @@ function refreshGhostStatus() {
   }
   byId("ghostStatus").textContent = selectedGhosts.size ? `${selectedGhosts.size} opponent(s) selected` : "Solo flight · replay recording on";
 }
-function createGhostVisual(controller: string): THREE.Group {
+function createGhostVisual(color: number): THREE.Group {
     const visual = aircraft.clone(true);
     visual.traverse(object => {
       if (object instanceof THREE.Mesh) {
-        const clone = (material: THREE.Material) => ghostMaterial(material, controller === "human" ? 0x00ffff : 0xcc66ff);
+        const clone = (material: THREE.Material) => ghostMaterial(material, color);
         object.material = Array.isArray(object.material) ? object.material.map(clone) : clone(object.material);
         object.castShadow = false; object.receiveShadow = false;
       }
@@ -1005,15 +1012,15 @@ function startGhosts(config: RunConfig) {
     if (choice.startsWith("live:")) continue;
     const run = selectGhost(ghostRuns, ghostKey, choice);
     if (!run || activeGhosts.some(ghost => ghost.run === run)) continue;
-    const controller = choice === "jev" ? "jev" : "human";
+    const color = racerColor(`replay:${choice}`);
     const label = ghostTitle(choice);
-    const visual = createGhostVisual(controller);
+    const visual = createGhostVisual(color);
     visual.visible = false;
     const marker = document.createElement("div");
-    marker.className = `ghost-marker ${controller === "jev" ? "ghost-jev" : ""}`;
+    marker.className = "ghost-marker"; raceAccent(marker, color);
     marker.textContent = label;
     ghostLegend.parentElement!.append(marker);
-    scene.add(visual); activeGhosts.push({ run, visual, label, marker });
+    scene.add(visual); activeGhosts.push({ run, visual, label, marker, color });
   }
   refreshGhostStatus();
   ghostLegend.hidden = activeGhosts.length === 0;
@@ -1827,9 +1834,8 @@ function updateHudAndTelemetry(message: StateMessage) {
   if (wind) {
     const speed = wind.wind_speed_mps ?? Math.hypot(wind.headwind_mps, wind.crosswind_mps);
     const bearing = wind.wind_dir_deg ?? ((Math.atan2(wind.headwind_mps, wind.crosswind_mps) * 180 / Math.PI + 360) % 360);
-    byId("windArrow").setAttribute("transform", `rotate(${bearing} 40 40)`);
     byId("windSpeed").textContent = `${speed.toFixed(1)} m/s`;
-    byId("windBearing").textContent = `${bearing.toFixed(0)}°`;
+    byId("windBearing").textContent = `From ${bearing.toFixed(0)}°`;
     const vertical = wind.vertical_wind_mps ?? 0;
     byId("windVertical").textContent = Math.abs(vertical) >= .05 ? `${vertical > 0 ? "↑" : "↓"} ${Math.abs(vertical).toFixed(1)} m/s vertical` : "Horizontal wind";
     byId("windInstrument").title = formatWindSummary(wind);
@@ -1971,10 +1977,12 @@ function receiveMessage(message: any) {
       if (Number.isFinite(time) && (!entry.run.samples.length || time > entry.run.samples.at(-1)!.time)) {
         entry.run.samples.push({time, position: event.position, quaternion: event.quaternion});
         if (entry.run.samples.length === 1) {
-          const visual = createGhostVisual(entry.run.controller); visual.visible = false;
-          const marker = document.createElement("div"); marker.className = "ghost-marker ghost-jev"; marker.textContent = entry.label;
+          const color = racerColor(id === "live" ? "jev-1.13.0" : id);
+          const visual = createGhostVisual(color); visual.visible = false;
+          const marker = document.createElement("div"); marker.className = "ghost-marker"; marker.textContent = entry.label;
+          raceAccent(marker, color);
           ghostLegend.parentElement!.append(marker); scene.add(visual);
-          activeGhosts.push({run: entry.run, visual, label: entry.label, marker}); ghostLegend.hidden = false;
+          activeGhosts.push({run: entry.run, visual, label: entry.label, marker, color}); ghostLegend.hidden = false;
         }
       }
     } else if (entry && event.run_id === entry.runId && event.type === "run_finished") {
@@ -2081,19 +2089,54 @@ const modelSelect = byId<HTMLSelectElement>("model");
 const jevModelSelect = byId<HTMLSelectElement>("jevModel");
 const reasoningEffortSelect = byId<HTMLSelectElement>("reasoningEffort");
 const manualPanel = byId("manualControlsCard");
-const SCENARIO_SUMMARIES: Record<string, string> = {
-  easy: "Calm air (0 m/s wind) · aligned on 3° glideslope · 65 KIAS · no seed required",
-  medium: "Steady wind (XW ±5, HW -2..+6 m/s) · offset ±35m, ±5° hdg, ±8m AGL, ±4 kt (seed-deterministic)",
-  hard: "Time & altitude-varying wind shear/gusts (XW ±8, HW -4..+10, VW -1..+0.5 m/s) · offset ±60m, ±10° hdg, ±18m AGL, ±8 kt (seed-deterministic)",
+const SCENARIO_DETAILS: Record<string, {description: string; wind: [string, string][]; approach: [string, string][]; note: string}> = {
+  easy: {
+    description: "Still air. A stable, aligned final approach.",
+    wind: [["Wind", "Calm · 0 m/s"]],
+    approach: [["Glideslope", "3°"], ["Airspeed", "65 KIAS"]],
+    note: "Identical starting conditions. No seed needed.",
+  },
+  medium: {
+    description: "Steady wind. A small variation in your starting approach.",
+    wind: [["Crosswind", "±5 m/s"], ["Tailwind / headwind", "2 / 6 m/s"]],
+    approach: [["Centerline", "±35 m"], ["Heading", "±5°"], ["Glidepath height", "±8 m"], ["Airspeed", "±4 kt"]],
+    note: "The same seed repeats the wind and starting conditions.",
+  },
+  hard: {
+    description: "Wind shear and gusts change with time and height.",
+    wind: [["Base crosswind", "±8 m/s"], ["Base tail / headwind", "4 / 10 m/s"], ["Base down / updraft", "1 / 0.5 m/s"]],
+    approach: [["Centerline", "±60 m"], ["Heading", "±10°"], ["Glidepath height", "±18 m"], ["Airspeed", "±8 kt"]],
+    note: "Gusts vary beyond the base wind. The same seed repeats the conditions.",
+  },
 };
+function renderScenarioConditions() {
+  const details = SCENARIO_DETAILS[scenarioSelect.value];
+  const host = byId("scenarioSummary"); host.replaceChildren();
+  const description = document.createElement("p"); description.className = "conditions-description";
+  description.textContent = details.description; host.append(description);
+  for (const [title, values] of [["Wind conditions", details.wind], [scenarioSelect.value === "easy" ? "Starting approach" : "Starting variation", details.approach]] as const) {
+    const section = document.createElement("section"), heading = document.createElement("h3"); heading.textContent = title;
+    const grid = document.createElement("dl"); grid.className = "condition-grid";
+    for (const [label, value] of values) {
+      const cell = document.createElement("div"), term = document.createElement("dt"), datum = document.createElement("dd");
+      term.textContent = label; datum.textContent = value; cell.append(term, datum); grid.append(cell);
+    }
+    section.append(heading, grid); host.append(section);
+  }
+  const note = document.createElement("p"); note.className = "conditions-note"; note.textContent = details.note; host.append(note);
+}
+function positionConfigPanels() {
+  const top = byId("viewerToolbar").getBoundingClientRect().bottom + 8;
+  byId("viewerToolbar").style.setProperty("--config-top", `${top}px`);
+}
 function setConfigOpen(open: boolean) {
-  if (open) setScenarioOpen(false);
+  if (open) {setScenarioOpen(false); positionConfigPanels();}
   byId("configPanel").hidden = !open;
   byId("configureToggle").setAttribute("aria-expanded", String(open));
 }
 byId("configureToggle").addEventListener("click", () => setConfigOpen(byId("configPanel").hidden));
 function setScenarioOpen(open: boolean) {
-  if (open) setConfigOpen(false);
+  if (open) {setConfigOpen(false); positionConfigPanels();}
   byId("scenarioPanel").hidden = !open;
   byId("scenarioToggle").setAttribute("aria-expanded", String(open));
 }
@@ -2101,6 +2144,7 @@ byId("scenarioToggle").addEventListener("click", () => setScenarioOpen(byId("sce
 function setHudOpen(open: boolean) {
   byId("hudOverlay").dataset.open = String(open);
   byId("hudToggle").setAttribute("aria-expanded", String(open));
+  positionConfigPanels();
 }
 byId("hudToggle").addEventListener("click", () => setHudOpen(byId("hudOverlay").dataset.open !== "true"));
 document.addEventListener("pointerdown", (event) => {
@@ -2162,7 +2206,7 @@ function updateControllerUi() {
   if (isCodex && timing.value === "realtime") reasoningEffortSelect.value = "low";
   for (const option of reasoningEffortSelect.options) option.disabled = isCodex && timing.value === "realtime" && option.value !== "low";
   byId("seedGroup").hidden = scenarioSelect.value === "easy";
-  byId("scenarioSummary").textContent = SCENARIO_SUMMARIES[scenarioSelect.value] ?? "";
+  renderScenarioConditions();
   byId("scenarioToggle").textContent = `${scenarioSelect.selectedOptions[0]?.textContent?.split(" · ")[0]} ▾`;
   byId("windInstrument").hidden = scenarioSelect.value === "easy";
   updateTimingLabels();
@@ -2212,7 +2256,7 @@ function updateControllerUi() {
 }
 
 byId("seed").addEventListener("input", refreshGhostStatus);
-scenarioSelect.addEventListener("change", () => { updateControllerUi(); refreshGhostStatus(); });
+scenarioSelect.addEventListener("change", () => { updateControllerUi(); refreshGhostStatus(); positionConfigPanels(); });
 controllerSelect.addEventListener("change", () => { clearDecisionView(); updateControllerUi(); });
 for (const select of [byId("timingMode"), modelSelect, jevModelSelect, reasoningEffortSelect]) {
   select.addEventListener("change", () => { clearDecisionView(); updateControllerUi(); });
@@ -2348,7 +2392,7 @@ byId("reset").addEventListener("click", () => {
   hideError();
   clearDecisionView();
   lastObservation = null;
-  byId("windSpeed").textContent = "— m/s"; byId("windBearing").textContent = "—°";
+  byId("windSpeed").textContent = "— m/s"; byId("windBearing").textContent = "From —°";
   byId("windVertical").textContent = "Awaiting flight";
   centerSurfaces(controls);
   showControls(controls);
@@ -2444,6 +2488,8 @@ function animate(now: number) {
   previous = now;
   updateEdgeLights(now);
   windsock.update(lastObservation?.environment ?? {headwind_mps: 0, crosswind_mps: 0}, now / 1000, dt, reducedMotion.matches);
+  byId("windArrow").setAttribute("transform", `rotate(${windsock.flowBearingDeg} 40 40)`);
+  byId("windArrow").style.visibility = lastObservation?.environment && Math.hypot(lastObservation.environment.headwind_mps, lastObservation.environment.crosswind_mps) > .05 ? "visible" : "hidden";
 
   if (spectatorRunning && watchedGhost && !liveEntry(watchedGhost)) {
     raceTime = Math.min(raceTime + dt, watchedGhost.samples.at(-1)!.time);
@@ -2453,7 +2499,7 @@ function animate(now: number) {
   for (const ghost of activeGhosts) {
     if (!ghost.visual.getObjectByName("aircraftGLB") && aircraft.getObjectByName("aircraftGLB")) {
       scene.remove(ghost.visual);
-      ghost.visual = createGhostVisual(ghost.label.includes("Jev") ? "jev" : "human");
+      ghost.visual = createGhostVisual(ghost.color);
       scene.add(ghost.visual);
     }
     const { run, visual } = ghost;
@@ -2464,8 +2510,18 @@ function animate(now: number) {
     if (live ? live.runId : renderRaceTime < run.samples.at(-1)!.time) spinGhostPropeller(visual, dt);
 
   }
-  if (activeGhosts.length) ghostLegend.textContent = `GHOST RACE · ${raceTime.toFixed(1)} s\n` + activeGhosts.map(({run, label}) =>
-    `${label} · ${run.controller} · ${liveEntry(run)?.runId ? "Live" : raceTime >= run.samples.at(-1)!.time ? outcomeLabel(run.status, run.success) : "Replaying"} · ${run.score.toFixed(1)} pts`).join("\n");
+  if (activeGhosts.length) {
+    if (ghostLegend.children.length !== activeGhosts.length + 1) {
+      ghostLegend.replaceChildren(document.createElement("strong"));
+      for (const color of activeGhosts.map(ghost => ghost.color)) {
+        const row = document.createElement("div"); row.className = "race-legend-row"; raceAccent(row, color); ghostLegend.append(row);
+      }
+    }
+    ghostLegend.children[0].textContent = `Race · ${raceTime.toFixed(1)} s`;
+    activeGhosts.forEach(({run, label}, i) => {
+      ghostLegend.children[i + 1].textContent = `${label} · ${liveEntry(run)?.runId ? "Live" : raceTime >= run.samples.at(-1)!.time ? outcomeLabel(run.status, run.success) : "Replaying"} · ${run.score.toFixed(1)} pts`;
+    });
+  }
   aircraft.position.lerp(desiredPosition, 1 - Math.exp(-10 * dt));
   aircraft.quaternion.slerp(desiredQuaternion, 1 - Math.exp(-10 * dt));
   sun.position.copy(cameraSubject().position).add(sunOffset);
@@ -2535,6 +2591,7 @@ function animate(now: number) {
 requestAnimationFrame(animate);
 
 function resizeCanvas() {
+  positionConfigPanels();
   if (!renderer) return;
   const container = byId<HTMLElement>("viewport").parentElement;
   const width = container ? container.clientWidth : innerWidth;

@@ -7,6 +7,8 @@ async page => {
   await page.route('**/src/main.ts', async route => {
     const response = await route.fetch();
     await route.fulfill({response, body: await response.text() + `
+      window.windFlowProbe = () => ({bearing: windsock.flowBearingDeg,
+        rotation: document.querySelector('#windArrow').getAttribute('transform')});
       window.windsockPreview = () => {
         lastObservation = {environment: {headwind_mps: 5, crosswind_mps: 4, vertical_wind_mps: 0}};
         aircraft.visible = false; desiredPosition.set(8, 5.5, -28); aircraft.position.copy(desiredPosition);
@@ -37,11 +39,18 @@ async page => {
       await page.screenshot({path: `output/playwright/configuration-${width}.png`});
       await page.keyboard.press('Escape');
       await page.locator('#scenarioToggle').click(); await page.locator('#scenario').selectOption('hard');
+      assert(await page.locator('#scenarioSummary section').count() === 2, 'Scenario bounds are not grouped');
+      assert(await page.locator('#scenarioSummary dt').count() === 7, 'Scenario bounds omitted');
+      assert(!/XW|HW|VW|seed-deterministic/.test(await page.locator('#scenarioSummary').innerText()), 'Raw scenario dump remains');
+      assert((await page.locator('#scenarioSummary').innerText()).includes('±60 m'), 'Initial offset bound omitted');
+      await page.screenshot({path: `output/playwright/scenario-${width}.png`});
       await page.keyboard.press('Escape');
       if (width <= 850) await page.locator('#hudToggle').click();
       const wind = await page.locator('#windInstrument').boundingBox();
       const hud = await page.locator('#hudOverlay').boundingBox();
-      const toolbar = await page.locator('#configureToggle').boundingBox();
+      const toolbar = await page.locator('#viewerToolbar').boundingBox();
+      const viewport = await page.locator('#viewport').boundingBox();
+      assert(wind.y - viewport.y >= 9 && wind.y - viewport.y <= 15, 'Instruments pushed down from top edge');
       assert(disjoint(wind, hud) && disjoint(wind, toolbar), 'Wind overlaps HUD or toolbar');
       assert(wind.x >= hud.x + hud.width && Math.abs(wind.y - hud.y) <= 1, 'Wind is not alongside top-left HUD');
       assert(wind.x + wind.width <= width, 'Wind overflows mobile');
@@ -55,6 +64,8 @@ async page => {
     }
     await page.setViewportSize({width: 1440, height: 1000});
     await page.evaluate(() => window.windsockPreview()); await page.waitForTimeout(1800);
+    const flow = await page.evaluate(() => window.windFlowProbe());
+    assert(Math.abs(Number(flow.rotation.match(/rotate\(([^ ]+)/)[1]) - flow.bearing) < .001, 'Wind graphic differs from cloth direction');
     await page.screenshot({path: 'output/playwright/windsock-closeup.png'});
     assert(errors.length === 0, errors.join('\n'));
     return {layouts, errors};

@@ -103,7 +103,7 @@ Stop ends viewing; Reset clears it and must not reopen delayed result dialogs.
 
 ## Live instruments and diagnostics — 2026-11-14
 Keep controller and scenario popovers separate and mutually exclusive, with labeled controls
-and 44px touch targets. Wind compass uses N/E/S/W, a FROM arrow, numeric degrees and m/s;
+and 44px touch targets. Wind compass uses N/E/S/W, a downstream windsock glyph, explicit source bearing and m/s;
 show changing horizontal and vertical wind without depending on color. Easy hides the compass.
 Propellers are stationary before Start and after Reset/terminal state.
 Diagnostics uses bounded per-axis choice cards: command value, action ID, full criterion,
@@ -125,3 +125,18 @@ flutter is visual-only, suppressed by reduced motion. No new physics/scoring or 
 Validation: wind direction/calm/damping/reduced-motion geometry tests, existing race/settings
 smokes, desktop/mobile screenshots and build/typecheck. This is a visual fabric approximation,
 not a cloth or local surface-wind solver.
+
+## Instrument alignment and race identity — 2026-11-14
+Anchor instruments at the viewport's top-left inset, not below a reserved toolbar row.
+The toolbar shares a wrapping top rail: when space is tight, controls move below the
+instruments instead of pushing instruments toward the middle or overlapping them.
+Scenario details use three labeled groups (wind, initial approach, reproducibility),
+plain language first and a compact definition list for numeric envelopes. No telemetry abbreviations
+or long range strings in prose. Preserve all scenario bounds and seed semantics.
+The north-up wind graphic shows downstream flow, like the physical windsock, with the
+same damped bearing. Keep the numeric wind-source bearing explicitly labeled "From".
+Use restrained rose, amethyst, navy, ocean and forest tones for racer identities, with
+extra muted replay tones. Only ghost racers receive an overall tint; never recolor the original aircraft livery.
+Colors persist through model loading, camera changes and spectator mode; match ghost tint,
+opponent selection accents, markers and legend. Text labels remain
+mandatory; colors never affect physics/scoring or replace race identity text.

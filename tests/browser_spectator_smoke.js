@@ -55,7 +55,7 @@ async page => {
   await page.evaluate(() => window.emit({type:'ghost',message:{type:'run_finished',run_id:'fixture-jev',record:{outcome:{quality:0,status:'interrupted',success:false}}}}));
   if (await page.locator('#stop').isEnabled()) throw Error('Stop remained enabled after Jev ended');
   await page.locator('#outcomeModal').waitFor({state:'visible'});
-  if (!(await page.locator('#outcomeTitle').textContent()).includes('Live Jev · Interrupted')) throw Error('Wrong opponent result');
+  if (await page.locator('#outcomeTitle').textContent() !== 'Race standings' || !await page.locator('.race-standing').filter({hasText: 'Live Jev'}).isVisible()) throw Error('Opponent missing from standings');
   await page.getByRole('button', {name:'Close result',exact:true}).click();
   await page.getByRole('button', {name:'Your result',exact:true}).click();
   if (!(await page.locator('#outcomeTitle').textContent()).includes('Your flight')) throw Error('Primary result was overwritten');
@@ -70,7 +70,7 @@ async page => {
   await page.waitForFunction(() => document.querySelector('#runStatus').textContent === 'Watching Jev replay');
   if (await page.locator('#outcomeModal').isVisible()) throw Error('Primary result blocks replay');
   await page.locator('#outcomeModal').waitFor({state:'visible'});
-  if (!(await page.locator('#outcomeTitle').textContent()).includes('Jev replay · Interrupted')) throw Error('Replay result missing');
+  if (await page.locator('#outcomeTitle').textContent() !== 'Race standings' || !await page.locator('.race-standing').filter({hasText: 'Jev replay'}).isVisible()) throw Error('Replay missing from standings');
   await page.getByRole('button', {name:'Close result',exact:true}).click();
   await page.locator('#reset').click();
   await page.waitForFunction(() => document.querySelector('#viewport').dataset.subject === 'primary');

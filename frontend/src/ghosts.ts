@@ -33,6 +33,15 @@ export function smoothReplayTime(current: number, target: number, dt: number): n
   return current + (target - current) * (1 - Math.exp(-10 * Math.max(0, dt)));
 }
 
+const RACER_COLORS: Record<string, number> = {
+  baseline: 0x559780, 'jev-1.13.0': 0xcf88a5, 'jev-1.14.0': 0x9e86c6,
+  'replay:previous': 0x7187b5, 'replay:human': 0x64a9bf, 'replay:jev': 0xb195ad,
+};
+
+export function racerColor(id: string): number {
+  return RACER_COLORS[id] ?? RACER_COLORS['replay:previous'];
+}
+
 export function ghostMaterial(source: Material, color: number): Material {
   const copy = source.clone();
   copy.transparent = true;

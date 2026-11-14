@@ -6,7 +6,9 @@ async page => {
   await page.route('**/src/main.ts', async route => {
     const response = await route.fetch();
     await route.fulfill({response, body: await response.text() + `
-      window.flightSample = () => ({rotation: aircraft.userData.propeller?.rotation.z,
+      window.flightSample = () => ({paint: (() => {const colors = []; aircraft.traverse(o => {if (o.isMesh) for (const m of Array.isArray(o.material) ? o.material : [o.material]) if (m.name === 'Red') colors.push(m.color.getHex());}); return colors;})(), rotation: aircraft.userData.propeller?.rotation.z,
+        racers: activeGhosts.map(g => ({color: g.color, marker: g.marker.style.getPropertyValue('--racer-color'),
+          material: (() => {let color; g.visual.traverse(o => {if (o.isMesh && !color) color = (Array.isArray(o.material) ? o.material[0] : o.material).color?.getHex();}); return color;})()})),
         state: runState, live: [...liveOpponents.keys()],
         decisions: [...liveOpponents.values()].map(e => e.state?.decision_count ?? 0)});
     `});
@@ -23,6 +25,7 @@ async page => {
     await page.setViewportSize({width: 1440, height: 1000}); await page.goto(base);
     await page.waitForFunction(() => !document.querySelector('#start').disabled && window.flightSample().rotation != null);
     const idle = await page.evaluate(() => window.flightSample().rotation);
+    const originalPaint = JSON.stringify(await page.evaluate(() => window.flightSample().paint));
     await page.waitForTimeout(300);
     assert(await page.evaluate(() => window.flightSample().rotation) === idle, 'Idle propeller spins');
     await page.locator('#scenarioToggle').click();
@@ -42,6 +45,14 @@ async page => {
     await page.waitForFunction(() => window.flightSample().live.length === 2);
     await page.waitForFunction(() => /\d\.\d Hz/.test(document.querySelector('#effectiveRate').textContent), null, {timeout: 15000});
     assert(await page.evaluate(() => window.flightSample().rotation) !== idle, 'Running propeller stopped');
+    const racers = await page.evaluate(() => window.flightSample());
+    assert(racers.paint.length > 0 && JSON.stringify(racers.paint) === originalPaint, 'Original aircraft livery changed');
+    assert(new Set(racers.racers.map(r => r.color)).size === 2, 'Racers share a color');
+    for (const racer of racers.racers) {
+      assert(racer.color === racer.material, 'Ghost material lost racer color');
+      assert(racer.marker === '#' + racer.color.toString(16).padStart(6, '0'), 'Marker differs from aircraft color');
+    }
+    assert(await page.locator('.race-legend-row').count() === 2, 'Legend omits racer identities');
     assert(calls['jev-1.13.0'] > 5 && calls['jev-1.14.0'] > 5, 'Jev versions did not race');
     const speed = await page.locator('#windSpeed').innerText(), bearing = await page.locator('#windBearing').innerText();
     assert(!speed.includes('—') && !bearing.includes('—'), 'No live wind values');

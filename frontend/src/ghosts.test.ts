@@ -66,3 +66,24 @@ test('ghost propeller rotates independently of the human visual', async () => {
   assert.equal(propeller.rotation.z, 0);
   assert.equal(ghost.getObjectByName('Propeller_Cone')!.rotation.z, 6.5);
 });
+
+test('live pilots and replay identities have distinct, stable muted race colors', async () => {
+  const { racerColor } = await import('./ghosts.ts');
+  const ids = ['baseline', 'jev-1.13.0', 'jev-1.14.0', 'replay:previous', 'replay:human', 'replay:jev'];
+  assert.equal(new Set(ids.map(racerColor)).size, ids.length);
+  for (const id of ids) assert.equal(racerColor(id), racerColor(id));
+});
+
+test('muted ghost tints never change the original aircraft material', async () => {
+  const { MeshStandardMaterial } = await import('three');
+  const { racerColor, ghostMaterial } = await import('./ghosts.ts');
+  const source = new MeshStandardMaterial({color: 0xa53226});
+  const original = source.color.getHex();
+  for (const id of ['baseline', 'jev-1.13.0', 'jev-1.14.0', 'replay:previous']) {
+    const ghost = ghostMaterial(source, racerColor(id));
+    assert.equal((ghost as typeof source).color.getHex(), racerColor(id));
+    assert.equal(source.color.getHex(), original);
+    ghost.dispose();
+  }
+  source.dispose();
+});
