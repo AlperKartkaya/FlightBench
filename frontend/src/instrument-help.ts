@@ -1,5 +1,6 @@
 // Shared definitions for the viewport instruments and telemetry strip.
 const TERMS: Record<string, [string, string, string, string]> = {
+  HEADING: ["Aircraft heading", "Compass direction the watched aircraft's nose points toward, not its ground track or the camera direction.", "° true", "000° north · 090° east · 180° south · 270° west. The compass stays north-up."],
   AGL: ["Above ground level", "Height of the aircraft above the runway surface.", "m", "Zero is runway elevation, not sea level."],
   IAS: ["Indicated airspeed", "Speed through the air, as read by the aircraft's airspeed indicator.", "m/s", "Not ground speed: wind changes how fast you cross the ground."],
   "V/S": ["Vertical speed", "How quickly the aircraft is climbing or descending.", "m/s", "+ climb · − descent"],

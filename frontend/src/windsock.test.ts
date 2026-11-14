@@ -53,14 +53,14 @@ test('wind reversal is damped; reduced motion disables fabric flutter', () => {
 });
 
 test('north-up flow bearing follows the cloth downstream, opposite the source bearing', () => {
-  for (const [headwind_mps, crosswind_mps, expected] of [[8, 0, 270], [-8, 0, 90], [0, 8, 180], [0, -8, 0]]) {
+  for (const [headwind_mps, crosswind_mps, expected] of [[8, 0, 180], [-8, 0, 0], [0, 8, 90], [0, -8, 270]]) {
     const sock = settle({headwind_mps, crosswind_mps});
     const delta = ((sock.flowBearingDeg - expected + 540) % 360) - 180;
     assert.ok(Math.abs(delta) < .001);
   }
   const sock = settle({headwind_mps: 8, crosswind_mps: 0});
   sock.update({headwind_mps: -8, crosswind_mps: 0}, 10, 1 / 60, true);
-  assert.notEqual(Math.round(sock.flowBearingDeg), 90, 'Graphic must not jump ahead of damped cloth');
+  assert.notEqual(Math.round(sock.flowBearingDeg), 0, 'Graphic must not jump ahead of damped cloth');
 });
 
 test('instrument readings follow the same damped wind as the 3D fabric', () => {
@@ -70,7 +70,7 @@ test('instrument readings follow the same damped wind as the 3D fabric', () => {
   ]) {
     const sock = settle(wind);
     const point = tail(sock);
-    const actual = (Math.atan2(point.x, -point.z) * 180 / Math.PI + 360) % 360;
+    const actual = (Math.atan2(point.z, point.x) * 180 / Math.PI + 360) % 360;
     assert.ok(Math.abs(((actual - sock.flowBearingDeg + 540) % 360) - 180) < .001);
     assert.ok(Math.abs(sock.speedMps - Math.hypot(wind.headwind_mps, wind.crosswind_mps)) < .001);
     assert.ok(Math.abs(sock.verticalMps - wind.vertical_wind_mps) < .001);

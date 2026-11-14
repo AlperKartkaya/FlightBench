@@ -1,9 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {Landing, baseline, loadRuntime, validateControl, evaluate} from './engine.js';
+import {Landing, baseline, loadRuntime, validateControl, evaluate, windPolar, FT} from './engine.js';
 const contract = JSON.parse(readFileSync(new URL('./flightbench.json', import.meta.url)));
 const runtime = await loadRuntime(contract);
+
+test('northbound contract rotates physical wind and displacement, not just displayed headings', () => {
+  assert.equal(contract.runway_heading_deg, 0);
+  assert.equal(contract.initial['ic/psi-true-deg'], 0);
+  for (const [hw, xw, bearing] of [[8, 0, 0], [0, 8, 270], [-8, 0, 180], [0, -8, 90]]) {
+    assert.deepEqual(windPolar(hw, xw, 0), [8, bearing]);
+  }
+  for (const scenario of ['easy', 'medium', 'hard']) {
+    const env = new Landing(runtime, contract, 2, scenario, 42);
+    try {
+      const g = key => env.f.GetPropertyValue(key);
+      const o = env.observation;
+      assert(Math.abs(((o.flight.heading_deg - env.scenarioParams.heading_offset_deg + 540) % 360) - 180) < 1e-6);
+      assert(Math.abs(g('atmosphere/wind-north-fps') * FT + env.headwind) < 1e-6);
+      assert(Math.abs(g('atmosphere/wind-east-fps') * FT - env.crosswind) < 1e-6);
+      env.advance(contract.trim, 60);
+      assert.equal(env.observation.runway.along_track_m, -1500 + g('position/from-start-neu-n-ft') * FT);
+      assert(Math.abs(env.observation.runway.centerline_offset_m - (env.startZ + g('position/from-start-neu-e-ft') * FT)) < .0001);
+      assert(env.observation.runway.along_track_m > -1500);
+    } finally {env.destroy();}
+  }
+});
 
 test('initial altitude, dt, bounds and ended episodes', () => {
   const env = new Landing(runtime, contract, .5);
@@ -64,9 +86,11 @@ test('wind initialization preserves requested airspeed on the first physics tick
   }
 });
 
-for (const [scenario, seed, minimum] of [['easy', 42, 99], ['medium', 17, 90], ['hard', 42, 55], ['hard', 97, 75]]) {
-  test(`baseline wind regression: ${scenario} / ${seed}`, () => {
-    const env = new Landing(runtime, contract, 120, scenario, seed);
+for (const heading of [0, 90]) for (const [scenario, seed, minimum] of [['easy', 42, heading === 0 ? 95 : 99], ['medium', 17, 90], ['hard', 42, 55], ['hard', 97, 75]]) {
+  test(`baseline wind regression: runway ${heading} / ${scenario} / ${seed}`, () => {
+    // Earth-axis rotation changes touchdown timing; legacy benchmark keeps its stricter easy fixture.
+    const c = {...contract, runway_heading_deg: heading, initial: {...contract.initial, 'ic/psi-true-deg': heading}};
+    const env = new Landing(runtime, c, 120, scenario, seed);
     try {
       while (!env.done) env.advance(baseline(env.observation, contract.trim), 60);
       assert.equal(env.result().success, true);

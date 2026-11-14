@@ -89,10 +89,10 @@ export function windComponents(scenario, params, timeS, altitudeAglM) {
   return [hwSteady + gustH, xwSteady + gustX, vw];
 }
 
-export function windPolar(hw, xw) {
+export function windPolar(hw, xw, runwayHeading = 90) {
   const speed = Math.hypot(hw, xw);
   if (speed < 1e-6) return [0, 0];
-  const dir = ((deg(Math.atan2(hw, xw)) % 360) + 360) % 360;
+  const dir = ((deg(runwayHeading === 0 ? Math.atan2(-xw, hw) : Math.atan2(hw, xw)) % 360) + 360) % 360;
   return [round(speed, 4), round(dir, 2)];
 }
 
@@ -170,6 +170,8 @@ export function evaluate(t, success, reason, c, trajectory) {
 export class Landing {
   constructor(module, contract, maxTime = 120, scenario = 'easy', seed = 42) {
     this.contract = contract;
+    this.runwayHeading = contract.runway_heading_deg ?? 90;
+    if (![0, 90].includes(this.runwayHeading)) throw Error('Unsupported runway heading');
     this.hz = contract.physics_hz;
     this.c = contract.scoring;
     this.maxTime = maxTime;
@@ -190,13 +192,14 @@ export class Landing {
       ...contract.initial,
       'ic/h-agl-ft': baseAlt / FT,
       'ic/vc-kts': 65 + this.scenarioParams.airspeed_offset_kts,
-      'ic/psi-true-deg': 90 + this.scenarioParams.heading_offset_deg,
+      'ic/psi-true-deg': this.runwayHeading + this.scenarioParams.heading_offset_deg,
       'atmosphere/wind-north-fps': 0,
     };
     for (const [key, value] of Object.entries(initial)) f.SetPropertyValue(key, value);
     if (this.scenario !== 'easy') {
       const [hw, xw, vw] = windComponents(this.scenario, this.scenarioParams, 0, baseAlt);
-      for (const [key, wind] of [['vn-fps', -xw], ['ve-fps', -hw], ['vd-fps', -vw]]) {
+      const [north, east] = this.windNE(hw, xw);
+      for (const [key, wind] of [['vn-fps', north], ['ve-fps', east], ['vd-fps', -vw]]) {
         f.SetPropertyValue(`ic/${key}`, f.GetPropertyValue(`ic/${key}`) + wind / FT);
       }
     }
@@ -216,31 +219,35 @@ export class Landing {
     this.observation = this.observe();
     this.history = [this.observation];
   }
+  windNE(hw, xw) {
+    return this.runwayHeading === 0 ? [-hw, xw] : [-xw, -hw];
+  }
   applyWind(timeS, altitudeAglM) {
     [this.headwind, this.crosswind, this.verticalWind] = windComponents(this.scenario, this.scenarioParams, timeS, altitudeAglM);
     if (this.scenario !== 'easy') {
-      this.f.SetPropertyValue('atmosphere/wind-north-fps', -this.crosswind / FT);
-      this.f.SetPropertyValue('atmosphere/wind-east-fps', -this.headwind / FT);
+      const [north, east] = this.windNE(this.headwind, this.crosswind);
+      this.f.SetPropertyValue('atmosphere/wind-north-fps', north / FT);
+      this.f.SetPropertyValue('atmosphere/wind-east-fps', east / FT);
       this.f.SetPropertyValue('atmosphere/wind-down-fps', -this.verticalWind / FT);
     }
   }
   observe() {
     const g = k => this.f.GetPropertyValue(k);
-    const x = -1500 + g('position/from-start-neu-e-ft') * FT;
-    const z = this.startZ - g('position/from-start-neu-n-ft') * FT;
+    const x = -1500 + g(this.runwayHeading === 0 ? 'position/from-start-neu-n-ft' : 'position/from-start-neu-e-ft') * FT;
+    const z = this.startZ + (this.runwayHeading === 0 ? g('position/from-start-neu-e-ft') : -g('position/from-start-neu-n-ft')) * FT;
     const h = g('position/h-agl-ft') * FT;
     const heading = g('attitude/psi-deg');
     const ground = Boolean(g('gear/wow'));
     const speed = Math.hypot(g('velocities/v-north-fps'), g('velocities/v-east-fps')) * FT;
     const phase = ground ? (speed < 3 ? 'STOPPED' : this.touchdown ? 'ROLLOUT' : 'MAIN-GEAR TOUCHDOWN') : 'AIRBORNE / APPROACH';
-    const [wind_speed_mps, wind_dir_deg] = windPolar(this.headwind, this.crosswind);
+    const [wind_speed_mps, wind_dir_deg] = windPolar(this.headwind, this.crosswind, this.runwayHeading);
     return {
       time_s: this.ticks / this.hz, decision_dt_s: .5, phase,
       runway: {distance_to_threshold_m: Math.max(0, -x), along_track_m: x,
         cross_track_error_m: round(z > 5 ? z - 5 : z < -5 ? z + 5 : 0),
         centerline_offset_m: round(z), runway_width_m: this.c.runway_width_m, altitude_agl_m: h,
         glideslope_error_deg: deg(Math.atan2(h - 15, Math.max(1, -x))) - 3,
-        heading_error_deg: wrap(heading - 90)},
+        heading_error_deg: wrap(heading - this.runwayHeading)},
       flight: {airspeed_mps: g('velocities/vc-fps') * FT, groundspeed_mps: speed,
         vertical_speed_mps: g('velocities/h-dot-fps') * FT, flight_path_angle_deg: g('flight-path/gamma-deg'),
         angle_of_attack_deg: g('aero/alpha-deg'), alpha_deg: g('aero/alpha-deg'),

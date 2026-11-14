@@ -233,3 +233,32 @@ has not been updated in this step.
   it consumes provider credit and is not an automatic CI test.
 - The physics Worker URL has a new versioned cache key so returning visitors do
   not reuse a cached private-token-only Worker with the new public frontend.
+
+## Northbound interactive runway and heading compass — 2026-11-14
+
+- New native-browser and Pages flights use runway 36 / true 000°. Wind, initial
+  headings, runway projection and aircraft attitude rotate together. Canonical
+  benchmark defaults and legacy records without heading metadata remain 090°.
+  Offline replay verifies both orientations in lockstep and realtime.
+- A separate blue aircraft compass sits beside green downstream wind flow. It reads
+  the rendered watched aircraft, including replay/spectator selection; it does not
+  follow camera direction. Three-digit heading wraps through north without a
+  full-turn interpolation. Existing focus/tap definitions explain true heading.
+- Python: **311 passed, 1 skipped**. Frontend: **40 passed**. WASM engine, browser
+  Worker and proxy: **29 passed**. Scoped Ruff, typechecking and both builds passed;
+  the existing large Three.js bundle warning remains.
+- Nine fresh native/WASM identical-command traces passed **1e-6** tolerance on the
+  northbound contract (maximum compared error **2.20e-7**). Local artifacts:
+  ignored `scratch/northbound/parity.json` and `parity.log`. The historical
+  `docs/wasm/parity.json` was preserved, not relabeled as new evidence.
+- Physical orientation changes touchdown timing: independent northbound easy
+  baselines scored Python **96.153**, WASM **96.154**, versus legacy **99.169** /
+  **99.126**. Four baseline cases landed safely in both engines/orientations;
+  another ten medium seeds passed native safety/rollout checks in each orientation.
+  No controller tuning, scoring formula or safety gate was changed to hide this.
+- Local Chromium checks passed four layouts (1440×1000, 390×844, 320×667, 844×390):
+  compass cardinals/north crossing/bank/pitch/camera independence/spectator/reset,
+  adjacent equal-height navigation cards, configuration, instrument guides and a
+  mocked two-Jev-plus-baseline race. Existing touch-emulation controls checks also
+  passed, including 932×430. Screenshots/logs: ignored `scratch/northbound/`.
+- No deployment, authenticated model request, physical-phone or Safari check.

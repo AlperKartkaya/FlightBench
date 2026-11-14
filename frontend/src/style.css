@@ -1826,8 +1826,17 @@ html, body { height: 100%; overflow: hidden; }
 .flight-instruments { order: -1; display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; max-width: 100%; pointer-events: none; }
 .flight-instruments .hud-overlay { position: static; min-width: 0; width: 440px; max-width: 100%; }
 .flight-instruments .hud-panel { flex: 1; min-height: 96px; }
+.runway-bearing { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: var(--accent-mint); font: 600 10px var(--font-sans); letter-spacing: .06em; }
+.runway-bearing span { color: var(--text-secondary); font: 10px var(--font-mono); }
 .flight-instruments .hud-value { white-space: nowrap; }
-.flight-instruments .hud-panel, .wind-instrument { border: 1px solid #58736555; border-radius: 10px; background: #0d1a20db; box-shadow: 0 8px 24px #0003; backdrop-filter: blur(12px); }
+.flight-instruments .hud-panel, .wind-instrument, .heading-instrument { border: 1px solid #58736555; border-radius: 10px; background: #0d1a20db; box-shadow: 0 8px 24px #0003; backdrop-filter: blur(12px); }
+.navigation-instruments { display: flex; align-items: stretch; gap: 8px; min-width: 0; }
+.heading-instrument { display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 6px; min-height: 96px; }
+.heading-readings { display: grid; gap: 6px; font-variant-numeric: tabular-nums; }
+.heading-readings .instrument-label, .heading-readings small { color: #a7bdb7; font: 10px var(--font-sans); white-space: nowrap; }
+.heading-readings strong { color: #d4e1f6; font: 600 20px var(--font-mono); }
+#headingNeedle { fill: #9ebce8; }
+.heading-compass .compass-north { fill: #d4e1f6; font-weight: 700; }
 .wind-instrument { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 6px; min-height: 96px; pointer-events: none; font-variant-numeric: tabular-nums; }
 .wind-compass { width: 62px; height: 62px; overflow: visible; }
 .wind-compass circle, .compass-ticks { fill: none; stroke: #45605d; stroke-width: 1; }
@@ -1857,7 +1866,7 @@ html, body { height: 100%; overflow: hidden; }
 #inputSummaryGrid { display: block; }
 @media (max-width: 850px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
   .viewport-topbar { top: 10px; left: 10px; right: 10px; }
-  .flight-instruments:has(.hud-overlay[data-open="false"]):has(.wind-instrument[hidden]) { display: none; }
+  .heading-instrument { min-height: 74px; padding: 6px 8px 6px 4px; gap: 6px; }
   .wind-instrument { padding: 6px 10px 6px 4px; gap: 8px; min-height: 74px; flex-shrink: 0; }
   .wind-compass { width: 54px; height: 54px; }
   .wind-instrument strong { font-size: 14px; }
@@ -1867,7 +1876,15 @@ html, body { height: 100%; overflow: hidden; }
 @media (max-width: 600px) {
   .flight-instruments { width: 100%; }
   .flight-instruments .hud-overlay { flex: 1 0 100%; width: 100%; }
-  .flight-instruments .wind-instrument { flex: 1; }
+  .navigation-instruments { flex: 1 0 100%; }
+  .flight-instruments .wind-instrument { flex: 1; min-width: 0; gap: 6px; padding: 6px; }
+  .navigation-instruments .wind-compass { width: 40px; height: 40px; flex-shrink: 0; }
+  .wind-instrument strong { font-size: 12px; }
+  #windBearing { font-size: 10px; }
+  .wind-reading-row { gap: 6px; white-space: nowrap; }
+  .heading-readings { gap: 5px; }
+  .heading-readings strong { font-size: 16px; }
+  .heading-readings .instrument-label, .heading-readings small { font-size: 9px; }
   .flight-instruments .hud-panel { padding: 8px; }
   .flight-instruments .hud-primary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .flight-instruments .hud-secondary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }

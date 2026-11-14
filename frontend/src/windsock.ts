@@ -62,7 +62,7 @@ export function createWindsock() {
     // shortcut: observed wind is at aircraft altitude; sample surface wind for ground-weather fidelity.
     const targetSpeed = Math.hypot(wind.headwind_mps, wind.crosswind_mps);
     const damping = 1 - Math.exp(-Math.min(dt, .1) * 3);
-    // Runway coordinates: +X east/forward, +Z south/right; wind values describe FROM.
+    // Northbound runway: +X north/forward, +Z east/right; wind values describe FROM.
     if (targetSpeed > .05) {
       const target = Math.atan2(-wind.crosswind_mps, -wind.headwind_mps);
       heading += Math.atan2(Math.sin(target - heading), Math.cos(target - heading)) * damping;
@@ -91,7 +91,7 @@ export function createWindsock() {
   }
   update({headwind_mps: 0, crosswind_mps: 0}, 0, 0, true);
   return {object, update,
-    get flowBearingDeg() { return ((90 - heading * 180 / Math.PI) % 360 + 360) % 360; },
+    get flowBearingDeg() { return ((-heading * 180 / Math.PI) % 360 + 360) % 360; },
     get speedMps() { return speed; },
     get verticalMps() { return vertical; },
   };

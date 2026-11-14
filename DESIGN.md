@@ -158,3 +158,20 @@ keyboard-focused guides stay anchored. No image assets needed.
 Plan: lock wind-to-geometry agreement in tests, restore existing typography/layout,
 replace the ambiguous glyph, then verify responsive bounds and guide interactions.
 Scoring analysis is proposal-only: do not alter V2, old records or safety gates.
+
+## Northbound interactive runway — 2026-11-14
+New local-browser and Pages flights approach runway 36 on 000° north. Keep Three.js
+runway-relative axes (+X along runway, +Y up, +Z right); +X is now north and +Z east.
+Rotate actual interactive initial headings, physical wind components, displacement
+projection, source bearings and aircraft attitude together. Keep the compass north-up
+and the windsock/arrow downstream. Show the runway designation in the instrument card.
+Canonical benchmark defaults remain eastbound (090°), as do archived offline replays
+without orientation metadata. New interactive records explicitly store runway_heading_deg.
+Do not alter safety/scoring formulas or rewrite old results. Verify both orientations,
+wrapped headings, wind cardinal directions, native/Pages rendering and baseline landings.
+
+### Heading compass
+
+- Keep a separate north-up aircraft compass immediately beside wind, with an aircraft-shaped blue needle and a three-digit true heading. Wind remains green and explicitly labeled as downstream flow.
+- Read the rendered watched aircraft pose, not the camera or stale primary telemetry, so banking, north crossings, replay, and switching live opponents stay visually consistent. No CSS rotation interpolation across 359°/0°.
+- Keep both navigation cards in one row on narrow screens and use the existing accessible instrument-definition style for heading help.

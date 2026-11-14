@@ -19,6 +19,7 @@ def main():
     os.environ["PYTHON_DOTENV_DISABLED"] = "1"
     from flightbench.controllers import BaselineController
 
+    contract = json.loads((ROOT / "frontend/public/wasm/flightbench.json").read_text())
     cases = []
     for name, command, duration, scenario, seed in (
         (
@@ -56,7 +57,11 @@ def main():
             for seed in (42, 101)
         ],
     ):
-        env = FixedWingLandingEnv(scenario=scenario, max_time_s=duration)
+        env = FixedWingLandingEnv(
+            scenario=scenario,
+            max_time_s=duration,
+            runway_heading_deg=contract.get("runway_heading_deg", 90),
+        )
         env.reset(seed=seed)
         baseline = BaselineController()
         history = TelemetryHistory()

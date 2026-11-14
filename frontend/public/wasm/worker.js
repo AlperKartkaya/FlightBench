@@ -99,7 +99,8 @@ onmessage = async ({data}) => {
       const response = await fetch('./flightbench.json');
       if (!response.ok) throw Error('Missing aircraft assets; run prepare_wasm.py');
       contract = await response.json(); runtime = await loadRuntime(contract);
-      postMessage({type: 'ready', versions: {python: contract.python_jsbsim, wasm: contract.wasm_jsbsim}});
+      postMessage({type: 'ready', runway_heading_deg: contract.runway_heading_deg ?? 90,
+        versions: {python: contract.python_jsbsim, wasm: contract.wasm_jsbsim}});
     } else if (data.type === 'start') {
       stop(); landing?.destroy(); runId = data.run_id;
       decisionCount = 0; decisionInfo = null; latencyMs = null; deciding = false; totalLatencyMs = 0;

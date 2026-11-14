@@ -120,6 +120,7 @@ def replay_and_rescore(record: Mapping, scoring: ScoringConfig | None = None) ->
             max_time_s=120,
             scoring=original_scoring,
             decision_hz=config.get("decision_hz", 2),
+            runway_heading_deg=config.get("runway_heading_deg", 90),
         )
         try:
             initial_observation, _ = env.reset(seed=config.get("seed"))

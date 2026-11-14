@@ -479,7 +479,10 @@ class Session:
 
         try:
             self.env = FixedWingLandingEnv(
-                scenario=self.scenario, max_time_s=120, decision_hz=self.decision_hz
+                scenario=self.scenario,
+                max_time_s=120,
+                decision_hz=self.decision_hz,
+                runway_heading_deg=0,
             )
         except TypeError:
             self.env = FixedWingLandingEnv(scenario=self.scenario, max_time_s=120)
@@ -516,6 +519,7 @@ class Session:
         self.run_id = new_run_id()
         self.started_at = now()
         self.run_config = effective_config(settings, controller)
+        self.run_config["runway_heading_deg"] = getattr(self.env, "runway_heading_deg", 90)
         self.identity = source_identity()
         self.decisions = []
         self.pending_record = None
@@ -707,7 +711,10 @@ class Session:
                     if self.latency_ms is not None:
                         self.total_latency_ms += self.latency_ms
                         self.avg_latency_ms = self.total_latency_ms / self.calls_count
-                        if self.decision_schedule == "fixed" and self.latency_ms > cadence_deadline_ms:
+                        if (
+                            self.decision_schedule == "fixed"
+                            and self.latency_ms > cadence_deadline_ms
+                        ):
                             self.late_decisions += 1
                     if stale and next_action is not None:
                         self.stale_decisions += 1

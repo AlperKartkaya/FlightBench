@@ -9,9 +9,9 @@ from flightbench.environment import FixedWingLandingEnv
 from flightbench.scoring import ScoringConfig
 
 
-def _record(mode="lockstep"):
+def _record(mode="lockstep", runway_heading_deg=90):
     scoring = ScoringConfig()
-    env = FixedWingLandingEnv(scoring=scoring, decision_hz=2)
+    env = FixedWingLandingEnv(scoring=scoring, decision_hz=2, runway_heading_deg=runway_heading_deg)
     observation, _ = env.reset(seed=42)
     initial = deepcopy(observation)
     decisions = []
@@ -44,6 +44,7 @@ def _record(mode="lockstep"):
             "decision_hz": 2,
             "mode": mode,
             "scoring_version": "v2",
+            **({"runway_heading_deg": runway_heading_deg} if runway_heading_deg == 0 else {}),
         },
         "initial_observation": initial,
         "final_state": final_state,
@@ -52,8 +53,9 @@ def _record(mode="lockstep"):
 
 
 @pytest.mark.parametrize("mode", ["lockstep", "realtime"])
-def test_replay_exactly_reproduces_physics_without_a_controller(mode):
-    record = _record(mode)
+@pytest.mark.parametrize("runway_heading_deg", [0, 90])
+def test_replay_exactly_reproduces_physics_without_a_controller(mode, runway_heading_deg):
+    record = _record(mode, runway_heading_deg)
     result = replay_and_rescore(record)
     assert result["physics_replay_verified"] is True
     assert result["recorded_result"] == result["rescored_result"]

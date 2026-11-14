@@ -11,7 +11,7 @@ export function browserSnapshot(data: Message, runId: string): Message {
     ...data, run_id: runId, score: data.result.quality, status: data.result.reason,
     position: [r.along_track_m, r.altitude_agl_m, r.centerline_offset_m],
     quaternion: new Quaternion().setFromEuler(new Euler(
-      rad(f.roll_deg), -rad(f.heading_deg - 90), rad(f.pitch_deg), 'YZX',
+      rad(f.roll_deg), -rad(r.heading_error_deg ?? f.heading_deg - 90), rad(f.pitch_deg), 'YZX',
     )).toArray(),
   };
 }
@@ -19,6 +19,7 @@ export function browserSnapshot(data: Message, runId: string): Message {
 export class BrowserRuntime {
   private worker: Worker;
   private ready = false;
+  private runwayHeading = 90;
   private opponents = new Map<string, BrowserRuntime>();
   private raceGeneration = 0;
   private startingRace = false;
@@ -62,6 +63,7 @@ export class BrowserRuntime {
   private handle(data: Message) {
     if (data.type === 'ready') {
       this.ready = true;
+      this.runwayHeading = data.runway_heading_deg ?? 90;
       this.receive({ type: 'ready' });
       return;
     }
@@ -89,7 +91,7 @@ export class BrowserRuntime {
 
   private startRun(message: Message): void {
     const { type, proxy: _proxy, invite: _invite, ...config } = message;
-    this.config = config;
+    this.config = {...config, runway_heading_deg: this.runwayHeading};
     this.runId = crypto.randomUUID();
     this.accepted = false;
     this.last = null;

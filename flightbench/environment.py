@@ -166,12 +166,18 @@ def _wind_components(
     return hw_steady + gust_h, xw_steady + gust_x, vw
 
 
-def _wind_polar(headwind_mps: float, crosswind_mps: float) -> tuple[float, float]:
+def _wind_polar(
+    headwind_mps: float, crosswind_mps: float, runway_heading_deg=90
+) -> tuple[float, float]:
     speed = math.hypot(headwind_mps, crosswind_mps)
     if speed < 1e-6:
         return 0.0, 0.0
-    direction = math.degrees(math.atan2(headwind_mps, crosswind_mps)) % 360.0
-    return round(speed, 4), round(direction, 2)
+    angle = (
+        math.atan2(-crosswind_mps, headwind_mps)
+        if runway_heading_deg == 0
+        else math.atan2(headwind_mps, crosswind_mps)
+    )
+    return round(speed, 4), round(math.degrees(angle) % 360.0, 2)
 
 
 def observation_space(value):
@@ -189,11 +195,21 @@ def observation_space(value):
 class FixedWingLandingEnv(gym.Env):
     metadata: ClassVar[dict] = {"render_modes": []}
 
-    def __init__(self, scenario="easy", max_time_s=120, scoring=None, decision_hz=DECISION_HZ):
+    def __init__(
+        self,
+        scenario="easy",
+        max_time_s=120,
+        scoring=None,
+        decision_hz=DECISION_HZ,
+        runway_heading_deg=90,
+    ):
         if scenario not in SCENARIOS:
             raise ValueError("scenario must be easy, medium, or hard")
         if not math.isfinite(max_time_s) or max_time_s <= 0:
             raise ValueError("max_time_s must be positive and finite")
+        if runway_heading_deg not in (0, 90):
+            raise ValueError("runway heading must be 0 (interactive) or 90 (legacy benchmark)")
+        self.runway_heading_deg = runway_heading_deg
         self.scenario, self.max_time_s = scenario, max_time_s
         self.decision_ticks, self.decision_interval_s = decision_timing(decision_hz)
         self.scoring = scoring or ScoringConfig()
@@ -205,13 +221,17 @@ class FixedWingLandingEnv(gym.Env):
         obs, _ = self.reset(seed=0)
         self.observation_space = observation_space(obs)
 
+    def _wind_ne(self, headwind, crosswind):
+        return (-headwind, crosswind) if self.runway_heading_deg == 0 else (-crosswind, -headwind)
+
     def _apply_wind(self, time_s: float, altitude_agl_m: float) -> None:
         self.headwind, self.crosswind, self.vertical_wind = _wind_components(
             self.scenario, self._scenario_params, time_s, altitude_agl_m
         )
         if self.scenario != "easy":
-            self.fdm["atmosphere/wind-north-fps"] = -self.crosswind / FT
-            self.fdm["atmosphere/wind-east-fps"] = -self.headwind / FT
+            north, east = self._wind_ne(self.headwind, self.crosswind)
+            self.fdm["atmosphere/wind-north-fps"] = north / FT
+            self.fdm["atmosphere/wind-east-fps"] = east / FT
             self.fdm["atmosphere/wind-down-fps"] = -self.vertical_wind / FT
 
     def reset(self, *, seed=None, options=None):
@@ -229,8 +249,10 @@ class FixedWingLandingEnv(gym.Env):
         self._scenario_params = _sample_scenario_params(self.scenario, self._seed)
         self.start_x = -1500.0
         self.start_z = self._scenario_params["start_z_m"]
-        heading = 90 + self._scenario_params["heading_offset_deg"]
-        altitude = 1500 * math.tan(math.radians(3)) + 15 + self._scenario_params["altitude_offset_m"]
+        heading = self.runway_heading_deg + self._scenario_params["heading_offset_deg"]
+        altitude = (
+            1500 * math.tan(math.radians(3)) + 15 + self._scenario_params["altitude_offset_m"]
+        )
         airspeed_kts = 65 + self._scenario_params["airspeed_offset_kts"]
         for key, value in {
             "ic/lat-geod-deg": 37,
@@ -251,7 +273,8 @@ class FixedWingLandingEnv(gym.Env):
             f[key] = value
         if self.scenario != "easy":
             hw, xw, vw = _wind_components(self.scenario, self._scenario_params, 0.0, altitude)
-            for key, wind in (("vn-fps", -xw), ("ve-fps", -hw), ("vd-fps", -vw)):
+            north, east = self._wind_ne(hw, xw)
+            for key, wind in (("vn-fps", north), ("ve-fps", east), ("vd-fps", -vw)):
                 f[f"ic/{key}"] += wind / FT
         if not f.run_ic():
             raise RuntimeError("JSBSim initial conditions failed")
@@ -287,8 +310,12 @@ class FixedWingLandingEnv(gym.Env):
     def observe(self):
         f = self.fdm
         # JSBSim local displacements are signed east/north distances from IC (NEU frame).
-        x = self.start_x + f["position/from-start-neu-e-ft"] * FT
-        z = self.start_z - f["position/from-start-neu-n-ft"] * FT
+        if self.runway_heading_deg == 0:
+            x = self.start_x + f["position/from-start-neu-n-ft"] * FT
+            z = self.start_z + f["position/from-start-neu-e-ft"] * FT
+        else:
+            x = self.start_x + f["position/from-start-neu-e-ft"] * FT
+            z = self.start_z - f["position/from-start-neu-n-ft"] * FT
         h = f["position/h-agl-ft"] * FT
         heading = f["attitude/psi-deg"]
         dist_to_threshold = max(0, -x)
@@ -314,7 +341,7 @@ class FixedWingLandingEnv(gym.Env):
         else:
             xtrack_error = 0.0
 
-        wind_speed, wind_dir = _wind_polar(self.headwind, self.crosswind)
+        wind_speed, wind_dir = _wind_polar(self.headwind, self.crosswind, self.runway_heading_deg)
 
         return {
             "time_s": self.ticks / PHYSICS_HZ,
@@ -328,7 +355,7 @@ class FixedWingLandingEnv(gym.Env):
                 "runway_width_m": self.scoring.runway_width_m,
                 "altitude_agl_m": h,
                 "glideslope_error_deg": math.degrees(math.atan2(h - 15, max(1, -x))) - 3,
-                "heading_error_deg": wrap_degrees(heading - 90),
+                "heading_error_deg": wrap_degrees(heading - self.runway_heading_deg),
             },
             "flight": {
                 "airspeed_mps": f["velocities/vc-fps"] * FT,
@@ -417,9 +444,7 @@ class FixedWingLandingEnv(gym.Env):
                 self.fdm["fcs/throttle-cmd-norm"] = 0.0
                 self.fdm["fcs/left-brake-cmd-norm"] = max(0.0, min(0.92, 0.65 + diff))
                 self.fdm["fcs/right-brake-cmd-norm"] = max(0.0, min(0.92, 0.65 - diff))
-                self.action = ControlCommand(
-                    aileron=ail, elevator=elev, rudder=rud, throttle=0.0
-                )
+                self.action = ControlCommand(aileron=ail, elevator=elev, rudder=rud, throttle=0.0)
             if not self.fdm.run():
                 self.done, self.reason = True, "simulation_failure"
                 break
@@ -513,7 +538,9 @@ class FixedWingLandingEnv(gym.Env):
                 r["altitude_agl_m"],
                 r.get("centerline_offset_m", r["cross_track_error_m"]),
             ],
-            "quaternion": attitude_quaternion(f["roll_deg"], f["pitch_deg"], f["heading_deg"]),
+            "quaternion": attitude_quaternion(
+                f["roll_deg"], f["pitch_deg"], f["heading_deg"], self.runway_heading_deg
+            ),
             "score": result["quality"],
             "status": self.reason,
             "result": result,

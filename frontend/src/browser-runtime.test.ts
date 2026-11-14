@@ -30,6 +30,18 @@ test('browser snapshot keeps the Python runway frame and aviation attitude signs
   }
 });
 
+test('northbound aircraft render straight ahead and wrap heading errors across north', () => {
+  const data: any = state();
+  for (const [heading, error] of [[0, 0], [359, -1], [1, 1]]) {
+    data.observation.flight.heading_deg = heading;
+    data.observation.runway.heading_error_deg = error;
+    const q = new Quaternion().fromArray(browserSnapshot(data, 'north').quaternion);
+    const forward = new Vector3(1, 0, 0).applyQuaternion(q);
+    assert.ok(Math.abs(forward.x - Math.cos(error * Math.PI / 180)) < 1e-12);
+    assert.ok(Math.abs(forward.z - Math.sin(error * Math.PI / 180)) < 1e-12);
+  }
+});
+
 class FakeWorker {
   static instance: FakeWorker;
   sent: any[] = [];
@@ -55,11 +67,13 @@ function runtime(t: any) {
 
 test('start is acknowledged by physics; stop never becomes a scored safe landing', t => {
   const {runtime: r, worker: w, received} = runtime(t);
+  w.emit({type: 'ready', runway_heading_deg: 0});
   r.send({type: 'start', controller: 'human', seed: 42});
   const id = w.sent.at(-1).run_id;
   assert.equal(received.at(-1).type, 'ready');
   w.emit(state(id));
   assert.equal(received.at(-2).type, 'run_started');
+  assert.equal(received.at(-2).config.runway_heading_deg, 0);
   r.send({type: 'action', action: {aileron: 0, elevator: .1, rudder: 0, throttle: .5, flaps_deg: 0}});
   assert.deepEqual(w.sent.at(-1).command, {aileron: 0, elevator: .1, rudder: 0, throttle: .5});
   r.send({type: 'stop'});

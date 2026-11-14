@@ -309,3 +309,41 @@ def test_rollout_steering_keeps_angled_touchdown_on_runway():
     assert abs(obs["runway"]["centerline_offset_m"]) < 6.0
     assert max_yaw_rate_deg_s < 10.0
     env.close()
+
+
+def test_northbound_interactive_frame_and_wind():
+    from flightbench.environment import _wind_polar
+
+    assert _wind_polar(8, 0, 0) == (8, 0)
+    assert _wind_polar(0, 8, 0) == (8, 270)
+    assert _wind_polar(-8, 0, 0) == (8, 180)
+    assert _wind_polar(0, -8, 0) == (8, 90)
+    env = FixedWingLandingEnv("medium", runway_heading_deg=0)
+    try:
+        obs, _ = env.reset(seed=42)
+        assert obs["flight"]["heading_deg"] == pytest.approx(
+            obs["runway"]["heading_error_deg"] % 360
+        )
+        assert env.fdm["atmosphere/wind-north-fps"] * 0.3048 == pytest.approx(-env.headwind)
+        assert env.fdm["atmosphere/wind-east-fps"] * 0.3048 == pytest.approx(env.crosswind)
+        x = obs["runway"]["along_track_m"]
+        env.advance([0, 0, 0, 0.5], ticks=60)
+        r = env.observe()["runway"]
+        assert r["along_track_m"] > x
+        assert r["along_track_m"] == pytest.approx(
+            -1500 + env.fdm["position/from-start-neu-n-ft"] * 0.3048
+        )
+        assert r["centerline_offset_m"] == pytest.approx(
+            round(env.start_z + env.fdm["position/from-start-neu-e-ft"] * 0.3048, 4)
+        )
+        assert np.allclose(
+            env.snapshot()["quaternion"],
+            attitude_quaternion(
+                env.observe()["flight"]["roll_deg"],
+                env.observe()["flight"]["pitch_deg"],
+                env.observe()["flight"]["heading_deg"],
+                0,
+            ),
+        )
+    finally:
+        env.close()

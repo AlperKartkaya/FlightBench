@@ -202,6 +202,7 @@ app.innerHTML = `
         <div class="flight-instruments">
         <div class="hud-overlay" id="hudOverlay" data-open="false">
           <div class="hud-panel">
+            <div class="runway-bearing">RUNWAY 36 <span>000° · NORTH</span></div>
             <div class="hud-primary-grid">
               <div class="hud-metric">
                 <span class="hud-label">AGL</span>
@@ -241,6 +242,7 @@ app.innerHTML = `
           </div>
         </div>
 
+        <div class="navigation-instruments">
         <div class="wind-instrument" id="windInstrument" hidden aria-label="Live wind">
           <svg class="wind-compass" viewBox="0 0 80 80" role="img" aria-label="Downstream wind flow, north up">
             <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5"/>
@@ -248,6 +250,15 @@ app.innerHTML = `
             <g id="windArrow"><path d="M40 19 32 32h6v27h4V32h6z"/></g>
           </svg>
           <div class="wind-readings"><span class="wind-label">WIND FLOW</span><div class="wind-reading-row"><strong id="windSpeed">— m/s</strong><span id="windBearing">To —°</span></div><small id="windVertical">Awaiting flight</small></div>
+        </div>
+        <div class="heading-instrument" id="headingInstrument" aria-label="Aircraft heading, north up">
+          <svg class="wind-compass heading-compass" viewBox="0 0 80 80" role="img" aria-label="Aircraft nose direction, true north up">
+            <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5M59 21l-3 3m3 35-3-3M21 59l3-3m-3-35 3 3"/>
+            <text class="compass-north" x="40" y="9">N</text><text x="74" y="43">E</text><text x="40" y="78">S</text><text x="6" y="43">W</text>
+            <g id="headingNeedle"><path d="M40 20 43 35 54 44v3l-12-4v10l4 4v2l-6-2-6 2v-2l4-4V43l-12 4v-3l11-9z"/></g>
+          </svg>
+          <div class="heading-readings"><span class="instrument-label">HEADING</span><strong id="compassHeading">000°</strong><small>TRUE NORTH</small></div>
+        </div>
         </div>
 
         </div>
@@ -1398,7 +1409,7 @@ function formatWindSummary(env?: Observation["environment"]): string {
   const xw = env.crosswind_mps ?? 0;
   const vw = env.vertical_wind_mps ?? 0;
   const spd = env.wind_speed_mps ?? Math.hypot(hw, xw);
-  const dir = env.wind_dir_deg ?? (((Math.atan2(hw, xw) * 180 / Math.PI) % 360 + 360) % 360);
+  const dir = env.wind_dir_deg ?? (((Math.atan2(-xw, hw) * 180 / Math.PI) % 360 + 360) % 360);
   if (spd < 0.05 && Math.abs(vw) < 0.05) return "Calm (0.0 m/s)";
   const s = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}`;
   const vwPart = Math.abs(vw) >= 0.05 ? ` · VW ${s(vw)}` : "";
@@ -2473,6 +2484,7 @@ document.querySelectorAll<HTMLButtonElement>("[data-camera]").forEach((btn) => {
 // Animation & Render Loop
 let previous = performance.now();
 let lastHumanSend = 0;
+const compassForward = new THREE.Vector3();
 
 function animate(now: number) {
   requestAnimationFrame(animate);
@@ -2522,6 +2534,11 @@ function animate(now: number) {
   }
   aircraft.position.lerp(desiredPosition, 1 - Math.exp(-10 * dt));
   aircraft.quaternion.slerp(desiredQuaternion, 1 - Math.exp(-10 * dt));
+  // Read the watched aircraft's rendered pose so replays and spectator switches agree with the scene.
+  const nose = compassForward.set(1, 0, 0).applyQuaternion(cameraSubject().quaternion);
+  const heading = (Math.atan2(nose.z, nose.x) * 180 / Math.PI + 360) % 360;
+  byId("headingNeedle").setAttribute("transform", `rotate(${heading} 40 40)`);
+  byId("compassHeading").textContent = `${String(Math.round(heading) % 360).padStart(3, "0")}°`;
   sun.position.copy(cameraSubject().position).add(sunOffset);
 
   const propeller = aircraft.userData.propeller as THREE.Object3D | undefined;

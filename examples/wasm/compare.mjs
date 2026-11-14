@@ -7,6 +7,7 @@ const traces = JSON.parse(readFileSync(process.argv[2]));
 const runtime = await loadRuntime(contract);
 const tolerance = 1e-6; // Port-level numerical parity, not a benchmark scoring change.
 const report = {python_jsbsim: contract.python_jsbsim, wasm_jsbsim: contract.wasm_jsbsim,
+  runway_heading_deg: contract.runway_heading_deg ?? 90,
   emscripten: '4.0.18', physics_hz: contract.physics_hz, scenarios: ['easy', 'medium', 'hard'],
   action_space_sha256: contract.action_space_sha256, model_sha256: contract.model_sha256,
   absolute_tolerance: tolerance, cases: []};
