@@ -26,7 +26,7 @@ retain timing conditions in saved records. Keep deep diagnostics optional.
 Retain dark slate/mint palette and aircraft asset. System sans for explanations,
 monospace for measurements. Restrained borders, 8/12/16/24px spacing; no new asset set.
 Status uses text plus color. Decision markers animate between categorical choices;
-changed/same badges always carry text. The 3D scene uses sunset tones, an unseen
+changed/same badges always carry text. The 3D scene uses muted slate/amber sunset tones with a desaturated horizon and matching fog, an unseen
 right-side warm sun and aircraft self-shadow; paired runway lights cycle seamlessly,
 with steady lights for reduced motion.
 Motion is informational, not celebratory.
@@ -185,7 +185,7 @@ wrapped headings, wind cardinal directions, native/Pages rendering and baseline 
 
 - Keep a separate north-up aircraft compass immediately beside wind, with the original aircraft silhouette, mint fill and an unpadded signed heading around true north (300° becomes −60°, west −90°, east 90°, south 180°). Keep arrow orientation geographic and wind bearings unchanged. Wind uses the same mint and explicitly shows its source direction.
 - Read the latest watched flight attitude, bypassing scene smoothing: primary state, latest live-opponent sample, or current replay time. Never follow the camera or stale primary telemetry when spectating. No CSS rotation interpolation across 359°/0°.
-- Keep the northbound runway designator 36 (360° ≡ 0° north), not 00 or 36°. Show 0° · NORTH alongside it and explain the designation using the shared hover/focus guide.
+- Omit the runway designator/bearing header from the telemetry panel; the separate aircraft compass provides direction.
 - Keep both navigation cards in one row on narrow screens and use the existing accessible instrument-definition style for heading help.
 
 ## Wind convention and attitude freedom — 2026-11-14

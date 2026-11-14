@@ -1738,7 +1738,6 @@ html, body { height: 100%; overflow: hidden; }
 #ghostRace { min-height: 44px; }
 .ghost-tag { font-size: 10px; letter-spacing: .12em; color: #83d7ce; border: 1px solid #315650; border-radius: 4px; padding: 3px 6px; }
 #ghostStatus { white-space: pre-line; font-size: 12px; line-height: 1.6; color: #c5e5df; }
-#ghostHelp { font-size: 11px; line-height: 1.5; color: #94aaa5; }
 #ghostLegend { position: absolute; left: 14px; bottom: 62px; max-width: calc(100% - 28px); padding: 10px 14px; border: 1px solid var(--border-card); border-radius: 6px; background: rgba(8,18,22,.92); color: #c9f3ee; font: 11px/1.6 var(--font-sans); pointer-events: none; z-index: 3; }
 #ghostLegend > strong { display: block; margin-bottom: 4px; color: var(--text-muted); font: 600 10px/1.5 var(--font-sans); }
 .race-legend-row { display: flex; align-items: center; gap: 7px; color: #dbe6e0; }
@@ -1828,8 +1827,6 @@ html, body { height: 100%; overflow: hidden; }
 .flight-instruments { order: -1; display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; max-width: 100%; pointer-events: none; }
 .flight-instruments .hud-overlay { position: static; min-width: 0; width: 440px; max-width: 100%; }
 .flight-instruments .hud-panel { flex: 1; min-height: 96px; }
-.runway-bearing { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: var(--accent-mint); font: 600 10px var(--font-sans); letter-spacing: .06em; }
-.runway-bearing span { color: var(--text-secondary); font: 10px var(--font-mono); }
 .flight-instruments .hud-value { white-space: nowrap; }
 .flight-instruments .hud-panel, .wind-instrument, .heading-instrument { border: 1px solid #58736555; border-radius: 10px; background: #0d1a20db; box-shadow: 0 8px 24px #0003; backdrop-filter: blur(12px); }
 .navigation-instruments { display: flex; align-items: stretch; gap: 8px; min-width: 0; }

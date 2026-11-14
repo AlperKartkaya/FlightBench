@@ -186,7 +186,7 @@ app.innerHTML = `
                 <div class="config-item" id="jevModelGroup" hidden><span class="settings-label">Jev version</span><div id="jevVersionChoices" class="version-choices" role="radiogroup" aria-label="Jev version"></div><select id="jevModel" hidden><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
                 <div class="config-item" id="reasoningEffortGroup" hidden><label for="reasoningEffort">Reasoning effort</label><select id="reasoningEffort" class="select-input"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh">xhigh</option><option value="max">max</option></select></div>
                 <div class="config-item" id="timingModeGroup"><label for="timingMode">Execution</label><select id="timingMode" class="select-input"><option value="realtime" selected>Realtime</option><option value="lockstep">Lockstep</option></select><small>Realtime keeps flying while the model thinks. Lockstep waits for each reply.</small></div>
-                <div class="config-item" id="ghostSettings"><div class="settings-heading">Race opponents <span class="selection-hint">Select multiple</span></div><div id="ghostChoices" class="opponent-grid" role="group" aria-label="Race opponents"></div><div id="ghostStatus" role="status"></div><small id="ghostHelp">Live pilots share your scenario and seed. Each live Jev uses the API; rate limits apply. Replays stay in this tab.</small></div>
+                <div class="config-item" id="ghostSettings"><div class="settings-heading">Race opponents <span class="selection-hint">Select multiple</span></div><div id="ghostChoices" class="opponent-grid" role="group" aria-label="Race opponents"></div><div id="ghostStatus" role="status"></div></div>
               </div>
             </fieldset>
           </div>
@@ -202,7 +202,6 @@ app.innerHTML = `
         <div class="flight-instruments">
         <div class="hud-overlay" id="hudOverlay" data-open="false">
           <div class="hud-panel">
-            <div class="runway-bearing"><strong class="instrument-label">RUNWAY 36</strong><span>0° · NORTH</span></div>
             <div class="hud-primary-grid">
               <div class="hud-metric">
                 <span class="hud-label">AGL</span>
@@ -724,8 +723,8 @@ skyCanvas.width = skyCanvas.height = 512;
 const skyContext = skyCanvas.getContext("2d")!;
 const skyGradient = skyContext.createLinearGradient(0, 0, 0, 512);
 skyGradient.addColorStop(0, "#43495e");
-skyGradient.addColorStop(0.55, "#9b7078");
-skyGradient.addColorStop(1, "#c88972");
+skyGradient.addColorStop(0.55, "#8d8791");
+skyGradient.addColorStop(1, "#b9a08e");
 skyContext.fillStyle = skyGradient;
 skyContext.fillRect(0, 0, 512, 512);
 const sunsetGlow = skyContext.createRadialGradient(580, 260, 0, 580, 260, 350);
@@ -736,7 +735,7 @@ skyContext.fillRect(0, 0, 512, 512);
 const skyTexture = new THREE.CanvasTexture(skyCanvas);
 skyTexture.colorSpace = THREE.SRGBColorSpace;
 scene.background = skyTexture;
-scene.fog = new THREE.Fog(0x9b7078, 700, 3400);
+scene.fog = new THREE.Fog(0x8d8791, 700, 3400);
 scene.add(new THREE.HemisphereLight(0xd6a7a3, 0x423039, 1.15));
 const sun = new THREE.DirectionalLight(0xffbd78, 2.8);
 const sunOffset = new THREE.Vector3(-60, 40, 50);

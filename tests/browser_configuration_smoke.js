@@ -37,6 +37,8 @@ async page => {
         const bounds = await item.boundingBox();
         assert(bounds.x >= 0 && bounds.x + bounds.width <= width && bounds.y + bounds.height <= header.y + header.height, 'Header brand or profile link is clipped');
       }
+      assert(await page.locator('.runway-bearing').count() === 0, 'Removed runway heading is still visible');
+      assert(await page.locator('#ghostHelp').count() === 0, 'Removed race warning is still visible');
       await page.locator('#configureToggle').click();
       assert(await page.locator('.opponent-model-group').count() === 1, 'Repeated Jev opponent cards');
       assert(await page.locator('.opponent-model-group input').count() === 2, 'Jev version badges missing');
