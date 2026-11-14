@@ -7,6 +7,7 @@ import { nextRunState, outcomeLabel, touchdownValues } from "./results.ts";
 import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./results.ts";
 import { isRunwayLightOn } from "./runway-lights.ts";
 import { BrowserRuntime } from "./browser-runtime.ts";
+import { updateChasePosition } from "./camera.ts";
 import "./style.css";
 import { selectGhost, poseAt, smoothReplayTime, ghostMaterial, spinGhostPropeller, type Ghost, type Sample } from "./ghosts.ts";
 
@@ -169,6 +170,7 @@ app.innerHTML = `
         <div class="viewer-toolbar" id="viewerToolbar">
           <button class="btn-secondary" id="hudToggle" type="button" aria-label="Flight instruments" title="Flight instruments" aria-controls="hudOverlay" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4.2 17a9 9 0 1 1 15.6 0M12 3v2M3 12h2m14 0h2M12 12l4-4"/><circle cx="12" cy="12" r="1.5"/></svg></button>
           <button class="btn-secondary" id="configureToggle" type="button" aria-label="Flight settings" aria-controls="configPanel" aria-expanded="false">Human pilot ▾</button>
+          <button class="btn-secondary" id="scenarioToggle" type="button" aria-label="Scenario settings" aria-controls="scenarioPanel" aria-expanded="false">Easy ▾</button>
           <button class="btn-primary" id="start" disabled>Start flight</button><button class="btn-secondary" id="stop" aria-label="Stop and save" disabled>Stop</button><button class="btn-secondary" id="reset" disabled>Reset</button>
           <div class="viewer-config-panel" id="configPanel" hidden>
             <fieldset id="experimentSettings"><legend class="sr-only">Experiment settings</legend>
@@ -179,12 +181,16 @@ app.innerHTML = `
                 <div class="config-item" id="modelGroup" hidden><label for="model">Model</label><select id="model" class="select-input"></select></div>
                 <div class="config-item" id="jevModelGroup" hidden><label for="jevModel">Jev version</label><select id="jevModel" class="select-input"><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
                 <div class="config-item" id="reasoningEffortGroup" hidden><label for="reasoningEffort">Reasoning effort</label><select id="reasoningEffort" class="select-input"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh">xhigh</option><option value="max">max</option></select></div>
-                <div class="config-item" id="decisionRateGroup"><label for="decisionRate">Decision rate</label><select id="decisionRate" class="select-input"><option value="2" selected>2 Hz</option><option value="5">5 Hz</option><option value="10">10 Hz</option></select></div>
-                <div class="config-item" id="scenarioGroup" style="grid-column: 1 / -1;"><label for="scenario">Scenario</label><select id="scenario" class="select-input"><option value="easy" selected>Easy · calm air</option><option value="medium">Medium · steady wind</option><option value="hard">Hard · dynamic wind / gusts</option></select><small id="scenarioSummary" style="color: #94aaa5; font-size: 11px; line-height: 1.4;"></small></div>
-                <div class="config-item" id="seedGroup" hidden><label for="seed">Seed</label><input class="number-input" id="seed" type="number" value="42" min="0" max="4294967295" step="1" required /></div>
-                <div class="config-item" id="ghostSettings"><div class="settings-heading">Race opponents <span class="ghost-tag">MULTI-SELECT</span></div><div id="ghostChoices" class="opponent-grid" role="group" aria-label="Race opponents"></div><div id="ghostStatus" role="status"></div><small id="ghostHelp">Choose any combination. Replays stay in this tab. Live Jev uses your server's TypeSafe key and incurs API usage.</small></div>
+                <div class="config-item" id="timingModeGroup"><label for="timingMode">Execution</label><select id="timingMode" class="select-input"><option value="realtime" selected>Realtime</option><option value="lockstep">Lockstep</option></select><small>Realtime keeps flying while the model thinks. Lockstep waits for each reply.</small></div>
+                <div class="config-item" id="ghostSettings"><div class="settings-heading">Race opponents <span class="ghost-tag">MULTI-SELECT</span></div><div id="ghostChoices" class="opponent-grid" role="group" aria-label="Race opponents"></div><div id="ghostStatus" role="status"></div><small id="ghostHelp">Race any controllers together. Same scenario and seed for live pilots. Each live Jev adds API usage; provider rate limits still apply. Replays stay in this tab.</small></div>
               </div>
             </fieldset>
+          </div>
+          <div class="viewer-config-panel scenario-panel" id="scenarioPanel" hidden>
+            <fieldset id="scenarioSettings"><legend class="settings-heading">Flight conditions</legend><div class="config-group">
+                <div class="config-item" id="scenarioGroup" style="grid-column: 1 / -1;"><label for="scenario">Scenario</label><select id="scenario" class="select-input"><option value="easy" selected>Easy · calm air</option><option value="medium">Medium · steady wind</option><option value="hard">Hard · dynamic wind / gusts</option></select><small id="scenarioSummary" style="color: #94aaa5; font-size: 11px; line-height: 1.4;"></small></div>
+                <div class="config-item" id="seedGroup" hidden><label for="seed">Seed</label><input class="number-input" id="seed" type="number" value="42" min="0" max="4294967295" step="1" required /></div>
+            </div></fieldset>
           </div>
         </div>
 
@@ -231,7 +237,7 @@ app.innerHTML = `
         </div>
 
         <div class="flight-readout" aria-label="Live controller and actuator output">
-          <div class="flight-readout-head"><strong id="overlayController">Baseline Controller</strong><span id="overlayCadence">2 Hz</span></div>
+          <div class="flight-readout-head"><strong id="overlayController">Baseline Controller</strong><span id="overlayCadence">— Hz</span></div>
           <div class="flight-readout-grid">
             <div><span>AIL</span><strong id="overlayAileron">—</strong></div>
             <div><span>ELE</span><strong id="overlayElevator">—</strong></div>
@@ -239,6 +245,15 @@ app.innerHTML = `
             <div><span>THR</span><strong id="overlayThrottle">—</strong></div>
           </div>
           <div class="flight-decision" id="overlayDecision" hidden><span id="overlayDecisionStatus">JEV DECISION</span><strong id="overlayDecisionText">Awaiting first response</strong></div>
+        </div>
+
+        <div class="wind-instrument" id="windInstrument" hidden aria-label="Live wind">
+          <svg class="wind-compass" viewBox="0 0 80 80" role="img" aria-label="Wind from bearing">
+            <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5"/>
+            <text x="40" y="9">N</text><text x="74" y="43">E</text><text x="40" y="78">S</text><text x="6" y="43">W</text>
+            <g id="windArrow"><path d="M40 18l-6 13h5v29h2V31h5z"/></g><circle class="compass-hub" cx="40" cy="40" r="3"/>
+          </svg>
+          <div><span class="wind-label">WIND FROM</span><strong id="windSpeed">— m/s</strong><span id="windBearing">—°</span><small id="windVertical">Steady</small></div>
         </div>
 
         <!-- Camera Switcher Overlay (Bottom-Right Canvas Overlay) -->
@@ -301,7 +316,7 @@ app.innerHTML = `
         </div>
         <div class="ctrl-chips-row">
           <div class="meta-chip" id="chipDecisionNum">Applied <strong>#—</strong></div>
-          <div class="meta-chip">Cadence <strong id="cadenceValue">2 Hz</strong></div>
+          <div class="meta-chip">Mean latency <strong id="cadenceValue">— ms</strong></div>
           <div class="meta-chip">Effective Rate <strong id="effectiveRate">— Hz</strong></div>
           <div class="meta-chip" id="chipLatency">Latency <strong>— ms</strong></div>
           <div class="meta-chip" id="chipStateAge">Age <strong>— ms</strong></div>
@@ -340,7 +355,7 @@ app.innerHTML = `
         </div>
       </section>
 
-      <details class="diagnostics"><summary>Decision diagnostics</summary>
+      <details class="diagnostics" id="decisionDiagnostics"><summary>Decision diagnostics <span>Input, choices & application</span></summary><p class="diagnostic-help">Requested commands are shown below. Applied controls are shown in the actuator panel; discarded replies do not move them.</p>
       <!-- Current Joint Decision Card -->
       <section class="ctrl-card" id="jointDecisionCard">
         <div class="ctrl-card-header">
@@ -857,11 +872,13 @@ const ghostRuns: Ghost[] = [];
 let raceTime = 0;
 let renderRaceTime = 0;
 let liveJevAvailable = false;
-let liveGhost: Ghost | null = null;
-let liveGhostRunId: string | null = null;
+type LiveOpponent = {runId: string | null; run: Ghost; label: string; state: StateMessage | null; renderTime: number};
+const liveOpponents = new Map<string, LiveOpponent>();
+const liveEntry = (run: Ghost | null) => [...liveOpponents.values()].find(entry => entry.run === run);
+const liveRunning = () => [...liveOpponents.values()].some(entry => entry.runId);
+
 let watchedGhost: Ghost | null = null;
 let spectatorRunning = false;
-let lastLiveState: StateMessage | null = null;
 let primaryResult: RunRecord | null = null;
 let dismissingRace = false;
 let resettingRace = false;
@@ -895,19 +912,22 @@ function clearGhosts() {
 }
 function ghostSetupKey(config?: RunConfig): string {
   return JSON.stringify([pagesRuntime, config?.scenario ?? byId<HTMLSelectElement>("scenario").value,
-    config?.mode ?? (pagesRuntime ? "lockstep" : "realtime"), config?.decision_hz ?? Number(byId<HTMLSelectElement>("decisionRate").value)]);
+    config?.mode ?? (["jev", "codex"].includes(controllerSelect.value) ? byId<HTMLSelectElement>("timingMode").value : "realtime"), config?.decision_hz ?? 2]);
 }
 function ghostTitle(choice: string): string {
-  return choice === "human" ? "Personal best" : choice === "jev" ? "Jev replay" : choice === "live" ? "Live Jev" : "Previous flight";
+  if (choice.startsWith("live:")) return choice === "live:baseline" ? "Live baseline" : `Live Jev ${choice.slice(9).replace(".0", "")}`;
+  return choice === "human" ? "Personal best" : choice === "jev" ? "Jev replay" : "Previous flight";
 }
 function refreshGhostStatus() {
   const host = byId("ghostChoices");
-  const available = ["previous", "human", "jev", "live"].filter(choice =>
-    choice === "live" ? liveJevAvailable : Boolean(selectGhost(ghostRuns, ghostSetupKey(), choice)));
+  const primary = controllerSelect?.value === "jev" ? jevModelSelect.value : controllerSelect?.value;
+  const live = ["baseline", ...(liveJevAvailable || pagesRuntime ? ["jev-1.13.0", "jev-1.14.0"] : [])]
+    .filter(id => id !== primary).map(id => `live:${id}`);
+  const available = [...["previous", "human", "jev"].filter(choice => Boolean(selectGhost(ghostRuns, ghostSetupKey(), choice))), ...live];
   for (const choice of selectedGhosts) if (!available.includes(choice)) selectedGhosts.delete(choice);
   host.replaceChildren();
   for (const choice of available) {
-    const run = choice === "live" ? null : selectGhost(ghostRuns, ghostSetupKey(), choice);
+    const run = choice.startsWith("live:") ? null : selectGhost(ghostRuns, ghostSetupKey(), choice);
     const label = document.createElement("label"); label.className = "opponent-card";
     const input = document.createElement("input"); input.type = "checkbox"; input.value = choice;
     input.checked = selectedGhosts.has(choice); input.setAttribute("aria-label", ghostTitle(choice));
@@ -918,12 +938,10 @@ function refreshGhostStatus() {
     const text = document.createElement("span"); const title = document.createElement("strong"); title.textContent = ghostTitle(choice);
     const detail = document.createElement("small"); detail.textContent = run
       ? `${run.score.toFixed(1)} pts · ${run.samples.at(-1)!.time.toFixed(1)} s · ${outcomeLabel(run.status, run.success)}`
-      : "Independent realtime opponent · API usage";
+      : choice === "live:baseline" ? "Independent rule-based pilot · no API usage" : "Independent model pilot · API usage";
     text.append(title, detail); label.append(input, text); host.append(label);
   }
-  byId("ghostStatus").textContent = available.length
-    ? selectedGhosts.size ? `${selectedGhosts.size} opponent(s) selected` : "Solo flight · recording stays on"
-    : "Finish a flight to unlock replay opponents.";
+  byId("ghostStatus").textContent = selectedGhosts.size ? `${selectedGhosts.size} opponent(s) selected` : "Solo flight · recording stays on";
 }
 function createGhostVisual(controller: string): THREE.Group {
     const visual = aircraft.clone(true);
@@ -938,13 +956,12 @@ function createGhostVisual(controller: string): THREE.Group {
 }
 function startGhosts(config: RunConfig) {
   clearGhosts();
-  ghostSamples = []; raceTime = 0; renderRaceTime = 0; liveGhost = null; liveGhostRunId = null; watchedGhost = null; spectatorRunning = false;
-  lastLiveState = null; primaryResult = null; primaryResultButton.hidden = true; dismissingRace = false; resettingRace = false;
+  ghostSamples = []; raceTime = 0; renderRaceTime = 0; liveOpponents.clear(); watchedGhost = null; spectatorRunning = false;
+  primaryResult = null; primaryResultButton.hidden = true; dismissingRace = false; resettingRace = false;
   recordingController = String(config.controller);
   ghostKey = ghostSetupKey(config);
-  if (config.controller !== "human") return;
   for (const choice of selectedGhosts) {
-    if (choice === "live") continue;
+    if (choice.startsWith("live:")) continue;
     const run = selectGhost(ghostRuns, ghostKey, choice);
     if (!run || activeGhosts.some(ghost => ghost.run === run)) continue;
     const controller = choice === "jev" ? "jev" : "human";
@@ -963,6 +980,7 @@ function startGhosts(config: RunConfig) {
 const desiredPosition = aircraft.position.clone();
 const desiredQuaternion = aircraft.quaternion.clone();
 const lastOrbitTarget = aircraft.position.clone();
+const lastChaseTarget = aircraft.position.clone();
 
 // Camera offset tuning: chase camera behind and slightly above aircraft, looking slightly down and forward at runway
 const chaseOffset = new THREE.Vector3(-14, 3.8, 0);
@@ -1197,9 +1215,11 @@ function transitionRun(event: RunEvent) {
   const busy = runState === "starting" || runState === "running";
   byId<HTMLFieldSetElement>("experimentSettings").disabled = busy;
   byId<HTMLButtonElement>("configureToggle").disabled = busy;
-  if (busy) setConfigOpen(false);
+  byId<HTMLButtonElement>("scenarioToggle").disabled = busy;
+  byId<HTMLFieldSetElement>("scenarioSettings").disabled = busy;
+  if (busy) {setConfigOpen(false); setScenarioOpen(false);}
   byId<HTMLButtonElement>("start").disabled = busy || runState === "offline";
-  byId<HTMLButtonElement>("stop").disabled = runState !== "running" && !liveGhostRunId;
+  byId<HTMLButtonElement>("stop").disabled = runState !== "running" && !liveRunning();
   byId<HTMLButtonElement>("reset").disabled = runState === "starting" || runState === "offline";
   for (const id of ["autoCenterToggle", "wingLevelerToggle"]) byId<HTMLInputElement>(id).disabled = busy;
   const text: Record<RunState, string> = {
@@ -1386,10 +1406,11 @@ function updateLiveDecision(info: DecisionInfo, call: number, latencyMs: number 
 function updateDecisionCards(info: DecisionInfo | null | undefined, decisionCount: number, latencyMs: number | null) {
   if (!info) return;
   lastDecisionInfo = info;
-  if (info.live_status) {
-    const cadence = `${info.live_status.cadence_hz} Hz`;
-    byId("cadenceValue").textContent = cadence;
-    byId("overlayCadence").textContent = cadence;
+  if (info.live_status && performance.now() - lastMetricUpdate >= 5000) {
+    displayedRate = `${(info.live_status.effective_decision_hz ?? 0).toFixed(1)} Hz`;
+    displayedMeanLatency = info.live_status.avg_latency_ms == null ? "— ms" : `${info.live_status.avg_latency_ms.toFixed(0)} ms`;
+    lastMetricUpdate = performance.now();
+    updateTimingLabels();
   }
 
   // Header / Identity
@@ -1405,7 +1426,6 @@ function updateDecisionCards(info: DecisionInfo | null | undefined, decisionCoun
 
   if (info.live_status) {
     const s = info.live_status;
-    byId("effectiveRate").textContent = s.effective_decision_hz == null ? "— Hz" : `${s.effective_decision_hz.toFixed(1)} Hz`;
     byId("chipLatency").querySelector("strong")!.textContent = `${s.latency_ms != null ? s.latency_ms.toFixed(0) : (latencyMs != null ? latencyMs.toFixed(0) : "—")} ms`;
     byId("chipStateAge").querySelector("strong")!.textContent = `${s.state_age_ms != null ? s.state_age_ms.toFixed(0) : "—"} ms`;
   } else if (latencyMs != null) {
@@ -1433,16 +1453,38 @@ function updateDecisionCards(info: DecisionInfo | null | undefined, decisionCoun
     byId("axisMarginalsSection").style.display = "none";
     byId("openAllOptionsBtn").style.display = "none";
     byId("toggleMarginalsBtn").style.display = "none";
-    byId("inputSummaryGrid").textContent = "View the exact flight state supplied to the model. Proposed choices below are not proof of application; the actuator panel shows backend-applied controls.";
+    byId("jointDecisionCard").dataset.kind = "direct";
     for (const id of ["consequenceCard", "decisionHistoryCard"]) byId(id).style.display = "none";
+    const input = info.input;
+    const measurements: [string, string][] = input ? [
+      ["Phase / time", `${input.phase ?? "—"} · ${(input.time_s ?? 0).toFixed(1)} s`],
+      ["Airspeed", `${input.flight?.airspeed_mps?.toFixed(1) ?? "—"} m/s`],
+      ["Altitude AGL", `${input.runway?.altitude_agl_m?.toFixed(1) ?? "—"} m`],
+      ["Centerline", `${(input.runway?.centerline_offset_m ?? input.runway?.cross_track_error_m)?.toFixed(1) ?? "—"} m`],
+      ["Wind", formatWindSummary(input.environment)],
+    ] : [["Input", "Waiting for a model request"]];
+    byId("inputSummaryGrid").replaceChildren(...measurements.map(([label, value]) => {
+      const row = document.createElement("div"); row.className = "diagnostic-measurement";
+      const key = document.createElement("span"); key.textContent = label;
+      const text = document.createElement("strong"); text.textContent = value;
+      row.append(key, text); return row;
+    }));
     const commands = info.command || Object.fromEntries(Object.entries(info.choices!).map(([axis, choice]) => [axis, choice.command!]));
-    const rows = Object.entries(commands).map(([axis, command]) => {
+    byId("topProbBars").replaceChildren(...Object.entries(commands).map(([axis, command]) => {
       const choice = info.choices?.[axis];
-      const row = document.createElement("p");
-      row.textContent = `${axis}: ${command.toFixed(3)}` + (choice ? ` · confidence ${choice.confidence == null ? "N/A" : (choice.confidence * 100).toFixed(0) + "%"} — ${choice.label}` : "");
-      return row;
-    });
-    byId("topProbBars").replaceChildren(...rows);
+      const row = document.createElement("article"); row.className = "diagnostic-choice";
+      const header = document.createElement("header");
+      const title = document.createElement("strong"); title.textContent = axis;
+      const value = document.createElement("strong"); value.textContent = command.toFixed(3);
+      header.append(title, value);
+      const status = document.createElement("span"); status.className = "diagnostic-application";
+      status.textContent = info.timing?.applied === false ? "Not applied · stale reply" : info.timing?.applied === true ? "Applied" : "Requested";
+      const criterion = document.createElement("p"); criterion.textContent = choice?.label ?? "Validated model command";
+      const detail = document.createElement("small");
+      detail.textContent = [choice?.choice != null ? `Action ${choice.choice}` : "Structured output",
+        choice?.confidence != null ? `${(choice.confidence * 100).toFixed(0)}% confidence` : ""].filter(Boolean).join(" · ");
+      row.append(header, status, criterion, detail); return row;
+    }));
     return;
   }
 
@@ -1740,6 +1782,17 @@ function updateHudAndTelemetry(message: StateMessage) {
   byId("stripRoll").textContent = `${f.roll_deg >= 0 ? "+" : ""}${f.roll_deg.toFixed(1)}°`;
   byId("stripPitch").textContent = `${f.pitch_deg >= 0 ? "+" : ""}${f.pitch_deg.toFixed(1)}°`;
   byId("stripWind").textContent = formatWindSummary(message.observation.environment);
+  const wind = message.observation.environment;
+  if (wind) {
+    const speed = wind.wind_speed_mps ?? Math.hypot(wind.headwind_mps, wind.crosswind_mps);
+    const bearing = wind.wind_dir_deg ?? ((Math.atan2(wind.headwind_mps, wind.crosswind_mps) * 180 / Math.PI + 360) % 360);
+    byId("windArrow").setAttribute("transform", `rotate(${bearing} 40 40)`);
+    byId("windSpeed").textContent = `${speed.toFixed(1)} m/s`;
+    byId("windBearing").textContent = `${bearing.toFixed(0)}°`;
+    const vertical = wind.vertical_wind_mps ?? 0;
+    byId("windVertical").textContent = Math.abs(vertical) >= .05 ? `${vertical > 0 ? "↑" : "↓"} ${Math.abs(vertical).toFixed(1)} m/s vertical` : "Horizontal wind";
+    byId("windInstrument").title = formatWindSummary(wind);
+  }
   byId("stripScore").textContent = message.score.toFixed(1);
 
   if (runState === "running") {
@@ -1764,8 +1817,8 @@ function showOutcomeModal(record: RunRecord, owner = "Your flight") {
   const values = touchdownValues(result);
   ["outcomeIasVal", "outcomeVsiVal", "outcomeXtrackVal", "outcomePitchVal", "outcomeRollVal"].forEach((id, i) => byId(id).textContent = values[i]);
   const watchButton = document.querySelector<HTMLElement>('[data-close="outcomeModal"]');
-  if (watchButton) watchButton.textContent = spectatorRunning ? liveGhostRunId ? "Watch Jev · API usage continues" : "Continue watching" : "Close result";
-  byId("outcomeRestartBtn").textContent = liveGhostRunId ? "Stop Jev & start next run" : "Start Next Run";
+  if (watchButton) watchButton.textContent = spectatorRunning ? liveRunning() ? "Watch live opponents" : "Continue watching" : "Close result";
+  byId("outcomeRestartBtn").textContent = liveRunning() ? "Stop opponents & start next run" : "Start Next Run";
   openDialog("outcomeModal");
 }
 
@@ -1773,7 +1826,7 @@ function showRaceResults() {
   if (!primaryResult) return;
   const opponents = activeGhosts.map(({ run, label }) => ({ run, label }));
   // A live controller may fail before sending its first pose.
-  if (liveGhost && !opponents.some(({ run }) => run === liveGhost)) opponents.push({ run: liveGhost, label: "Live Jev" });
+  for (const entry of liveOpponents.values()) if (!opponents.some(({run}) => run === entry.run)) opponents.push({run: entry.run, label: entry.label});
   showOutcomeModal(primaryResult);
   if (!opponents.length) return;
   const entries = [
@@ -1822,7 +1875,7 @@ let reconnectTimer = 0;
 function connect() {
   if (pagesRuntime) {
     byId("connectionText").textContent = "LOADING WASM";
-    browserRuntime = new BrowserRuntime(new URL(`${import.meta.env.BASE_URL}wasm/worker.js?v=public-jev-2`, location.origin), receiveMessage);
+    browserRuntime = new BrowserRuntime(new URL(`${import.meta.env.BASE_URL}wasm/worker.js?v=interactive-races-3`, location.origin), receiveMessage);
     return;
   }
   const protocol = location.protocol === "https:" ? "wss" : "ws";
@@ -1841,7 +1894,7 @@ function connect() {
     if (socket !== connection) return;
     byId("connectionDot").classList.remove("online");
     byId("connectionText").textContent = "OFFLINE";
-    activeRunId = null; liveGhostRunId = null; spectatorRunning = false;
+    activeRunId = null; liveOpponents.clear(); spectatorRunning = false;
     closeDialog("outcomeModal");
     transitionRun("disconnect");
     clearTimeout(reconnectTimer);
@@ -1863,35 +1916,37 @@ function connect() {
 function receiveMessage(message: any) {
   if (message.type === "ghost") {
     const event = message.message;
+    const id = message.opponent_id ?? "live";
+    let entry = liveOpponents.get(id);
     if (event.type === "run_started") {
       if (dismissingRace || (runState !== "starting" && runState !== "running")) return;
-      liveGhostRunId = event.run_id;
-      liveGhost = { key: ghostKey, controller: "jev", score: 0, status: "running", samples: [] };
-    } else if (event.type === "state" && event.run_id === liveGhostRunId && liveGhost) {
+      const run: Ghost = {key: ghostKey, controller: event.config?.controller ?? "jev", score: 0, status: "running", samples: []};
+      entry = {runId: event.run_id, run, label: id === "live" ? "Live Jev" : ghostTitle(`live:${id}`), state: null, renderTime: 0};
+      liveOpponents.set(id, entry);
+    } else if (entry && event.run_id === entry.runId && event.type === "state") {
       const time = event.observation.time_s;
-      lastLiveState = event;
-      if (watchedGhost === liveGhost && spectatorRunning && Number.isFinite(time)) { raceTime = time; updateHudAndTelemetry(event); }
-      if (Number.isFinite(time) && (!liveGhost.samples.length || time > liveGhost.samples.at(-1)!.time)) {
-        liveGhost.samples.push({ time, position: event.position, quaternion: event.quaternion });
-        if (liveGhost.samples.length === 1) {
-          const visual = createGhostVisual("jev"); visual.visible = false;
-          const marker = document.createElement("div"); marker.className = "ghost-marker ghost-jev"; marker.textContent = "LIVE JEV";
+      entry.state = event;
+      if (watchedGhost === entry.run && spectatorRunning && Number.isFinite(time)) { raceTime = time; updateHudAndTelemetry(event); }
+      if (Number.isFinite(time) && (!entry.run.samples.length || time > entry.run.samples.at(-1)!.time)) {
+        entry.run.samples.push({time, position: event.position, quaternion: event.quaternion});
+        if (entry.run.samples.length === 1) {
+          const visual = createGhostVisual(entry.run.controller); visual.visible = false;
+          const marker = document.createElement("div"); marker.className = "ghost-marker ghost-jev"; marker.textContent = entry.label;
           ghostLegend.parentElement!.append(marker); scene.add(visual);
-          activeGhosts.push({run: liveGhost, visual, label: "Live Jev", marker}); ghostLegend.hidden = false;
+          activeGhosts.push({run: entry.run, visual, label: entry.label, marker}); ghostLegend.hidden = false;
         }
       }
-    } else if (event.type === "run_finished" && event.run_id === liveGhostRunId && liveGhost) {
-      Object.assign(liveGhost, { score: event.record.outcome.quality ?? 0, status: event.record.outcome.status, success: event.record.outcome.success });
-      ghostRecords.set(liveGhost, event.record);
-      if (liveGhost.samples.length > 1) ghostRuns.push(liveGhost);
-      liveGhostRunId = null; refreshGhostStatus();
-      byId<HTMLButtonElement>("stop").disabled = runState !== "running";
-      if (!activeRunId && !resettingRace) {
-        if (dismissingRace || !followRemainingOpponent()) finishSpectating(liveGhost);
-      }
-    } else if (event.type === "error") {
-      if (liveGhost) liveGhost.status = "controller_error";
-      showError(`Live Jev: ${event.message}`);
+    } else if (entry && event.run_id === entry.runId && event.type === "run_finished") {
+      Object.assign(entry.run, {score: event.record.outcome.quality ?? 0, status: event.record.outcome.status, success: event.record.outcome.success});
+      ghostRecords.set(entry.run, event.record);
+      if (entry.run.samples.length > 1) ghostRuns.push(entry.run);
+      entry.runId = null; refreshGhostStatus();
+      byId<HTMLButtonElement>("stop").disabled = runState !== "running" && !liveRunning();
+      if (!activeRunId && !resettingRace && (dismissingRace || !followRemainingOpponent())) finishSpectating(entry.run);
+    } else if (event.type === "error" || event.type === "offline") {
+      if (entry) {entry.run.status = "controller_error"; entry.runId = null;}
+      showError(`${entry?.label ?? id}: ${event.message}`);
+      if (!activeRunId && !resettingRace && !followRemainingOpponent()) showRaceResults();
     }
     return;
   }
@@ -1901,7 +1956,7 @@ function receiveMessage(message: any) {
     hideError(); transitionRun("connect"); return;
   }
   if (message.type === "offline") {
-    liveGhostRunId = null; spectatorRunning = false;
+    liveOpponents.clear(); spectatorRunning = false;
     closeDialog("outcomeModal");
     byId("connectionDot").classList.remove("online");
     byId("connectionText").textContent = "OFFLINE";
@@ -1909,6 +1964,7 @@ function receiveMessage(message: any) {
   }
   if (message.type === "error") {
     transitionRun("error");
+    if (spectatorRunning) updateSpectatorLabel();
     if (message.code === "storage_error") byId<HTMLButtonElement>("stop").disabled = false;
     showError(message.message);
     return;
@@ -1975,6 +2031,9 @@ function send(message: { type: string; [key: string]: unknown }): boolean {
   return true;
 }
 
+let displayedRate = "— Hz";
+let displayedMeanLatency = "— ms";
+let lastMetricUpdate = performance.now();
 const controllerSelect = byId<HTMLSelectElement>("controller");
 const scenarioSelect = byId<HTMLSelectElement>("scenario");
 const modelSelect = byId<HTMLSelectElement>("model");
@@ -1987,10 +2046,17 @@ const SCENARIO_SUMMARIES: Record<string, string> = {
   hard: "Time & altitude-varying wind shear/gusts (XW ±8, HW -4..+10, VW -1..+0.5 m/s) · offset ±60m, ±10° hdg, ±18m AGL, ±8 kt (seed-deterministic)",
 };
 function setConfigOpen(open: boolean) {
+  if (open) setScenarioOpen(false);
   byId("configPanel").hidden = !open;
   byId("configureToggle").setAttribute("aria-expanded", String(open));
 }
 byId("configureToggle").addEventListener("click", () => setConfigOpen(byId("configPanel").hidden));
+function setScenarioOpen(open: boolean) {
+  if (open) setConfigOpen(false);
+  byId("scenarioPanel").hidden = !open;
+  byId("scenarioToggle").setAttribute("aria-expanded", String(open));
+}
+byId("scenarioToggle").addEventListener("click", () => setScenarioOpen(byId("scenarioPanel").hidden));
 function setHudOpen(open: boolean) {
   byId("hudOverlay").dataset.open = String(open);
   byId("hudToggle").setAttribute("aria-expanded", String(open));
@@ -1998,9 +2064,12 @@ function setHudOpen(open: boolean) {
 byId("hudToggle").addEventListener("click", () => setHudOpen(byId("hudOverlay").dataset.open !== "true"));
 document.addEventListener("pointerdown", (event) => {
   if (!byId("configPanel").hidden && !byId("viewerToolbar").contains(event.target as Node)) setConfigOpen(false);
+  if (!byId("scenarioPanel").hidden && !byId("viewerToolbar").contains(event.target as Node)) setScenarioOpen(false);
 });
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !byId("configPanel").hidden) {
+  if (event.key === "Escape" && !byId("scenarioPanel").hidden) {
+    setScenarioOpen(false); byId("scenarioToggle").focus();
+  } else if (event.key === "Escape" && !byId("configPanel").hidden) {
     setConfigOpen(false);
     byId("configureToggle").focus();
   } else if (event.key === "Escape" && byId("hudToggle").offsetParent && byId("hudOverlay").dataset.open === "true") {
@@ -2027,7 +2096,7 @@ function updateControllerUi() {
   const isCodex = controllerSelect.value === "codex";
   const isHuman = controllerSelect.value === "human";
   refreshGhostStatus();
-  byId("ghostSettings").hidden = !isHuman;
+  byId("ghostSettings").hidden = false;
   const viewController = watchedGhost?.controller ?? controllerSelect.value;
   const isJevOrAi = viewController === "jev" || viewController === "codex";
   document.querySelector<HTMLElement>(".workspace")!.dataset.controller = viewController;
@@ -2035,16 +2104,18 @@ function updateControllerUi() {
   byId("modelGroup").hidden = !isCodex;
   byId("jevModelGroup").hidden = controllerSelect.value !== "jev";
   byId("reasoningEffortGroup").hidden = !isCodex;
-  byId("decisionRateGroup").hidden = isHuman;
+  byId("timingModeGroup").hidden = !isJevOrAi;
+  const timing = byId<HTMLSelectElement>("timingMode");
+  if (isCodex && timing.value === "realtime") reasoningEffortSelect.value = "low";
+  for (const option of reasoningEffortSelect.options) option.disabled = isCodex && timing.value === "realtime" && option.value !== "low";
   byId("seedGroup").hidden = scenarioSelect.value === "easy";
   byId("scenarioSummary").textContent = SCENARIO_SUMMARIES[scenarioSelect.value] ?? "";
-  const cadence = isHuman ? "Manual" : `${byId<HTMLSelectElement>("decisionRate").value} Hz`;
-  byId("cadenceValue").textContent = cadence;
-  byId("overlayCadence").textContent = cadence;
-  const scenarioBadge = scenarioSelect.value === "easy" ? "" : ` · ${scenarioSelect.value[0].toUpperCase()}${scenarioSelect.value.slice(1)}`;
-  byId("configureToggle").textContent = `${controllerSelect.selectedOptions[0]?.textContent?.split(" · ")[0] ?? "Controller"}${isHuman ? "" : ` · ${cadence}`}${scenarioBadge} ▾`;
+  byId("scenarioToggle").textContent = `${scenarioSelect.selectedOptions[0]?.textContent?.split(" · ")[0]} ▾`;
+  byId("windInstrument").hidden = scenarioSelect.value === "easy";
+  updateTimingLabels();
   byId("overlayController").textContent = controllerSelect.selectedOptions[0]?.textContent ?? "Controller";
   byId("liveDecisionCard").hidden = !isJevOrAi;
+  byId("decisionDiagnostics").hidden = !isJevOrAi;
   byId("decisionInput").hidden = viewController !== "jev";
   byId("decisionOutputTitle").textContent = viewController === "jev" ? "JEV CHOSE · REQUESTED CONTROLS" : "MODEL CHOSE · REQUESTED CONTROLS";
   byId("overlayDecision").hidden = !isJevOrAi;
@@ -2065,7 +2136,7 @@ function updateControllerUi() {
   const modelTag = byId("ctrlModelTag");
   if (watchedGhost) {
     if (brandTitle) brandTitle.textContent = `${viewController.toUpperCase()} · Spectator`;
-    if (modelTag) modelTag.textContent = watchedGhost === liveGhost ? "Live opponent · API usage" : "Recorded flight";
+    if (modelTag) modelTag.textContent = Boolean(liveEntry(watchedGhost)) ? "Live opponent · API usage" : "Recorded flight";
   } else if (isHuman) {
     if (brandTitle) brandTitle.textContent = "Human Pilot";
     if (modelTag) modelTag.textContent = "Keyboard / touch controls";
@@ -2088,16 +2159,13 @@ function updateControllerUi() {
 }
 
 byId("seed").addEventListener("input", refreshGhostStatus);
-byId("decisionRate").addEventListener("change", refreshGhostStatus);
 scenarioSelect.addEventListener("change", () => { updateControllerUi(); refreshGhostStatus(); });
 controllerSelect.addEventListener("change", () => { clearDecisionView(); updateControllerUi(); });
-for (const select of [byId("decisionRate"), modelSelect, jevModelSelect, reasoningEffortSelect]) {
-  select.addEventListener("change", updateControllerUi);
+for (const select of [byId("timingMode"), modelSelect, jevModelSelect, reasoningEffortSelect]) {
+  select.addEventListener("change", () => { clearDecisionView(); updateControllerUi(); });
 }
 if (pagesRuntime) {
   controllerSelect.querySelector('option[value="codex"]')?.remove();
-  const decisionRate = byId<HTMLSelectElement>("decisionRate");
-  for (const option of [...decisionRate.options]) if (option.value !== "2") option.remove();
   byId("stop").setAttribute("aria-label", "Stop flight");
   document.querySelector(".model-credit")?.insertAdjacentHTML("beforeend", `<br><a href="/FlightBench/recordings/">Flight recordings</a>`);
 }
@@ -2128,7 +2196,19 @@ if (!pagesRuntime) fetch("/api/models")
     modelSelect.innerHTML = "<option disabled>Models unavailable</option>";
   });
 
+function updateTimingLabels() {
+  const controller = controllerSelect.value;
+  const model = controller === "jev" ? `Jev ${jevModelSelect.selectedOptions[0]?.text}` : controller === "codex" ? modelSelect.value || "Codex" : controller === "human" ? "Human pilot" : "Baseline";
+  const mode = ["jev", "codex"].includes(controller) ? byId<HTMLSelectElement>("timingMode").value : "realtime";
+  byId("configureToggle").textContent = `${model}${["jev", "codex"].includes(controller) ? ` · ${displayedRate}` : ""} ▾`;
+  byId("overlayCadence").textContent = controller === "human" ? "Manual" : `${mode} · ${displayedRate}`;
+  byId("effectiveRate").textContent = displayedRate;
+  byId("cadenceValue").textContent = displayedMeanLatency;
+}
+
 function clearDecisionView() {
+  displayedRate = "— Hz"; displayedMeanLatency = "— ms"; lastMetricUpdate = performance.now();
+  updateTimingLabels();
   allDecisions = [];
   lastDecisionCount = -1;
   lastDecisionInfo = null;
@@ -2178,34 +2258,36 @@ byId("start").addEventListener("click", () => {
   const config: RunConfig = {
     scenario: scenarioSelect.value,
     controller: controllerSelect.value,
-    mode: pagesRuntime || controllerSelect.value === "codex" ? "lockstep" : "realtime",
+    mode: ["jev", "codex"].includes(controllerSelect.value) ? byId<HTMLSelectElement>("timingMode").value : "realtime",
+    decision_schedule: ["jev", "codex"].includes(controllerSelect.value) ? "continuous" : "fixed",
     seed: scenarioSelect.value === "easy" ? 42 : Number(seedInput.value),
-    decision_hz: Number(byId<HTMLSelectElement>("decisionRate").value),
+    decision_hz: 2,
     time_scale: 1,
     realtime_response_policy: "apply-on-arrival",
     human_assistance: { auto_center: autoCenterEnabled, wing_leveler: wingLevelerEnabled },
     model: controllerSelect.value === "codex" ? modelSelect.value : controllerSelect.value === "jev" ? jevModelSelect.value : null,
     reasoning_effort: controllerSelect.value === "codex" ? reasoningEffortSelect.value : "low",
   };
-  if (!send({ type: !pagesRuntime && config.controller === "human" && selectedGhosts.has("live") ? "start_race" : "start", ...config })) { transitionRun("disconnect"); return; }
+  const opponents = [...selectedGhosts].filter(choice => choice.startsWith("live:")).map(choice => choice.slice(5));
+  if (!send({ type: opponents.length ? "start_race" : "start", ...config, ...(opponents.length ? {opponents} : {}) })) { transitionRun("disconnect"); return; }
   startGhosts(config);
   updateControllerUi();
   setCamera(cameraMode);
   transitionRun("start");
 });
 byId("stop").addEventListener("click", () => {
-  if ((runState === "running" || liveGhostRunId || spectatorRunning) && send({ type: "stop" })) {
+  if ((runState === "running" || liveRunning() || spectatorRunning) && send({ type: "stop" })) {
     dismissingRace = true;
     spectatorRunning = false;
     byId<HTMLButtonElement>("stop").disabled = true;
-    if (!activeRunId && watchedGhost && !liveGhostRunId) finishSpectating(watchedGhost);
+    if (!activeRunId && watchedGhost && !liveRunning()) finishSpectating(watchedGhost);
   }
 });
 byId("reset").addEventListener("click", () => {
   const wasDismissing = dismissingRace;
   dismissingRace = true; resettingRace = true;
   if (!send({ type: "reset" })) { dismissingRace = wasDismissing; resettingRace = false; return; }
-  liveGhostRunId = null;
+  liveOpponents.clear();
   clearGhosts(); watchedGhost = null; spectatorRunning = false;
   primaryResultButton.hidden = true;
   updateControllerUi();
@@ -2213,6 +2295,8 @@ byId("reset").addEventListener("click", () => {
   hideError();
   clearDecisionView();
   lastObservation = null;
+  byId("windSpeed").textContent = "— m/s"; byId("windBearing").textContent = "—°";
+  byId("windVertical").textContent = "Awaiting flight";
   centerSurfaces(controls);
   showControls(controls);
   desiredPosition.set(-1500, 94, 0);
@@ -2232,18 +2316,19 @@ function updateSpectatorLabel() {
   const label = activeGhosts.find(ghost => ghost.run === watchedGhost)?.label ?? "Jev";
   byId("flightStatePill").textContent = `WATCHING ${label.toUpperCase()}`;
   byId("overlayController").textContent = `WATCHING ${label.toUpperCase()}`;
-  byId("runStatus").textContent = watchedGhost === liveGhost ? "Watching Jev · API usage continues" : `Watching ${label}`;
+  byId("runStatus").textContent = Boolean(liveEntry(watchedGhost)) ? "Watching live opponent" : `Watching ${label}`;
 }
 function followRemainingOpponent(): boolean {
-  const next = liveGhostRunId && liveGhost ? liveGhost : activeGhosts.find(({run}) => run !== liveGhost && run.samples.at(-1)!.time > raceTime)?.run;
+  const next = [...liveOpponents.values()].find(entry => entry.runId)?.run ?? activeGhosts.find(({run}) => !liveEntry(run) && run.samples.at(-1)!.time > raceTime)?.run;
   if (!next) return false;
   watchedGhost = next; spectatorRunning = true;
   closeDialog("outcomeModal");
   clearDecisionView();
   updateControllerUi();
-  if (next === liveGhost && lastLiveState) {
-    raceTime = lastLiveState.observation.time_s;
-    updateHudAndTelemetry(lastLiveState);
+  const liveState = liveEntry(next)?.state;
+  if (liveState) {
+    raceTime = liveState.observation.time_s;
+    updateHudAndTelemetry(liveState);
   }
   // Snap to the new subject before smoothing subsequent motion.
   renderRaceTime = raceTime;
@@ -2254,7 +2339,7 @@ function followRemainingOpponent(): boolean {
   }
   camera.position.copy(visual.position).add(chaseOffset.clone().applyQuaternion(visual.quaternion));
   setCamera(cameraMode);
-  if (next !== liveGhost) {
+  if (!liveEntry(next)) {
     for (const id of ["hudAgl", "hudIas", "hudVsi", "hudFpa", "hudXtrack", "hudGlide", "hudHdgErr", "hudAoa", "stripAlong", "stripThresh", "stripRoll", "stripPitch", "stripWind", "stripScore"]) byId(id).textContent = "—";
     byId("stripPhase").textContent = "REPLAY";
   }
@@ -2264,7 +2349,7 @@ function followRemainingOpponent(): boolean {
 }
 function finishSpectating(run: Ghost) {
   spectatorRunning = false;
-  byId<HTMLButtonElement>("stop").disabled = !activeRunId && !liveGhostRunId;
+  byId<HTMLButtonElement>("stop").disabled = !activeRunId && !liveRunning();
   const label = activeGhosts.find(ghost => ghost.run === run)?.label ?? "Jev";
   byId("flightStatePill").textContent = `${label.toUpperCase()} FINISHED`;
   byId("runStatus").textContent = `${label} · ${outcomeLabel(run.status, run.success)}`;
@@ -2278,6 +2363,7 @@ function setCamera(mode: typeof cameraMode) {
   if (mode === "chase") {
     const subject = cameraSubject();
     camera.position.copy(subject.position).add(chaseOffset.clone().applyQuaternion(subject.quaternion));
+    lastChaseTarget.copy(subject.position);
   }
   if (orbit.enabled) {
     const subject = cameraSubject();
@@ -2305,7 +2391,7 @@ function animate(now: number) {
   previous = now;
   updateEdgeLights(now);
 
-  if (spectatorRunning && watchedGhost && watchedGhost !== liveGhost) {
+  if (spectatorRunning && watchedGhost && !liveEntry(watchedGhost)) {
     raceTime = Math.min(raceTime + dt, watchedGhost.samples.at(-1)!.time);
     if (raceTime >= watchedGhost.samples.at(-1)!.time && !followRemainingOpponent()) finishSpectating(watchedGhost);
   }
@@ -2317,19 +2403,21 @@ function animate(now: number) {
       scene.add(ghost.visual);
     }
     const { run, visual } = ghost;
-    const pose = poseAt(run.samples, renderRaceTime);
+    const live = liveEntry(run);
+    if (live?.state) live.renderTime = smoothReplayTime(live.renderTime, live.state.observation.time_s, dt);
+    const pose = poseAt(run.samples, live ? live.renderTime : renderRaceTime);
     visual.visible = true; visual.position.copy(pose.position); visual.quaternion.copy(pose.quaternion);
-    if (renderRaceTime < run.samples.at(-1)!.time || (run === liveGhost && liveGhostRunId)) spinGhostPropeller(visual, dt);
+    if (live ? live.runId : renderRaceTime < run.samples.at(-1)!.time) spinGhostPropeller(visual, dt);
 
   }
   if (activeGhosts.length) ghostLegend.textContent = `GHOST RACE · ${raceTime.toFixed(1)} s\n` + activeGhosts.map(({run, label}) =>
-    `${label} · ${run.controller} · ${run === liveGhost && liveGhostRunId ? "Live" : raceTime >= run.samples.at(-1)!.time ? outcomeLabel(run.status, run.success) : "Replaying"} · ${run.score.toFixed(1)} pts`).join("\n");
+    `${label} · ${run.controller} · ${liveEntry(run)?.runId ? "Live" : raceTime >= run.samples.at(-1)!.time ? outcomeLabel(run.status, run.success) : "Replaying"} · ${run.score.toFixed(1)} pts`).join("\n");
   aircraft.position.lerp(desiredPosition, 1 - Math.exp(-10 * dt));
   aircraft.quaternion.slerp(desiredQuaternion, 1 - Math.exp(-10 * dt));
   sun.position.copy(cameraSubject().position).add(sunOffset);
 
   const propeller = aircraft.userData.propeller as THREE.Object3D | undefined;
-  if (propeller) propeller.rotation.z += dt * (20 + controls.throttle * 90);
+  if (propeller && runState === "running") propeller.rotation.z += dt * (20 + controls.throttle * 90);
 
   if (controllerSelect.value === "human" && runState === "running") {
     const f = lastObservation?.flight;
@@ -2363,9 +2451,7 @@ function animate(now: number) {
   canvas.dataset.subject = watchedGhost ? "opponent" : "primary";
   canvas.dataset.camera = cameraMode;
   if (cameraMode === "chase") {
-    // Chase camera behind and slightly above aircraft, looking down towards runway
-    const targetCamPos = subject.position.clone().add(chaseOffset.clone().applyQuaternion(subject.quaternion));
-    camera.position.lerp(targetCamPos, 1 - Math.exp(-6 * dt));
+    updateChasePosition(camera.position, subject.position, lastChaseTarget, subject.quaternion, chaseOffset, dt);
     camera.up.set(0, 1, 0);
     const lookTarget = subject.position.clone().add(chaseLookAtOffset.clone().applyQuaternion(subject.quaternion));
     camera.lookAt(lookTarget);

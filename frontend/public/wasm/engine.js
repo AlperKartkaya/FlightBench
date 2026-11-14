@@ -109,7 +109,7 @@ export function baseline(o, trim) {
   const wSpd = e.wind_speed_mps ?? Math.hypot(hw, xw);
   const crab = clip(-1.85 * xw, -10.5, 10.5);
   const hdgErr = r.heading_error_deg - crab;
-  const targetIas = 30 + Math.min(0, hw) + .35 * Math.max(0, hw);
+  const targetIas = 30 + .35 * Math.max(0, hw);
   const gsSink = 1.65 - .052 * hw + .5 * vw;
   const command = {
     aileron: clip(trim.aileron - .013 - .022 * r.centerline_offset_m - .030 * hdgErr -
@@ -119,15 +119,25 @@ export function baseline(o, trim) {
     rudder: clip(trim.rudder - .03 + .03 * hdgErr - .04 * f.beta_deg - .15 * f.r_rad_s),
     throttle: clip(.5 + .05 * (targetIas - f.airspeed_mps), 0, 1),
   };
+  if (wSpd >= .05) {
+    const drift = f.airspeed_mps * Math.sin(rad(r.heading_error_deg + f.beta_deg)) + xw;
+    const bank = clip(-.35 * r.centerline_offset_m - 1.8 * drift, -12, 12);
+    command.aileron = clip(trim.aileron + .07 * (bank - f.roll_deg) - .35 * f.p_rad_s);
+    command.rudder = clip(trim.rudder - .03 - .04 * f.beta_deg - .15 * f.r_rad_s);
+  }
   if (r.altitude_agl_m < 20) {
     const wBlend = Math.min(1, wSpd);
     const hwFactor = clip(1 - .035 * hw, .55, 1.15);
     const maxDesc = (-2.4 + .2 * wBlend) * hwFactor + .4 * Math.min(0, vw);
-    const targetSink = Math.max(maxDesc, -.35 - (.28 - .03 * wBlend) * Math.max(0, r.altitude_agl_m - 1.4));
+    let targetSink = Math.max(maxDesc, -.35 - (.28 - .03 * wBlend) * Math.max(0, r.altitude_agl_m - 1.4));
+    if (wSpd >= .05 && r.along_track_m < 30) {
+      targetSink = Math.max(targetSink, -.7 * r.altitude_agl_m * f.groundspeed_mps / Math.max(1, 30 - r.along_track_m));
+    }
     const thrCut = 16 - .6 * Math.max(0, hw);
     command.elevator = clip(-.02 + (.12 - .03 * wBlend) * (f.vertical_speed_mps - targetSink) +
       (.03 + .02 * wBlend) * (f.pitch_deg - (2.5 + .5 * wBlend)) - (.25 - .09 * wBlend) * f.q_rad_s);
-    command.throttle = r.altitude_agl_m < thrCut ? 0 : clip(command.throttle - .25 + .02 * Math.max(0, hw), 0, .40);
+    command.throttle = r.altitude_agl_m < thrCut && (wSpd < .05 || r.along_track_m > 0) ? 0 :
+      wSpd >= .05 ? clip(command.throttle - .15, 0, .5) : clip(command.throttle - .25, 0, .40);
   }
   return command;
 }
@@ -184,9 +194,21 @@ export class Landing {
       'atmosphere/wind-north-fps': 0,
     };
     for (const [key, value] of Object.entries(initial)) f.SetPropertyValue(key, value);
+    if (this.scenario !== 'easy') {
+      const [hw, xw, vw] = windComponents(this.scenario, this.scenarioParams, 0, baseAlt);
+      for (const [key, wind] of [['vn-fps', -xw], ['ve-fps', -hw], ['vd-fps', -vw]]) {
+        f.SetPropertyValue(`ic/${key}`, f.GetPropertyValue(`ic/${key}`) + wind / FT);
+      }
+    }
     if (!f.RunIC()) throw Error('JSBSim initial conditions failed');
     f.SetPropertyValue('propulsion/set-running', -1);
     this.applyWind(0, baseAlt);
+    if (this.scenario !== 'easy') {
+      // RunIC clears atmosphere wind; refresh aero with wind at zero elapsed time.
+      f.Setdt(0);
+      if (!f.Run()) throw Error('JSBSim wind initialization failed');
+      f.Setdt(1 / this.hz);
+    }
     this.control = {...contract.trim};
     for (const k of AXES) f.SetPropertyValue(`fcs/${k}-cmd-norm`, this.control[k]);
     this.ticks = 0; this.done = false; this.reason = 'running'; this.success = false;

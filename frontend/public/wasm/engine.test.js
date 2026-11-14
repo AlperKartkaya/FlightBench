@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {Landing, loadRuntime, validateControl, evaluate} from './engine.js';
+import {Landing, baseline, loadRuntime, validateControl, evaluate} from './engine.js';
 const contract = JSON.parse(readFileSync(new URL('./flightbench.json', import.meta.url)));
 const runtime = await loadRuntime(contract);
 
@@ -49,3 +49,28 @@ test('medium steady wind and hard dynamic wind are seed-deterministic', () => {
   assert.deepEqual(hard1.observation.environment, hard2.observation.environment);
   hard1.destroy(); hard2.destroy();
 });
+
+
+test('wind initialization preserves requested airspeed on the first physics tick', () => {
+  for (const scenario of ['medium', 'hard']) {
+    const env = new Landing(runtime, contract, 2, scenario, 42);
+    const initial = env.observation.flight;
+    const targetIas = (65 + env.scenarioParams.airspeed_offset_kts) * 1852 / 3600;
+    assert(Math.abs(initial.airspeed_mps - targetIas) < 1e-6);
+    env.advance(contract.trim, 1);
+    assert(Math.abs(env.observation.flight.airspeed_mps - initial.airspeed_mps) < .1);
+    assert(Math.abs(initial.alpha_deg - 5) < 1e-6);
+    env.destroy();
+  }
+});
+
+for (const [scenario, seed, minimum] of [['easy', 42, 99], ['medium', 17, 90], ['hard', 42, 55], ['hard', 97, 75]]) {
+  test(`baseline wind regression: ${scenario} / ${seed}`, () => {
+    const env = new Landing(runtime, contract, 120, scenario, seed);
+    try {
+      while (!env.done) env.advance(baseline(env.observation, contract.trim), 60);
+      assert.equal(env.result().success, true);
+      assert(env.result().quality >= minimum);
+    } finally {env.destroy();}
+  });
+}

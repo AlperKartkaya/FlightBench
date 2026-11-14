@@ -193,13 +193,19 @@ class Session:
     identity: dict | None = None
     pending_record: dict | None = None
     opponent: Session | None = None
+    opponents: list[Session] = field(default_factory=list)
+    opponent_id: str | None = None
+    decision_schedule: str = "fixed"
+    metrics_started: float = 0.0
     parent: Session | None = None
     start_gate: asyncio.Event | None = None
     race_start: float | None = None
 
     async def send(self, message: dict) -> None:
         if self.parent is not None:
-            await self.parent.send({"type": "ghost", "message": message})
+            await self.parent.send(
+                {"type": "ghost", "opponent_id": self.opponent_id, "message": message}
+            )
             return
         async with self.send_lock:
             try:
@@ -231,8 +237,12 @@ class Session:
             "cadence_hz": self.decision_hz,
             "nominal_decision_hz": self.decision_hz,
             "effective_decision_hz": (
-                round(self.effective_decision_count / self.observation["time_s"], 2)
-                if self.observation and self.observation.get("time_s", 0) > 0
+                round(
+                    self.effective_decision_count
+                    / max(0.001, perf_counter() - self.metrics_started),
+                    2,
+                )
+                if self.metrics_started
                 else 0.0
             ),
             "simulation_speed": self.time_scale,
@@ -264,9 +274,12 @@ class Session:
         message = messages.get(code, code)
         await self.send({"type": "error", "code": code, "message": message})
 
+    async def stop_opponents(self) -> None:
+        for opponent in self.opponents or ([self.opponent] if self.opponent else []):
+            await opponent.stop("interrupted")
+
     async def stop(self, reason: str = "interrupted", *, idle: bool = False) -> None:
-        if self.opponent is not None:
-            await self.opponent.stop("interrupted")
+        await self.stop_opponents()
         task = self.task
         if task and task is not asyncio.current_task():
             self.task.cancel()
@@ -355,31 +368,62 @@ class Session:
             pass
 
     async def start_race(self, message: dict) -> None:
+        identifiers = message.get("opponents", ["live"])
+        choices = {
+            "baseline": ("baseline", None),
+            "jev-1.13.0": ("jev", "jev-1.13.0"),
+            "jev-1.14.0": ("jev", "jev-1.14.0"),
+            "live": ("jev", "jev-1.13.0"),
+        }
+        if (
+            not isinstance(identifiers, list)
+            or not 1 <= len(identifiers) <= 3
+            or any(not isinstance(i, str) or i not in choices for i in identifiers)
+            or len(set(identifiers)) != len(identifiers)
+        ):
+            raise ValueError("invalid race opponents")
+        message = {k: v for k, v in message.items() if k != "opponents"}
         settings = RunSettings.model_validate({k: v for k, v in message.items() if k != "type"})
-        if settings.controller != "human" or settings.mode != "realtime":
-            raise ValueError("live race requires realtime human control")
-        if not os.environ.get("TYPESAFE_API_KEY"):
+        if (
+            settings.controller == "jev" or any(choices[i][0] == "jev" for i in identifiers)
+        ) and not os.environ.get("TYPESAFE_API_KEY"):
             await self.error("controller_unavailable")
             return
         if self.run_id or (self.task and not self.task.done()):
             raise ValueError("run already active")
-        if self.opponent is not None:
-            await self.opponent.stop("interrupted")
+        await self.stop_opponents()
         gate = asyncio.Event()
         self.start_gate = gate
-        self.opponent = Session(self.websocket, parent=self, start_gate=gate)
+        self.opponents = [
+            Session(self.websocket, parent=self, start_gate=gate, opponent_id=i)
+            for i in identifiers
+        ]
+        self.opponent = self.opponents[0]
         try:
-            await self.opponent.start({**message, "controller": "jev", "model": None,
-                                       "human_assistance": {"auto_center": False, "wing_leveler": False}}, race_member=True)
-            if self.opponent.task is None:
-                await self.error("controller_unavailable")
-                return
+            for identifier, opponent in zip(identifiers, self.opponents):
+                controller, model = choices[identifier]
+                await opponent.start(
+                    {
+                        **message,
+                        "controller": controller,
+                        "model": model,
+                        "human_assistance": {"auto_center": False, "wing_leveler": False},
+                        "decision_schedule": "continuous" if controller == "jev" else "fixed",
+                    },
+                    race_member=True,
+                )
+                if opponent.task is None:
+                    await self.error("controller_unavailable")
+                    return
             await self.start(message, race_member=True)
-            self.race_start = self.opponent.race_start = asyncio.get_running_loop().time()
+            if self.task is None:
+                return
+            self.race_start = asyncio.get_running_loop().time()
+            for opponent in self.opponents:
+                opponent.race_start = self.race_start
             gate.set()
         finally:
             if not gate.is_set():
-                await self.opponent.stop("interrupted")
                 await self.stop("interrupted")
 
     async def start(self, message: dict, *, race_member: bool = False) -> None:
@@ -391,8 +435,7 @@ class Session:
             {key: value for key, value in message.items() if key != "type"}
         )
         if not race_member:
-            if self.opponent is not None:
-                await self.opponent.stop("interrupted")
+            await self.stop_opponents()
             self.start_gate = None
             self.race_start = None
         controller_name = settings.controller
@@ -428,6 +471,7 @@ class Session:
         self.model = model
         self.scenario = scenario
         self.decision_hz = decision_hz
+        self.decision_schedule = settings.decision_schedule
         self.time_scale = time_scale
         self.realtime_response_policy = realtime_response_policy
         self.human_assistance = human_assistance
@@ -468,6 +512,7 @@ class Session:
         self.is_deciding = False
         self.state_age_ms = None
         self.effective_decision_count = 0
+        self.metrics_started = perf_counter()
         self.run_id = new_run_id()
         self.started_at = now()
         self.run_config = effective_config(settings, controller)
@@ -483,6 +528,7 @@ class Session:
         try:
             if self.start_gate is not None:
                 await self.start_gate.wait()
+            self.metrics_started = perf_counter()
             await target()
             await self.finish()
         except asyncio.CancelledError:
@@ -609,6 +655,10 @@ class Session:
                 self.decision_count += 1
                 self.effective_decision_count += 1
                 self.decision_info = decision_info
+            if decision_info is not None:
+                decision_info.setdefault("timing", {}).update(
+                    applied=next_action is not None, state_age_at_application_ms=0.0
+                )
             self.record_decision(decision_info, error, next_action is not None)
             if error:
                 self.api_errors += 1
@@ -657,7 +707,7 @@ class Session:
                     if self.latency_ms is not None:
                         self.total_latency_ms += self.latency_ms
                         self.avg_latency_ms = self.total_latency_ms / self.calls_count
-                        if self.latency_ms > cadence_deadline_ms:
+                        if self.decision_schedule == "fixed" and self.latency_ms > cadence_deadline_ms:
                             self.late_decisions += 1
                     if stale and next_action is not None:
                         self.stale_decisions += 1
@@ -701,8 +751,13 @@ class Session:
                         return
                 if (
                     controller
-                    and ticks % getattr(self.env, "decision_ticks", PHYSICS_HZ // self.decision_hz)
-                    == 0
+                    and (
+                        self.decision_schedule == "continuous"
+                        and self.controller_name in {"jev", "codex"}
+                        or ticks
+                        % getattr(self.env, "decision_ticks", PHYSICS_HZ // self.decision_hz)
+                        == 0
+                    )
                     and pending is None
                 ):
                     self.is_deciding = True

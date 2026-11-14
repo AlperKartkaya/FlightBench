@@ -249,10 +249,20 @@ class FixedWingLandingEnv(gym.Env):
             "atmosphere/wind-north-fps": 0.0,
         }.items():
             f[key] = value
+        if self.scenario != "easy":
+            hw, xw, vw = _wind_components(self.scenario, self._scenario_params, 0.0, altitude)
+            for key, wind in (("vn-fps", -xw), ("ve-fps", -hw), ("vd-fps", -vw)):
+                f[f"ic/{key}"] += wind / FT
         if not f.run_ic():
             raise RuntimeError("JSBSim initial conditions failed")
         f["propulsion/set-running"] = -1
         self._apply_wind(0.0, altitude)
+        if self.scenario != "easy":
+            # RunIC clears atmosphere wind; refresh aero with wind at zero elapsed time.
+            f.set_dt(0.0)
+            if not f.run():
+                raise RuntimeError("JSBSim wind initialization failed")
+            f.set_dt(1 / PHYSICS_HZ)
         # Apply trim offsets so the aircraft doesn't spiral from prop torque.
         f["fcs/elevator-cmd-norm"] = TRIM_ELEVATOR
         f["fcs/aileron-cmd-norm"] = TRIM_AILERON

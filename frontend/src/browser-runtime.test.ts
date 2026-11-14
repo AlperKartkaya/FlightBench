@@ -111,3 +111,77 @@ test('failed startup recovers; midflight proxy error ends once, without fallback
   assert.equal(received.at(-1).message, 'Jev proxy HTTP 429');
   assert.equal(received.filter(m => m.type === 'run_finished').length, 1);
 });
+
+test('all-AI race waits for every worker and keeps independent runs alive', t => {
+  const {runtime: r, worker: primary, received} = runtime(t);
+  const created: FakeWorker[] = [];
+  const original = globalThis.Worker;
+  globalThis.Worker = class extends FakeWorker { constructor() { super(); created.push(this); } } as any;
+  t.after(() => { globalThis.Worker = original; });
+  assert.equal(r.send({type: 'start_race', controller: 'jev', model: 'jev-1.14.0',
+    scenario: 'hard', seed: 101, mode: 'realtime', opponents: ['baseline', 'jev-1.13.0']}), true);
+  assert.equal(created.length, 2);
+  assert.equal(primary.sent.at(-1).type, 'init');
+  created[0].emit({type: 'ready'});
+  assert.equal(primary.sent.at(-1).type, 'init');
+  created[1].emit({type: 'ready'});
+  const starts = [primary, ...created].map(w => w.sent.at(-1));
+  assert.deepEqual(starts.map(m => m.mode), ['jev', 'baseline', 'jev']);
+  assert.equal(new Set(starts.map(m => m.run_id)).size, 3);
+  for (const start of starts) {
+    assert.equal(start.scenario, 'hard'); assert.equal(start.seed, 101);
+    assert.equal(start.timing_mode, 'realtime');
+  }
+  primary.emit(state(starts[0].run_id, true));
+  created[0].emit(state(starts[1].run_id));
+  created[1].emit(state(starts[2].run_id));
+  assert.equal(received.at(-1).opponent_id, 'jev-1.13.0');
+  assert.equal(received.at(-1).message.type, 'state');
+  assert.equal(created[0].sent.at(-1).type, 'start'); // primary finish does not stop opponents
+  r.send({type: 'reset'});
+  assert.ok(created.every(w => w.sent.at(-1).type === 'stop'));
+  const count = received.length;
+  created[1].emit(state(starts[2].run_id, true));
+  assert.equal(received.length, count);
+});
+
+test('reset while race workers load prevents a delayed paid start', t => {
+  const {runtime: r, worker: primary} = runtime(t);
+  r.send({type: 'start_race', controller: 'baseline', opponents: ['jev-1.14.0']});
+  const opponent = FakeWorker.instance;
+  r.send({type: 'reset'});
+  opponent.emit({type: 'ready'});
+  assert.equal(primary.sent.at(-1).type, 'stop');
+  assert.ok(!opponent.sent.some(m => m.type === 'start'));
+});
+
+test('invalid opponents are rejected before creating a race', t => {
+  const {runtime: r, worker: w} = runtime(t);
+  for (const opponents of [null, [], ['baseline', 'baseline'], ['unknown'], [{}]]) {
+    assert.equal(r.send({type: 'start_race', controller: 'baseline', opponents}), false);
+    assert.equal(FakeWorker.instance, w);
+  }
+});
+
+test('opponent initialization failure cancels startup without starting the primary', t => {
+  const {runtime: r, worker: primary, received} = runtime(t);
+  r.send({type: 'start_race', controller: 'jev', opponents: ['baseline']});
+  FakeWorker.instance.emit({type: 'error', message: 'fixture assets unavailable'});
+  assert.equal(received.at(-1).type, 'error');
+  assert.equal(primary.sent.at(-1).type, 'init');
+  assert.equal(r.send({type: 'start', controller: 'baseline'}), true);
+  assert.equal(primary.sent.at(-1).type, 'start');
+});
+
+test('primary startup failure stops every opponent before returning control', t => {
+  const {runtime: r, worker: primary, received} = runtime(t);
+  r.send({type: 'start_race', controller: 'jev', opponents: ['jev-1.14.0']});
+  const opponent = FakeWorker.instance;
+  opponent.emit({type: 'ready'});
+  primary.emit({type: 'error', run_id: primary.sent.at(-1).run_id, message: 'fixture initialization failed'});
+  assert.equal(opponent.sent.at(-1).type, 'stop');
+  assert.equal(received.at(-1).type, 'error');
+  const count = received.length;
+  opponent.emit(state(opponent.sent.find(m => m.type === 'start').run_id));
+  assert.equal(received.length, count);
+});

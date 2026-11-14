@@ -71,6 +71,18 @@ def test_scenario_wind_profiles_and_seed_independence():
     hard.close()
 
 
+@pytest.mark.parametrize("scenario", ["medium", "hard"])
+def test_wind_initialization_preserves_airspeed(scenario):
+    env = FixedWingLandingEnv(scenario)
+    initial, _ = env.reset(seed=42)
+    target_ias = (65 + env._scenario_params["airspeed_offset_kts"]) * 1852 / 3600
+    assert initial["flight"]["airspeed_mps"] == pytest.approx(target_ias, abs=1e-6)
+    first, *_ = env.advance(env.action, ticks=1)
+    assert abs(first["flight"]["airspeed_mps"] - initial["flight"]["airspeed_mps"]) < 0.1
+    assert initial["flight"]["alpha_deg"] == pytest.approx(5)
+    env.close()
+
+
 def test_actual_jsbsim_control_signs():
     env = FixedWingLandingEnv()
     responses = {}

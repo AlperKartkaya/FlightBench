@@ -6,7 +6,7 @@ await page.addInitScript(()=>{const Native=Worker;window.Worker=class extends Na
 await page.reload();await page.waitForFunction(()=>!document.querySelector('#start').disabled);
 await page.locator('#configureToggle').click();if(await page.locator('#ghostChoices input:checked').count())throw Error('default');
 await page.locator('#start').click();await page.waitForFunction(()=>window.lastFrame?.observation.time_s>1);
-if(await page.locator('#ghostChoices input').count())throw Error('unavailable choices shown');
+if(await page.locator('#ghostChoices input:not([value^="live:"])').count())throw Error('unavailable choices shown');
 // Fixture-only success: test persistence/render plumbing, not landing physics.
 await page.evaluate(()=>{window.worker.postMessage({type:'stop'});const frame=structuredClone(window.lastFrame);frame.done=true;frame.result={...frame.result,success:true,quality:70,reason:'landed'};frame.observation.time_s+=0.1;window.worker.dispatchEvent(new MessageEvent('message',{data:frame}));});
 await page.waitForFunction(()=>!document.querySelector('#start').disabled);await page.keyboard.press('Escape');await page.locator('#configureToggle').click();await page.getByRole('checkbox', {name:'Personal best',exact:true}).check();await page.getByRole('checkbox', {name:'Previous flight',exact:true}).check();if(await page.locator('#ghostChoices input:checked').count()!==2)throw Error('Multi-select failed');await page.locator('#start').click();await page.waitForTimeout(1000);
@@ -17,4 +17,4 @@ await page.setViewportSize({width:390,height:844});await page.locator('#configur
 const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
 console.log(JSON.stringify({status,canvas:await page.locator('canvas').count(),overflow,errors}));
 if (overflow || errors.length) throw Error(JSON.stringify({overflow, errors}));
-};
+}

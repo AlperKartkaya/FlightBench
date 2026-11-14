@@ -20,18 +20,44 @@ def main():
     from flightbench.controllers import BaselineController
 
     cases = []
-    for name, command, duration in (
-        ("trim-10s", {"aileron": -0.15, "elevator": 0.17, "rudder": 0.09, "throttle": 0.5}, 10),
-        ("left-10s", {"aileron": -0.20, "elevator": 0.17, "rudder": 0.09, "throttle": 0.5}, 10),
+    for name, command, duration, scenario, seed in (
+        (
+            "trim-10s",
+            {"aileron": -0.15, "elevator": 0.17, "rudder": 0.09, "throttle": 0.5},
+            10,
+            "easy",
+            42,
+        ),
+        (
+            "left-10s",
+            {"aileron": -0.20, "elevator": 0.17, "rudder": 0.09, "throttle": 0.5},
+            10,
+            "easy",
+            42,
+        ),
         (
             "pitch-power-10s",
             {"aileron": -0.15, "elevator": 0.20, "rudder": 0.05, "throttle": 0.4},
             10,
+            "easy",
+            42,
         ),
-        ("trim-full", {"aileron": -0.15, "elevator": 0.17, "rudder": 0.09, "throttle": 0.5}, 120),
-        ("baseline-full", None, 120),
+        (
+            "trim-full",
+            {"aileron": -0.15, "elevator": 0.17, "rudder": 0.09, "throttle": 0.5},
+            120,
+            "easy",
+            42,
+        ),
+        ("baseline-full", None, 120, "easy", 42),
+        *[
+            (f"{scenario}-{seed}-10s", None, 10, scenario, seed)
+            for scenario in ("medium", "hard")
+            for seed in (42, 101)
+        ],
     ):
-        env = FixedWingLandingEnv(max_time_s=duration)
+        env = FixedWingLandingEnv(scenario=scenario, max_time_s=duration)
+        env.reset(seed=seed)
         baseline = BaselineController()
         history = TelemetryHistory()
         history.add(env.observe())
@@ -57,7 +83,14 @@ def main():
             if env.ticks % 60 == 0 or env.done:
                 history.add(obs)
         cases.append(
-            {"name": name, "duration": duration, "decisions": decisions, "samples": samples}
+            {
+                "name": name,
+                "scenario": scenario,
+                "seed": seed,
+                "duration": duration,
+                "decisions": decisions,
+                "samples": samples,
+            }
         )
         env.close()
     path = ROOT / "scratch/wasm-python-traces.json"

@@ -69,14 +69,14 @@ def main():
             "max",
         ]
         page.locator('input[name="controller-choice"][value="jev"]').check()
-        page.locator("#decisionRate").select_option("5")
-        expect(page.locator("#configureToggle")).to_contain_text("Jev · 5 Hz")
+        page.locator("#timingMode").select_option("realtime")
+        expect(page.locator("#configureToggle")).to_contain_text("Jev 1.14 · — Hz")
         expect(page.locator("#liveDecisionCard")).to_be_visible()
         expect(page.locator("#overlayDecision")).to_be_visible()
         page.locator('input[name="controller-choice"][value="codex"]').check()
         expect(page.locator("#ctrlBrandTitle")).to_have_text("Codex Controller")
         page.locator('input[name="controller-choice"][value="baseline"]').check()
-        page.locator("#decisionRate").select_option("2")
+        expect(page.locator("#timingModeGroup")).to_be_hidden()
         page.locator("#configureToggle").click()
         page.screenshot(path=str(output / "desktop.png"), full_page=True)
         page.locator("#start").click()
@@ -115,14 +115,14 @@ def main():
         expect(page.locator("#start")).to_be_enabled()
         assert len(page.request.get(f"{url}/api/runs").json()["runs"]) == before
         page.set_viewport_size({"width": 390, "height": 844})
-        page.locator("#configureToggle").click()
+        page.locator("#scenarioToggle").click()
         page.locator("#scenario").select_option("medium")
         expect(page.locator("#seedGroup")).to_be_visible()
         page.locator("#seed").fill("123")
         expect(page.locator("#seed")).to_have_value("123")
         page.locator("#scenario").select_option("easy")
         expect(page.locator("#seedGroup")).to_be_hidden()
-        page.locator("#configureToggle").click()
+        page.locator("#scenarioToggle").click()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), (
             "page overflows horizontally"
         )
@@ -198,11 +198,17 @@ def main():
                 frame,
             )
             expect(page.locator("#topProbBars p")).to_have_count(4)
-            expect(page.locator("#topProbBars")).to_contain_text("elevator: 0.170")
+            expect(page.locator(".diagnostic-choice").filter(has_text="elevator")).to_contain_text("0.170")
             expect(page.locator("#jointDecisionCard .ctrl-card-title")).to_have_text(
                 "Jev actuator decisions" if controller == "jev" else "Codex actuator decisions"
             )
             expect(page.locator("#decisionSequence")).to_have_text(f"#{call}")
+            expect(page.locator("#effectiveRate")).to_have_text("— Hz")
+            page.wait_for_timeout(5100)
+            page.evaluate(
+                "message => window.testSocket.dispatchEvent(new MessageEvent('message', {data: JSON.stringify(message)}))",
+                frame,
+            )
             expect(page.locator("#effectiveRate")).to_have_text("1.4 Hz")
             expect(page.locator("#overlayDecisionText")).to_contain_text("E 0.17")
             expect(page.locator("#decisionState")).to_have_text(

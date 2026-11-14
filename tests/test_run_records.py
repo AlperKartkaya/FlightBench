@@ -943,3 +943,23 @@ def test_terra_standard_token_pricing():
         "gpt-6.1-terra",
         {"input_tokens": 100, "output_tokens": 20, "input_tokens_details": {"cached_tokens": 10}},
     ) == pytest.approx((90 + 10 * 0.05 + 20 * 5) / 1e6)
+
+
+def test_interactive_codex_realtime_requires_low_effort():
+    from pydantic import ValidationError
+
+    from flightbench.runs import RunSettings
+
+    with pytest.raises(ValidationError, match="low"):
+        RunSettings(
+            controller="codex",
+            mode="realtime",
+            decision_schedule="continuous",
+            reasoning_effort="high",
+        )
+    assert RunSettings(
+        controller="codex", mode="lockstep", decision_schedule="continuous", reasoning_effort="high"
+    )
+    assert RunSettings(
+        controller="codex", mode="realtime", decision_schedule="continuous", reasoning_effort="low"
+    )

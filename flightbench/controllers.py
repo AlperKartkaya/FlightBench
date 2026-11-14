@@ -121,7 +121,7 @@ class BaselineController:
         w_spd = float(env_w.get("wind_speed_mps", math.hypot(hw, xw)))
         crab = _clip(-1.85 * xw, -10.5, 10.5)
         hdg_err = runway["heading_error_deg"] - crab
-        target_ias = 30.0 + min(0.0, hw) + 0.35 * max(0.0, hw)
+        target_ias = 30.0 + 0.35 * max(0.0, hw)
         gs_sink = 1.65 - 0.052 * hw + 0.5 * vw
         cmd = ControlCommand(
             aileron=_clip(
@@ -150,11 +150,40 @@ class BaselineController:
             throttle=_clip(0.5 + 0.05 * (target_ias - flight["airspeed_mps"]), 0.0, 1.0),
         )
         alt = runway.get("altitude_agl_m")
+        along = runway.get("along_track_m", 0.0)
+        if w_spd >= 0.05:
+            # Control ground drift, not nose heading: a crab is necessary in crosswind.
+            drift = (
+                flight["airspeed_mps"]
+                * math.sin(math.radians(runway["heading_error_deg"] + flight["beta_deg"]))
+                + xw
+            )
+            bank = _clip(-0.35 * runway["centerline_offset_m"] - 1.8 * drift, -12.0, 12.0)
+            cmd = cmd.model_copy(
+                update={
+                    "aileron": _clip(
+                        TRIM_AILERON
+                        + 0.07 * (bank - flight["roll_deg"])
+                        - 0.35 * flight.get("p_rad_s", 0.0)
+                    ),
+                    "rudder": _clip(
+                        TRIM_RUDDER
+                        - 0.03
+                        - 0.04 * flight["beta_deg"]
+                        - 0.15 * flight.get("r_rad_s", 0.0)
+                    ),
+                }
+            )
         if alt is not None and alt < 20.0:
             w_blend = min(1.0, w_spd)
             hw_factor = _clip(1.0 - 0.035 * hw, 0.55, 1.15)
             max_desc = (-2.4 + 0.2 * w_blend) * hw_factor + 0.4 * min(0.0, vw)
             target_sink = max(max_desc, -0.35 - (0.28 - 0.03 * w_blend) * max(0.0, alt - 1.4))
+            if w_spd >= 0.05 and along < 30:
+                # Reduce sink when a headwind leaves the threshold ahead of us.
+                target_sink = max(
+                    target_sink, -0.7 * alt * flight["groundspeed_mps"] / max(1, 30 - along)
+                )
             current_vs = flight.get("vertical_speed_mps", -1.5)
             thr_cut = 16.0 - 0.6 * max(0.0, hw)
             cmd = cmd.model_copy(
@@ -167,8 +196,12 @@ class BaselineController:
                     ),
                     "throttle": (
                         0.0
-                        if alt < thr_cut
-                        else _clip(cmd.throttle - 0.25 + 0.02 * max(0.0, hw), 0.0, 0.40)
+                        if alt < thr_cut and (w_spd < 0.05 or along > 0)
+                        else (
+                            _clip(cmd.throttle - 0.15, 0.0, 0.5)
+                            if w_spd >= 0.05
+                            else _clip(cmd.throttle - 0.25, 0.0, 0.40)
+                        )
                     ),
                 }
             )

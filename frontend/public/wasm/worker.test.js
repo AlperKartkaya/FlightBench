@@ -107,3 +107,39 @@ test('public Jev uses the fixed proxy without credentials and validates the sele
   assert.equal(f.messages.at(-1).type, 'error');
   assert.match(f.messages.at(-1).message, /Unexpected Jev model/);
 });
+
+test('realtime keeps physics moving, serializes requests and stops the next request', async () => {
+  let resolve;
+  const reply = new Promise(r => {resolve = r;});
+  const response = {ok: true, json: async () => ({model: 'jev-1.13.0',
+    action_ids: Object.fromEntries(Object.keys(trim).map(k => [k, '0'])), command: {...trim}})};
+  const f = fixture([reply, new Promise(() => {})]);
+  await f.send({type: 'init'});
+  await f.send({type: 'start', mode: 'jev', timing_mode: 'realtime', run_id: 'live'});
+  await settle();
+  assert.equal(f.calls(), 1);
+  assert.equal(f.messages.at(-1).decision_info.live_status.is_deciding, true);
+  // Tick again while the provider is unresolved: physics advances without a second call.
+  await f.timers.at(-1)();
+  assert.equal(f.calls(), 1);
+  assert.equal(f.messages.at(-1).decision_count, 0);
+  resolve(response); await settle();
+  const nextTick = f.timers.at(-1);
+  nextTick(); await settle();
+  assert.equal(f.calls(), 2);
+  await f.send({type: 'stop'});
+  const count = f.messages.length;
+  await nextTick();
+  assert.equal(f.calls(), 2);
+  assert.equal(f.messages.length, count);
+});
+
+test('lockstep does not advance physics while waiting for a model', async () => {
+  const f = fixture([new Promise(() => {})]);
+  await f.send({type: 'init'});
+  await f.send({type: 'start', mode: 'jev', timing_mode: 'lockstep', run_id: 'wait'});
+  await settle();
+  assert.equal(f.calls(), 1);
+  assert.equal(f.messages.filter(m => m.type === 'state').length, 1);
+  await f.send({type: 'stop'});
+});

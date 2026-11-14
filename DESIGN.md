@@ -1,6 +1,6 @@
 # Design
 ## Source of truth
-Active — 2026-09-23. Local FlightBench browser workbench. Evidence: README.md,
+Active — 2026-11-14. Local FlightBench browser workbench. Evidence: README.md,
 frontend/src/main.ts, controls.ts, style.css, existing scratch/screenshots, backend contracts.
 ## Brand
 Calm research instrument: precise, inspectable, honest. Avoid game-like victory/crash
@@ -17,10 +17,11 @@ One viewport-filling workbench: 3D scene, settings popover, applied actuators an
 live model decisions. No page-level Prepare/Observe/Review sections or history table.
 ## Design principles
 Backend truth over optimistic UI. Frozen touchdown separate from final state.
-Show applied actuator truth separately from proposed model decisions. The browser fixes
-new runs to easy; Codex uses lockstep because provider latency exceeds realtime's stale
-threshold, while other controllers use realtime. Keep timing out of the UI and retain
-full conditions in saved records. Keep deep diagnostics optional.
+Show applied actuator truth separately from proposed model decisions. Scenario selection has its own toolbar button. Model controllers expose realtime/lockstep,
+not nominal Hz. Interactive realtime sends one request at a time and immediately requests
+the next after application; Codex realtime requires low reasoning effort. Show measured
+wall-clock mean applied rate (one decimal, refreshed every five seconds) and mean latency;
+retain timing conditions in saved records. Keep deep diagnostics optional.
 ## Visual language
 Retain dark slate/mint palette and aircraft asset. System sans for explanations,
 monospace for measurements. Restrained borders, 8/12/16/24px spacing; no new asset set.
@@ -40,7 +41,8 @@ readable muted text and reduced-motion handling. Target WCAG AA basics; no certi
 Desktop keeps scene and controller panel side by side without page scrolling.
 Narrow screens stack inside the fixed-height workspace and can scroll that workspace.
 Human mode places compact 44px touch controls first, with the scene sticky above them.
-Phone landscape keeps scene and controls side by side. Pointer capture releases held
+Phone landscape keeps scene and controls side by side; hide the duplicate scene actuator
+readout there to leave space for the wind instrument. Pointer capture releases held
 inputs on lift/cancel; distinct buttons support simultaneous fingers.
 Mobile flight instruments start closed and open with the gauge icon left of controller
 settings; desktop instruments remain visible.
@@ -64,7 +66,8 @@ Reuse the same 3D workbench, keyboard/onscreen controls, assistance, cameras and
 dialog. Pages connects it to a Web Worker; default local builds keep Python. Use
 concise product labels, no separate demonstration page or development notices.
 Completed browser sessions are not labeled Saved; persistence remains documented in
-setup instructions. Settings are fixed to easy/seed 42 and 2 Hz AI; Jev offers 1.13
+setup instructions. Scenarios are easy (calm), medium (steady wind), and hard (dynamic wind). A compact compass
+shows wind FROM bearing and speed live outside the optional instruments; Jev offers 1.13
 and 1.14. Codex remains local only. Public Jev uses the fixed rate-limited proxy
 without credential/endpoint fields; both secrets stay in the Worker. Preserve
 recording links under an archive, not the site root.
@@ -81,10 +84,11 @@ scope must be explicit. Do not imply that replay is live Jev.
 ## Live race and setup controls — 2026-11-01
 Controller choice uses single-select cards; opponents use independent checkbox
 cards, never combination presets. Hide unavailable opponents and controllers.
-Show live Jev only when the local backend reports configured credentials; Pages
-remains replay-only because its worker currently uses lockstep. Live Jev must use
-a separate realtime simulator behind a shared start barrier, continue in spectator mode when the human
-ends, stopping only on explicit Stop/Reset, disconnect, or a new run, and never block human physics on provider latency. API usage is disclosed
+Offer live baseline and both Jev versions for every primary controller, not only human.
+Local Jev requires configured credentials; Pages uses the existing public proxy. Each live
+participant has independent physics, the same scenario/seed, and a shared ready/start barrier.
+Continue spectator mode when the primary ends. Stop/Reset/disconnect/new run ends all participants.
+Realtime model latency never blocks any simulator. Mode differences remain labeled. API usage is disclosed
 on its card. Replay poses and human visuals share the same smoothing time constant;
 project labels after updating the camera to avoid one-frame wobble.
 
@@ -96,3 +100,12 @@ Your result. Label terminal dialogs by flight owner. Opponent-first completion m
 not steal input or camera. All camera modes share the same viewed aircraft. Hide
 manual controls when spectating, and never label primary telemetry as replay data.
 Stop ends viewing; Reset clears it and must not reopen delayed result dialogs.
+
+## Live instruments and diagnostics — 2026-11-14
+Keep controller and scenario popovers separate and mutually exclusive, with labeled controls
+and 44px touch targets. Wind compass uses N/E/S/W, a FROM arrow, numeric degrees and m/s;
+show changing horizontal and vertical wind without depending on color. Easy hides the compass.
+Propellers are stationary before Start and after Reset/terminal state.
+Diagnostics uses bounded per-axis choice cards: command value, action ID, full criterion,
+and applied/discarded state. Compact input measurements and optional raw JSON provide
+progressive disclosure; do not invent joint probabilities or confidence when unavailable.

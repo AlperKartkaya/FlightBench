@@ -7,7 +7,7 @@ const traces = JSON.parse(readFileSync(process.argv[2]));
 const runtime = await loadRuntime(contract);
 const tolerance = 1e-6; // Port-level numerical parity, not a benchmark scoring change.
 const report = {python_jsbsim: contract.python_jsbsim, wasm_jsbsim: contract.wasm_jsbsim,
-  emscripten: '4.0.18', physics_hz: contract.physics_hz, scenario: 'easy',
+  emscripten: '4.0.18', physics_hz: contract.physics_hz, scenarios: ['easy', 'medium', 'hard'],
   action_space_sha256: contract.action_space_sha256, model_sha256: contract.model_sha256,
   absolute_tolerance: tolerance, cases: []};
 function compare(actual, expected, maxima, prefix = '') {
@@ -24,7 +24,7 @@ function compare(actual, expected, maxima, prefix = '') {
   }
 }
 for (const trace of traces) {
-  const env = new Landing(runtime, contract, trace.duration), maxima = {};
+  const env = new Landing(runtime, contract, trace.duration, trace.scenario, trace.seed), maxima = {};
   let command;
   const decisions = new Map(trace.decisions.map(d => [d.tick, d]));
   for (let tick = 0; tick < trace.samples.length; tick++) {
@@ -45,7 +45,7 @@ for (const trace of traces) {
   assert(env.done, 'WASM must end at the same tick');
   const fields = ['runway.along_track_m', 'runway.centerline_offset_m', 'runway.altitude_agl_m',
     'flight.airspeed_mps', 'flight.roll_deg', 'flight.pitch_deg', 'flight.heading_deg'];
-  report.cases.push({name: trace.name, ticks: env.ticks, sim_time_s: env.observation.time_s,
+  report.cases.push({name: trace.name, scenario: trace.scenario, seed: trace.seed, ticks: env.ticks, sim_time_s: env.observation.time_s,
     reason: env.reason, success: env.result().success, score: env.result().quality,
     max_absolute_error: maxima,
     key_maxima: Object.fromEntries(fields.map(k => [k, maxima[`observation.${k}`]])),

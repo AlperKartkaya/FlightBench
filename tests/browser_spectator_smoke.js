@@ -35,7 +35,7 @@ async page => {
     if (await page.locator('#viewport').getAttribute('data-subject') !== 'opponent') throw Error('Camera lost opponent');
   }
   await page.getByRole('button', {name:'Your result',exact:true}).click();
-  await page.getByRole('button', {name:'Watch Jev · API usage continues',exact:true}).click();
+  await page.getByRole('button', {name:'Watch live opponents',exact:true}).click();
   const before = await page.locator('#ghostLegend').textContent();
   await page.evaluate(() => {
     const message = structuredClone(window.lastHuman);
@@ -107,4 +107,4 @@ async page => {
   if (await page.locator('#outcomeModal').isVisible()) throw Error('Disconnect leaves blocking result');
   if (errors.length) throw Error(errors.join('\n'));
   console.log('Automatic live/replay spectating, all camera modes, separate results, replay completion and stale reset checks passed');
-};
+}

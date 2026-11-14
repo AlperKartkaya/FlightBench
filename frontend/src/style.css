@@ -1790,3 +1790,48 @@ html, body { height: 100%; overflow: hidden; }
 .race-standing > strong { color: var(--accent-mint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .race-standing small { display: block; margin-top: 5px; color: var(--text-secondary); }
 .race-standing div { overflow-wrap: anywhere; }
+
+/* Separate conditions control and a live, compass-referenced wind instrument. */
+#timingModeGroup { grid-column: 1 / -1; }
+#timingModeGroup small, #scenarioSummary { color: var(--text-muted); font-size: 11px; line-height: 1.5; }
+.wind-instrument { position: absolute; z-index: 5; right: 14px; bottom: 60px; display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 6px; border: 1px solid var(--border-highlight); border-radius: 12px; background: #0b181ce8; pointer-events: none; font-variant-numeric: tabular-nums; }
+.wind-compass { width: 76px; height: 76px; overflow: visible; }
+.wind-compass circle, .compass-ticks { fill: none; stroke: #45605d; stroke-width: 1; }
+.wind-compass text { fill: #bacbc8; font: 9px var(--font-mono); text-anchor: middle; }
+#windArrow { fill: var(--accent-primary, #95d6ad); }
+.wind-compass .compass-hub { fill: #95d6ad; stroke: #0b181c; stroke-width: 2; }
+.wind-instrument > div { display: grid; gap: 3px; }
+.wind-instrument strong { font: 600 18px var(--font-mono); color: #d9f4e4; }
+.wind-label, .wind-instrument small { font: 10px var(--font-mono); color: #a7bdb7; }
+#windBearing { font: 12px var(--font-mono); color: #d0dcd8; }
+.diagnostics { display: block; border: 1px solid var(--border-card); border-radius: 12px; background: #0d1a20; overflow: hidden; flex-shrink: 0; }
+.diagnostics > summary { padding: 14px; cursor: pointer; font-weight: 600; font-size: 12px; }
+.diagnostics > summary span { display: block; margin: 5px 0 0 16px; color: var(--text-muted); font: 11px var(--font-sans, sans-serif); }
+.diagnostic-help { padding: 0 14px 12px; margin: 0; font-size: 11px; line-height: 1.6; color: var(--text-muted); }
+.diagnostics .ctrl-card { margin: 0; padding: 14px; border: 0; border-top: 1px solid var(--border-card); border-radius: 0; }
+#jointDecisionCard[data-kind="direct"] .joint-id-row { display: none; }
+.diagnostic-choice { padding: 12px; border: 1px solid var(--border-card); border-radius: 8px; background: #101f26; min-width: 0; }
+.diagnostic-choice header { display: flex; justify-content: space-between; gap: 12px; font: 600 12px var(--font-mono); text-transform: capitalize; }
+.diagnostic-choice header strong:last-child { color: #95d6ad; }
+.diagnostic-application { display: inline-block; margin-top: 8px; color: #afc7be; font: 10px var(--font-mono); }
+.diagnostic-choice p { margin: 8px 0; font-size: 12px; line-height: 1.65; color: #d2dfdc; overflow-wrap: anywhere; }
+.diagnostic-choice small { font: 10px var(--font-mono); color: var(--text-muted); }
+.diagnostic-measurement { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); min-width: 0; font-size: 11px; }
+.diagnostic-measurement span { color: var(--text-muted); flex-shrink: 0; }
+.diagnostic-measurement strong { font: 11px/1.5 var(--font-mono); text-align: right; overflow-wrap: anywhere; }
+#inputSummaryGrid { display: block; }
+@media (max-width: 850px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
+  .wind-instrument { right: 8px; bottom: 55px; padding: 5px 8px 5px 3px; gap: 4px; }
+  .wind-compass { width: 54px; height: 54px; }
+  .wind-instrument strong { font-size: 14px; }
+  .viewer-toolbar > #configureToggle { max-width: calc(100% - 60px); overflow: hidden; text-overflow: ellipsis; }
+}
+
+@media (max-width: 850px) and (orientation: portrait) {
+  .wind-instrument { bottom: 180px; }
+  .workspace[data-controller="human"] .wind-instrument { bottom: 55px; }
+}
+@media (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
+  /* The adjacent sidebar already shows actuators; leave room for wind and the plane. */
+  .flight-readout { display: none; }
+}
