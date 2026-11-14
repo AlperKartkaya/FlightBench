@@ -26,6 +26,11 @@ async page => {
       assert(!await tip.isVisible(), 'Escape failed to dismiss guide');
       assert(await page.locator('#hudOverlay').isVisible(), 'Dismissing guide also closed instruments');
     }
+    await page.locator('.runway-bearing .instrument-label').focus();
+    assert(await tip.locator('strong').innerText() === 'Northbound runway', 'Runway designator guide missing');
+    assert((await tip.locator('p').innerText()).includes('360°'), 'Runway 36 is not explained as north');
+    assert(await page.locator('.runway-bearing span').innerText() === '0° · NORTH', 'Runway bearing is padded or incorrect');
+    await page.keyboard.press('Escape');
     const agl = page.locator('.hud-label').filter({hasText: /^AGL$/});
     await page.evaluate(() => document.activeElement.blur());
     await agl.hover();

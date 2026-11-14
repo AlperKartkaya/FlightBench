@@ -1,6 +1,7 @@
 // Shared definitions for the viewport instruments and telemetry strip.
 const TERMS: Record<string, [string, string, string, string]> = {
-  HEADING: ["Aircraft heading", "Compass direction the watched aircraft's nose points toward, not its ground track or the camera direction.", "° true", "000° north · 090° east · 180° south · 270° west. The compass stays north-up."],
+  HEADING: ["Aircraft heading", "Compass direction the watched aircraft's nose points toward, not its ground track or the camera direction.", "° true", "Signed from north: 0° north · 90° east · 180° south · −90° west. Left/west is negative (300° = −60°). The compass stays north-up."],
+  "RUNWAY 36": ["Northbound runway", "36 is the runway designator, not a 36° heading. It represents 360°, the same direction as 0° north.", "0° north", "Real runway numbers use magnetic heading rounded to tens of degrees. This simulator aligns north without magnetic variation; the opposite end is runway 18 (south)."],
   AGL: ["Above ground level", "Height of the aircraft above the runway surface.", "m", "Zero is runway elevation, not sea level."],
   IAS: ["Indicated airspeed", "Speed through the air, as read by the aircraft's airspeed indicator.", "m/s", "Not ground speed: wind changes how fast you cross the ground."],
   "V/S": ["Vertical speed", "How quickly the aircraft is climbing or descending.", "m/s", "+ climb · − descent"],

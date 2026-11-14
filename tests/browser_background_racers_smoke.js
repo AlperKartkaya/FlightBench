@@ -30,16 +30,27 @@ async page => {
         distance: camera.position.distanceTo(cameraSubject().position),
         replayX: activeGhosts.find(g => g.label === 'Background replay')?.visual.position.x,
         liveX: activeGhosts.find(g => g.run === liveOpponents.get('background')?.run)?.visual.position.x});
-      window.restartPose = () => {desiredPosition.set(225, 1, 0); aircraft.position.copy(desiredPosition); setCamera('chase');};
       window.backgroundOrbit = () => {setCamera('orbit'); camera.position.copy(cameraSubject().position).add(new THREE.Vector3(-40, 20, 20)); orbit.update();};
-      window.chaseProbe = () => ({distance: camera.position.distanceTo(cameraSubject().position), expected: chaseOffset.length()});
+      window.chaseProbe = () => ({distance: camera.position.distanceTo(cameraSubject().position), expected: chaseOffset.length(), center: cameraSubject().position.clone().project(camera).toArray(), remaining: startCameraUntil - performance.now()});
     `});
   });
+  const startAndCheck = async label => {
+    await page.locator('#start').click();
+    await page.waitForFunction(() => window.chaseProbe().distance > 100);
+    await page.waitForFunction(() => {const p = window.chaseProbe(); return p.distance > 30 && p.distance < 100 && p.remaining > 300;});
+    const approaching = await page.evaluate(() => window.chaseProbe());
+    assert(Math.hypot(...approaching.center.slice(0, 2)) < .02, label + ': aircraft misses camera center');
+    await page.screenshot({path: `output/playwright/start-flyin-${page.viewportSize().width}.png`});
+    await page.waitForFunction(() => window.chaseProbe().distance < 8);
+    await page.waitForTimeout(2100);
+    const chase = await page.evaluate(() => window.chaseProbe());
+    assert(Math.abs(chase.distance - chase.expected) < .5, label + ': fly-in did not settle to stable chase');
+  };
   try {
+    await page.emulateMedia({reducedMotion: 'no-preference'});
     await page.goto(base);
     await page.waitForFunction(() => !document.querySelector('#start').disabled);
-    await page.locator('#start').click();
-    await page.waitForFunction(() => document.querySelector('#flightStatePill').textContent === 'IN FLIGHT');
+    await startAndCheck('First start');
     await page.evaluate(() => window.backgroundFixture());
     await page.waitForTimeout(150);
     const before = await page.evaluate(() => window.backgroundProbe());
@@ -68,18 +79,16 @@ async page => {
     assert(Math.abs(finished.liveX - 90) < 1, 'Completed background pilot lost its final rollout position');
     await page.locator('#reset').click();
     await page.waitForFunction(() => !document.querySelector('#start').disabled);
-    // Restart from a landed pose, as in the supplied video; only startup gets world-space easing.
-    await page.evaluate(() => window.restartPose());
-    await page.locator('#start').click();
-    await page.waitForFunction(() => window.chaseProbe().distance > 100);
-    await page.screenshot({path: `output/playwright/start-flyin-${page.viewportSize().width}.png`});
-    await page.waitForTimeout(2100);
-    const chase = await page.evaluate(() => window.chaseProbe());
-    assert(Math.abs(chase.distance - chase.expected) < .5, 'Startup fly-in did not settle to stable chase');
+    // Reset retains the selected camera; return from the orbit handoff check to Chase.
+    await page.locator('[data-camera="chase"]').click();
+    await startAndCheck('Reset → Start');
+    await page.locator('#stop').click();
+    await page.waitForFunction(() => !document.querySelector('#start').disabled);
+    await page.keyboard.press('Escape');
+    await startAndCheck('Completed run → Start');
     await page.screenshot({path: `output/playwright/start-settled-${page.viewportSize().width}.png`});
     await page.locator('#reset').click();
     await page.emulateMedia({reducedMotion: 'reduce'});
-    await page.evaluate(() => window.restartPose());
     await page.locator('#start').click();
     await page.waitForFunction(() => document.querySelector('#flightStatePill').textContent === 'IN FLIGHT');
     await page.waitForTimeout(300);
@@ -87,7 +96,7 @@ async page => {
     assert(Math.abs(reduced.distance - reduced.expected) < .1, 'Reduced motion still flies the camera in');
     await page.locator('#reset').click();
     assert(errors.length === 0, errors.join('\n'));
-    return {backgrounds: 'live rollout and replay continue, background completion preserves camera, no rewind on handoff, final poses retained', start: 'fly-in then stable chase; reduced motion skips fly-in', errors};
+    return {backgrounds: 'live rollout and replay continue, background completion preserves camera, no rewind on handoff, final poses retained', start: 'centered first/reset/restart fly-in then stable chase; reduced motion skips fly-in', errors};
   } finally {
     await page.emulateMedia({reducedMotion: 'no-preference'});
     await page.unroute('**/src/main.ts'); await page.goto(base);

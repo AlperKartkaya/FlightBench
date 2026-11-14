@@ -47,11 +47,13 @@ inputs on lift/cancel; distinct buttons support simultaneous fingers.
 Mobile flight instruments start closed and open with the gauge icon left of controller
 settings; desktop instruments remain visible.
 Use the existing FlightBench icon before the header title (22px) and in the controller
-identity badge (18px), not a lightning emoji. Allow header links to wrap on narrow screens.
+identity badge (18px), not a lightning emoji. Its controller name uses the same mint as panel headings. Allow header links to wrap on narrow screens.
 ## Interaction states
 Disconnected/ready/starting/running/completed/interrupted/error are distinct.
-Restore the reference video's brief world-space camera fly-in on flight acknowledgement
-(1.5s only). Normal chase follows translation immediately; never restart the fly-in on
+Restore the reference video's brief world-space camera fly-in on the first acknowledged
+flight pose (1.5s only), from the same render-only runway view on first Start, Reset → Start
+and a new run. Aim at the aircraft center, blending to the normal forward look over the
+last 300ms. Normal chase follows translation immediately; never restart the fly-in on
 control decisions. Disable it for reduced motion and cancel it on camera switches/reset.
 After the primary ends, background recordings advance on their own playback clock,
 not the watched live pilot's clock. A spectator handoff must not freeze, rewind or
@@ -181,8 +183,9 @@ wrapped headings, wind cardinal directions, native/Pages rendering and baseline 
 
 ### Heading compass
 
-- Keep a separate north-up aircraft compass immediately beside wind, with the original aircraft silhouette, mint fill and an unpadded true heading. Wind uses the same mint and explicitly shows its source direction.
+- Keep a separate north-up aircraft compass immediately beside wind, with the original aircraft silhouette, mint fill and an unpadded signed heading around true north (300° becomes −60°, west −90°, east 90°, south 180°). Keep arrow orientation geographic and wind bearings unchanged. Wind uses the same mint and explicitly shows its source direction.
 - Read the latest watched flight attitude, bypassing scene smoothing: primary state, latest live-opponent sample, or current replay time. Never follow the camera or stale primary telemetry when spectating. No CSS rotation interpolation across 359°/0°.
+- Keep the northbound runway designator 36 (360° ≡ 0° north), not 00 or 36°. Show 0° · NORTH alongside it and explain the designation using the shared hover/focus guide.
 - Keep both navigation cards in one row on narrow screens and use the existing accessible instrument-definition style for heading help.
 
 ## Wind convention and attitude freedom — 2026-11-14

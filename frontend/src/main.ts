@@ -202,7 +202,7 @@ app.innerHTML = `
         <div class="flight-instruments">
         <div class="hud-overlay" id="hudOverlay" data-open="false">
           <div class="hud-panel">
-            <div class="runway-bearing">RUNWAY 36 <span>000° · NORTH</span></div>
+            <div class="runway-bearing"><strong class="instrument-label">RUNWAY 36</strong><span>0° · NORTH</span></div>
             <div class="hud-primary-grid">
               <div class="hud-metric">
                 <span class="hud-label">AGL</span>
@@ -896,6 +896,7 @@ let raceTime = 0;
 let replayTime = 0;
 let renderRaceTime = 0;
 let startCameraUntil = 0;
+let startViewPending = false;
 let liveJevAvailable = false;
 type LiveOpponent = {runId: string | null; run: Ghost; label: string; state: StateMessage | null; renderTime: number};
 const liveOpponents = new Map<string, LiveOpponent>();
@@ -2025,7 +2026,7 @@ function receiveMessage(message: any) {
   }
   if (message.type === "run_started") {
     activeRunId = message.run_id;
-    startCameraUntil = reducedMotion.matches ? 0 : performance.now() + 1500;
+    startViewPending = true;
     transitionRun("accepted");
     return;
   }
@@ -2071,6 +2072,16 @@ function applyFlightBenchState(message: StateMessage) {
   if (Number.isFinite(time)) raceTime = replayTime = time;
   desiredPosition.fromArray(message.position);
   desiredQuaternion.fromArray(message.quaternion).normalize();
+  if (startViewPending) {
+    startViewPending = false;
+    if (cameraMode === "chase" && !reducedMotion.matches) {
+      // Match the reference's runway-to-flight view, independently of Reset or the previous run.
+      aircraft.position.set(225, 1, 0);
+      aircraft.quaternion.identity();
+      setCamera("chase");
+      startCameraUntil = performance.now() + 1500;
+    }
+  }
 
   updateHudAndTelemetry(message);
   if (byId<HTMLSelectElement>("controller").value !== "human") {
@@ -2467,6 +2478,7 @@ function finishSpectating(run: Ghost) {
 // Camera controls
 function setCamera(mode: typeof cameraMode) {
   startCameraUntil = 0;
+  startViewPending = false;
   cameraMode = mode;
   orbit.enabled = mode === "orbit";
   if (mode === "chase") {
@@ -2555,7 +2567,8 @@ function animate(now: number) {
   const nose = compassForward.set(1, 0, 0).applyQuaternion(compassAttitude);
   const heading = (Math.atan2(nose.z, nose.x) * 180 / Math.PI + 360) % 360;
   byId("headingNeedle").setAttribute("transform", `rotate(${heading} 40 40)`);
-  byId("compassHeading").textContent = `${Math.round(heading) % 360}°`;
+  const headingDegrees = Math.round(heading) % 360;
+  byId("compassHeading").textContent = `${headingDegrees > 180 ? headingDegrees - 360 : headingDegrees}°`;
   sun.position.copy(cameraSubject().position).add(sunOffset);
 
   const propeller = aircraft.userData.propeller as THREE.Object3D | undefined;
@@ -2595,7 +2608,8 @@ function animate(now: number) {
   if (cameraMode === "chase") {
     updateChasePosition(camera.position, subject.position, lastChaseTarget, subject.quaternion, chaseOffset, dt, now < startCameraUntil && !reducedMotion.matches);
     camera.up.set(0, 1, 0);
-    const lookTarget = subject.position.clone().add(chaseLookAtOffset.clone().applyQuaternion(subject.quaternion));
+    const lookBlend = reducedMotion.matches ? 1 : THREE.MathUtils.clamp(1 - (startCameraUntil - now) / 300, 0, 1);
+    const lookTarget = subject.position.clone().add(chaseLookAtOffset.clone().multiplyScalar(lookBlend).applyQuaternion(subject.quaternion));
     camera.lookAt(lookTarget);
   } else if (cameraMode === "orbit") {
     const delta = subject.position.clone().sub(lastOrbitTarget);

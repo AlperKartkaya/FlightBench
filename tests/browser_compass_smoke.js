@@ -35,7 +35,7 @@ async page => {
       assert(compass.x >= wind.x + wind.width && Math.abs(compass.y - wind.y) < 1, `Compass is not next to wind at ${width}`);
       assert(Math.abs(compass.height - wind.height) < 1, 'Navigation card heights differ');
       assert(compass.x + compass.width <= width && wind.x >= 0, 'Navigation cards overflow');
-      for (const [heading, text] of [[0, '0°'], [90, '90°'], [180, '180°'], [270, '270°'], [359, '359°'], [1, '1°'], [14, '14°'], [359.8, '0°']]) {
+      for (const [heading, text] of [[0, '0°'], [90, '90°'], [180, '180°'], [270, '-90°'], [300, '-60°'], [359, '-1°'], [1, '1°'], [14, '14°'], [359.8, '0°']]) {
         const immediate = await page.evaluate(h => window.compassPose(h, 12, 20), heading);
         assert(immediate.heading === text, `Compass waited for visual smoothing: wanted ${text}, got ${immediate.heading}`);
         const angle = immediate.angle;
@@ -53,7 +53,7 @@ async page => {
     }
     for (const live of [true, false]) {
       const immediate = await page.evaluate(live => window.compassOpponent(270, live), live);
-      assert(immediate === '270°', `Compass followed delayed ${live ? 'live opponent' : 'replay'} display pose`);
+      assert(immediate === '-90°', `Compass followed delayed ${live ? 'live opponent' : 'replay'} display pose`);
       assert(await page.locator('#viewport').getAttribute('data-subject') === 'opponent', 'Compass did not follow the watched opponent');
       await page.locator('#reset').click();
       await page.waitForFunction(() => document.querySelector('#compassHeading').textContent === '0°');

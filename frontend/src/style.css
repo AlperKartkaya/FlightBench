@@ -577,7 +577,7 @@ button, select, input {
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 700;
-  color: #a7f3d0;
+  color: var(--accent-mint);
   background: rgba(16, 68, 48, 0.45);
   border: 1px solid rgba(52, 211, 153, 0.35);
   padding: 3px 8px;

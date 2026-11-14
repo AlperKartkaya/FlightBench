@@ -92,7 +92,8 @@ human model. Completed replay ghosts remain frozen at the terminal pose.
 `tests/browser_background_racers_smoke.js` uses synthetic multi-racer fixtures to
 cover unwatched live rollout, background replay continuation, preserved camera when
 an unwatched pilot finishes, slower-clock handoff,
-retained terminal poses, and startup-only camera fly-in. It does not prove live
+retained terminal poses, and centered startup-only camera fly-in on first Start,
+Reset → Start and a new run, with reduced-motion opt-out. It does not prove live
 provider behavior or a physical landing. Camera unit tests preserve stable chase
 through decision pauses and frame stalls; the startup exception lasts only 1.5s.
 

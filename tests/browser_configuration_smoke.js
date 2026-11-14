@@ -30,6 +30,8 @@ async page => {
         assert(bounds.width === size && bounds.height === size, 'Brand icon is oversized');
       }
       assert(!(await page.locator('.jev-brand-badge').innerText()).includes('⚡'), 'Brand still uses lightning emoji');
+      const headingColor = await page.locator('.ctrl-card-title').filter({hasText: /^Actuator Output$/}).evaluate(el => getComputedStyle(el).color);
+      assert(await page.locator('#ctrlBrandTitle').evaluate(el => getComputedStyle(el).color) === headingColor, 'Controller name color differs from panel headings');
       const header = await page.locator('.topbar').boundingBox();
       for (const item of await page.locator('.brand-title, .profile-link').all()) {
         const bounds = await item.boundingBox();
