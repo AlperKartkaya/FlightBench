@@ -150,7 +150,7 @@ def test_svg_theme_parity_safety_and_readme_references():
     assert parsed[0] == parsed[1]
     readme = (Path(__file__).parents[1] / "README.md").read_text()
     for theme in THEMES:
-        assert f"benchmark-{theme}.svg#gh-{theme}-mode-only" in readme
+        assert f"benchmark-{theme}.png#gh-{theme}-mode-only" in readme
     benchmark = readme.split("## Benchmark results — landing score and API cost", 1)[1].split(
         "## Landing score calculation", 1
     )[0]

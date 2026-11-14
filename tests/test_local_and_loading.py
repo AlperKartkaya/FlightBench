@@ -102,7 +102,7 @@ def test_external_controller_loads_file_and_enforces_categorical_ai(tmp_path):
     path = tmp_path / "controller.py"
     path.write_text("""class Pilot:
     def decide(self, observation):
-        assert set(observation) == {"flight", "runway", "current_controls", "time_s", "motion", "status", "phase"}
+        assert set(observation) == {"flight", "runway", "environment", "current_controls", "time_s", "motion", "status", "phase"}
         return {"aileron":"3", "elevator":"7", "rudder":"3", "throttle":"3"}
 """)
     controller = ExternalController(f"{path}:Pilot")

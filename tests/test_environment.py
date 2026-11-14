@@ -38,6 +38,51 @@ def test_determinism_and_gym():
     assert initial != other
 
 
+def test_scenario_wind_profiles_and_seed_independence():
+    easy = FixedWingLandingEnv("easy")
+    obs_e1, _ = easy.reset(seed=1)
+    obs_e2, _ = easy.reset(seed=999)
+    assert obs_e1 == obs_e2
+    assert obs_e1["environment"] == {
+        "headwind_mps": 0.0,
+        "crosswind_mps": 0.0,
+        "vertical_wind_mps": 0.0,
+        "wind_speed_mps": 0.0,
+        "wind_dir_deg": 0.0,
+    }
+    easy.close()
+
+    medium = FixedWingLandingEnv("medium")
+    obs_m0, _ = medium.reset(seed=42)
+    obs_m1, *_ = medium.step([0, 0, 0, 0.5])
+    assert obs_m0["environment"]["wind_speed_mps"] > 0.0
+    assert 0.0 <= obs_m0["environment"]["wind_dir_deg"] < 360.0
+    assert obs_m0["environment"]["vertical_wind_mps"] == 0.0
+    assert obs_m0["environment"] == obs_m1["environment"]
+    medium.close()
+
+    hard = FixedWingLandingEnv("hard")
+    obs_h0, _ = hard.reset(seed=42)
+    obs_h1, *_ = hard.step([0, 0, 0, 0.5])
+    assert obs_h0["environment"]["wind_speed_mps"] > 0.0
+    assert obs_h0["environment"] != obs_h1["environment"]
+    hard_repeat, _ = hard.reset(seed=42)
+    assert obs_h0 == hard_repeat
+    hard.close()
+
+
+@pytest.mark.parametrize("scenario", ["medium", "hard"])
+def test_wind_initialization_preserves_airspeed(scenario):
+    env = FixedWingLandingEnv(scenario)
+    initial, _ = env.reset(seed=42)
+    target_ias = (65 + env._scenario_params["airspeed_offset_kts"]) * 1852 / 3600
+    assert initial["flight"]["airspeed_mps"] == pytest.approx(target_ias, abs=1e-6)
+    first, *_ = env.advance(env.action, ticks=1)
+    assert abs(first["flight"]["airspeed_mps"] - initial["flight"]["airspeed_mps"]) < 0.1
+    assert initial["flight"]["alpha_deg"] == pytest.approx(5)
+    env.close()
+
+
 def test_actual_jsbsim_control_signs():
     env = FixedWingLandingEnv()
     responses = {}
@@ -66,6 +111,8 @@ def test_control_commands_are_reported_from_jsbsim():
 
 
 def test_action_and_timeout():
+    with pytest.raises(TypeError, match="attitude_limits must be a boolean"):
+        FixedWingLandingEnv(attitude_limits="false")
     env = FixedWingLandingEnv(max_time_s=0.1)
     with pytest.raises(ValueError):
         env.step([0, 0, 0, 2])
@@ -235,8 +282,119 @@ def test_excursion_after_safe_contact(monkeypatch):
         "roll_deg": 0,
         "pitch_deg": 5,
     }
-    observation["runway"].update(along_track_m=250, cross_track_error_m=16)
+    observation["runway"].update(along_track_m=250, cross_track_error_m=21)
     monkeypatch.setattr(env, "observe", lambda: observation)
     *_, info = env.advance([0, 0, 0, 0.5])
     assert env.done and info["result"]["reason"] == "runway_excursion"
     assert not info["result"]["success"]
+
+
+def test_rollout_steering_keeps_angled_touchdown_on_runway():
+    env = FixedWingLandingEnv("easy")
+    env.reset(seed=42)
+    env.start_x = 400.0
+    env.start_z = 10.04
+    env.fdm["ic/h-agl-ft"] = 4.35
+    env.fdm["ic/vc-kts"] = 52.0
+    env.fdm["ic/psi-true-deg"] = 97.67
+    env.fdm["ic/gamma-deg"] = -1.5
+    env.fdm["ic/alpha-deg"] = 4.0
+    assert env.fdm.run_ic()
+    env.fdm["propulsion/set-running"] = -1
+    env._last_obs = env.observe()
+    max_yaw_rate_deg_s = 0.0
+    while not env.done:
+        obs, _, _, _, info = env.advance([0, 0, 0, 0.5], ticks=1)
+        max_yaw_rate_deg_s = max(max_yaw_rate_deg_s, abs(math.degrees(obs["flight"]["r_rad_s"])))
+    assert info["result"]["reason"] == "landed"
+    assert info["result"]["success"] is True
+    assert abs(obs["runway"]["centerline_offset_m"]) < 6.0
+    assert max_yaw_rate_deg_s < 10.0
+    env.close()
+
+
+def test_northbound_interactive_frame_and_wind():
+    from flightbench.environment import _wind_polar
+
+    assert _wind_polar(8, 0, 0) == (8, 0)
+    assert _wind_polar(0, 8, 0) == (8, 270)
+    assert _wind_polar(-8, 0, 0) == (8, 180)
+    assert _wind_polar(0, -8, 0) == (8, 90)
+    env = FixedWingLandingEnv("medium", runway_heading_deg=0)
+    try:
+        obs, _ = env.reset(seed=42)
+        assert obs["flight"]["heading_deg"] == pytest.approx(
+            obs["runway"]["heading_error_deg"] % 360
+        )
+        assert env.fdm["atmosphere/wind-north-fps"] * 0.3048 == pytest.approx(-env.headwind)
+        assert env.fdm["atmosphere/wind-east-fps"] * 0.3048 == pytest.approx(env.crosswind)
+        x = obs["runway"]["along_track_m"]
+        env.advance([0, 0, 0, 0.5], ticks=60)
+        r = env.observe()["runway"]
+        assert r["along_track_m"] > x
+        assert r["along_track_m"] == pytest.approx(
+            -1500 + env.fdm["position/from-start-neu-n-ft"] * 0.3048
+        )
+        assert r["centerline_offset_m"] == pytest.approx(
+            round(env.start_z + env.fdm["position/from-start-neu-e-ft"] * 0.3048, 4)
+        )
+        assert np.allclose(
+            env.snapshot()["quaternion"],
+            attitude_quaternion(
+                env.observe()["flight"]["roll_deg"],
+                env.observe()["flight"]["pitch_deg"],
+                env.observe()["flight"]["heading_deg"],
+                0,
+            ),
+        )
+    finally:
+        env.close()
+
+
+@pytest.mark.parametrize("attitude_limits", [True, False])
+@pytest.mark.parametrize(
+    "roll,pitch,altitude", [(100, 0, 90), (-170, 0, 90), (0, 60, 90), (0, -60, 90), (0, 0, -1)]
+)
+def test_interactive_attitudes_do_not_replace_physical_crash_checks(
+    monkeypatch, attitude_limits, roll, pitch, altitude
+):
+    from copy import deepcopy
+
+    env = FixedWingLandingEnv(attitude_limits=attitude_limits)
+    try:
+        observation = deepcopy(env._last_obs)
+        observation["flight"].update(roll_deg=roll, pitch_deg=pitch)
+        observation["runway"]["altitude_agl_m"] = altitude
+        monkeypatch.setattr(env, "observe", lambda: observation)
+        env.advance([0, 0, 0, 0.5], ticks=1)
+        assert env.done == (attitude_limits or altitude < 0)
+        assert env.reason == ("crash" if env.done else "running")
+    finally:
+        env.close()
+
+
+@pytest.mark.parametrize("attitude_limits", [True, False])
+def test_full_roll_is_possible_only_without_benchmark_attitude_cutoff(attitude_limits):
+    from flightbench.geometry import angle_delta
+
+    env = FixedWingLandingEnv(runway_heading_deg=0, attitude_limits=attitude_limits)
+    try:
+        # Extra altitude isolates a complete roll from a real ground impact.
+        env.fdm["ic/h-agl-ft"] = 800 / 0.3048
+        assert env.fdm.run_ic()
+        env.fdm["propulsion/set-running"] = -1
+        env._last_obs = env.observe()
+        roll = env._last_obs["flight"]["roll_deg"]
+        rotation = 0
+        while not env.done and env.ticks < 1000 and abs(rotation) < 360:
+            obs, *_ = env.advance([1, 0, 0, 1], ticks=1)
+            current = obs["flight"]["roll_deg"]
+            rotation += angle_delta(current, roll)
+            roll = current
+        assert env.done == attitude_limits
+        if attitude_limits:
+            assert env.reason == "crash" and abs(rotation) < 360
+        else:
+            assert abs(rotation) >= 360
+    finally:
+        env.close()

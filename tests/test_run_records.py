@@ -262,6 +262,29 @@ def test_source_hash_only_uses_known_files(monkeypatch, tmp_path):
     assert runs.source_identity()["source_hash"] == before
 
 
+def test_interactive_flight_is_northbound_and_records_replay_orientation(monkeypatch, tmp_path):
+    monkeypatch.setattr(server, "RUNS_DIR", tmp_path)
+    client = TestClient(server.app, base_url="http://localhost")
+    with client.websocket_connect("/ws", headers={"host": "localhost"}) as websocket:
+        websocket.send_json({"type": "start", "controller": "human", "mode": "realtime"})
+        started = websocket.receive_json()
+        assert started["type"] == "run_started"
+        assert started["config"]["runway_heading_deg"] == 0
+        assert started["config"]["attitude_limits"] is False
+        state = websocket.receive_json()
+        assert state["type"] == "state"
+        heading = state["observation"]["flight"]["heading_deg"]
+        error = state["observation"]["runway"]["heading_error_deg"]
+        assert (heading + 180) % 360 - 180 == pytest.approx(error)
+        websocket.send_json({"type": "stop"})
+        while (message := websocket.receive_json())["type"] != "run_finished":
+            pass
+        record = message["record"]
+        assert record["config"]["runway_heading_deg"] == 0
+        assert record["config"]["attitude_limits"] is False
+        assert record["initial_observation"]["flight"]["heading_deg"] == pytest.approx(0)
+
+
 def test_browser_lifecycle_persists_once_and_stop_does_not_restart(monkeypatch, tmp_path):
     from tests.test_runner import FakeEnv
 
@@ -943,3 +966,23 @@ def test_terra_standard_token_pricing():
         "gpt-6.1-terra",
         {"input_tokens": 100, "output_tokens": 20, "input_tokens_details": {"cached_tokens": 10}},
     ) == pytest.approx((90 + 10 * 0.05 + 20 * 5) / 1e6)
+
+
+def test_interactive_codex_realtime_requires_low_effort():
+    from pydantic import ValidationError
+
+    from flightbench.runs import RunSettings
+
+    with pytest.raises(ValidationError, match="low"):
+        RunSettings(
+            controller="codex",
+            mode="realtime",
+            decision_schedule="continuous",
+            reasoning_effort="high",
+        )
+    assert RunSettings(
+        controller="codex", mode="lockstep", decision_schedule="continuous", reasoning_effort="high"
+    )
+    assert RunSettings(
+        controller="codex", mode="realtime", decision_schedule="continuous", reasoning_effort="low"
+    )

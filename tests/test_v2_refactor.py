@@ -369,7 +369,7 @@ def test_existing_benchmark_touchdown_and_scoring():
 
     # Check scoring envelope constants
     assert env.scoring.runway_length_m == 1000
-    assert env.scoring.runway_width_m == 30
+    assert env.scoring.runway_width_m == 40
     assert env.scoring.max_sink_mps == 3
     assert env.scoring.max_bank_deg == 10
     assert env.scoring.max_heading_deg == 15

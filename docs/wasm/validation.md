@@ -233,3 +233,56 @@ has not been updated in this step.
   it consumes provider credit and is not an automatic CI test.
 - The physics Worker URL has a new versioned cache key so returning visitors do
   not reuse a cached private-token-only Worker with the new public frontend.
+
+## Northbound interactive runway and heading compass — 2026-11-14
+
+- New native-browser and Pages flights use runway 36 / true 000°. Wind, initial
+  headings, runway projection and aircraft attitude rotate together. Canonical
+  benchmark defaults and legacy records without heading metadata remain 090°.
+  Offline replay verifies both orientations in lockstep and realtime.
+- A separate blue aircraft compass sits beside green downstream wind flow. It reads
+  the rendered watched aircraft, including replay/spectator selection; it does not
+  follow camera direction. Three-digit heading wraps through north without a
+  full-turn interpolation. Existing focus/tap definitions explain true heading.
+- Python: **311 passed, 1 skipped**. Frontend: **40 passed**. WASM engine, browser
+  Worker and proxy: **29 passed**. Scoped Ruff, typechecking and both builds passed;
+  the existing large Three.js bundle warning remains.
+- Nine fresh native/WASM identical-command traces passed **1e-6** tolerance on the
+  northbound contract (maximum compared error **2.20e-7**). Local artifacts:
+  ignored `scratch/northbound/parity.json` and `parity.log`. The historical
+  `docs/wasm/parity.json` was preserved, not relabeled as new evidence.
+- Physical orientation changes touchdown timing: independent northbound easy
+  baselines scored Python **96.153**, WASM **96.154**, versus legacy **99.169** /
+  **99.126**. Four baseline cases landed safely in both engines/orientations;
+  another ten medium seeds passed native safety/rollout checks in each orientation.
+  No controller tuning, scoring formula or safety gate was changed to hide this.
+- Local Chromium checks passed four layouts (1440×1000, 390×844, 320×667, 844×390):
+  compass cardinals/north crossing/bank/pitch/camera independence/spectator/reset,
+  adjacent equal-height navigation cards, configuration, instrument guides and a
+  mocked two-Jev-plus-baseline race. Existing touch-emulation controls checks also
+  passed, including 932×430. Screenshots/logs: ignored `scratch/northbound/`.
+- No deployment, authenticated model request, physical-phone or Safari check.
+
+## Wind source convention and interactive rolls — 2026-11-14
+
+- Checked the [NWS wind-direction definition](https://forecast.weather.gov/glossary.php?word=WIND+DIRECTION)
+  and [NOAA windsock explanation](https://www.nesdis.noaa.gov/about/k-12-education/atmosphere/jpss-and-wind-make-windsock):
+  reported direction is the source; cloth streams downwind. Panel now says **WIND FROM**;
+  arrow and bearing oppose the 3D tail by 180°, sharing its damped physical response.
+- Compass aircraft is a straight-wing single-prop silhouette, mint like the wind arrow;
+  numeric headings are unpadded (14°, not 014°). The scene aircraft livery was untouched.
+- New native/Pages interactive flights disable attitude-only termination, consistently
+  across controllers. Native benchmark defaults and legacy records retain historical
+  cutoffs. New configs/manifest record `attitude_limits: false`, honored by replay.
+  Impact, unsafe touchdown, bounds, time and nonfinite checks remain in force.
+- Full native suite: **327 passed, 1 skipped**; fresh final affected tests: **48 passed**.
+  Frontend: **40 passed**; engine/Worker/proxy: **31 passed**. Scoped Ruff and both builds passed.
+  Nine native/WASM traces passed 1e-6 tolerance (maximum error 2.20e-7); historical
+  committed parity report was preserved. Artifacts: ignored `scratch/wind-aerobatics/`.
+- Actual native and WASM physics completed a 360° roll in an 800 m AGL test fixture;
+  the native benchmark setting stopped the same maneuver at 70° as before. This
+  verifies continued simulation, not aerobatic/structural model fidelity.
+- Chromium configuration/compass/help checks passed four responsive layouts, including
+  source/cloth opposition, matching icon fills, unpadded headings, spectator/reset and
+  a 14+ m/s reading fitting its card at 320 px. Mocked two-Jev race and existing mobile
+  touch controls checks passed. No paid provider calls, deployments or real-device/Safari checks.

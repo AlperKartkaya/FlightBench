@@ -238,3 +238,8 @@ export function defaultControls(): Control {
 export function trimControls(): Control {
   return defaultControls();
 }
+
+export function copyControls(target: Control, source: Control): void {
+  const { aileron, elevator, rudder, throttle } = source;
+  Object.assign(target, { aileron, elevator, rudder, throttle });
+}

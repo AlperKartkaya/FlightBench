@@ -14,7 +14,7 @@ from tempfile import NamedTemporaryFile
 from typing import Literal
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_FILES = (
@@ -39,13 +39,25 @@ class RunSettings(BaseModel):
     controller: str = Field(default="baseline", min_length=1, max_length=4096)
     model: str | None = Field(default=None, max_length=200)
     reasoning_effort: Literal["low", "medium", "high", "xhigh", "max"] = "low"
-    scenario: Literal["easy", "medium"] = "easy"
+    scenario: Literal["easy", "medium", "hard"] = "easy"
     mode: Literal["lockstep", "realtime"] = "lockstep"
     seed: int = Field(default=42, ge=0, le=4294967295)
     decision_hz: Literal[2, 5, 10] = 2
+    decision_schedule: Literal["fixed", "continuous"] = "fixed"
     time_scale: Literal[1.0, 0.5, 0.25] = 1.0
     realtime_response_policy: Literal["discard-stale", "apply-on-arrival"] = "discard-stale"
     human_assistance: HumanAssistance = Field(default_factory=HumanAssistance)
+
+    @model_validator(mode="after")
+    def realtime_codex_effort(self):
+        if (
+            self.controller == "codex"
+            and self.mode == "realtime"
+            and self.decision_schedule == "continuous"
+            and self.reasoning_effort != "low"
+        ):
+            raise ValueError("interactive realtime Codex requires low reasoning effort")
+        return self
 
 
 def effective_config(settings: RunSettings, controller=None) -> dict:

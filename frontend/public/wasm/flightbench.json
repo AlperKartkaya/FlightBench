@@ -5,13 +5,15 @@
   "python_jsbsim": "1.3.1",
   "wasm_jsbsim": "1.3.1",
   "physics_hz": 120,
+  "runway_heading_deg": 0,
+  "attitude_limits": false,
   "initial": {
     "ic/lat-geod-deg": 37.00000000000001,
     "ic/long-gc-deg": -122.0,
     "ic/terrain-elevation-ft": -1.1134741660227734e-09,
     "ic/h-agl-ft": 307.12489804646265,
     "ic/vc-kts": 65,
-    "ic/psi-true-deg": 89.99999999999999,
+    "ic/psi-true-deg": 0,
     "ic/gamma-deg": -3,
     "ic/alpha-deg": 5,
     "fcs/flap-cmd-norm": 0.6666666666666666,
@@ -19,7 +21,7 @@
     "fcs/flap-pos-deg": 20,
     "fcs/mixture-cmd-norm": 1.0,
     "fcs/throttle-cmd-norm": 0.5,
-    "atmosphere/wind-north-fps": 1.175025180676556e-16
+    "atmosphere/wind-north-fps": 4.263256414560601e-14
   },
   "trim": {
     "aileron": -0.15,
@@ -30,7 +32,7 @@
   "scoring": {
     "version": "v2",
     "runway_length_m": 1000,
-    "runway_width_m": 30,
+    "runway_width_m": 40,
     "zone_start_m": 50,
     "zone_end_m": 350,
     "max_sink_mps": 3,
@@ -58,7 +60,7 @@
     "flare_altitude_m": 6,
     "glide_normalization_m": 15,
     "touchdown_sink_normalization_mps": 3,
-    "touchdown_lateral_normalization_m": 15,
+    "touchdown_lateral_normalization_m": 20,
     "touchdown_target_m": 200,
     "touchdown_longitudinal_normalization_m": 200
   },

@@ -12,8 +12,8 @@ async page => {
     assert(page.workers().some(worker => new URL(worker.url()).searchParams.has('v')),
       'Worker protocol updates need a fresh cache key');
     await page.locator('#configureToggle').click();
-    await page.locator('#controller').selectOption('jev');
-    await page.locator('#jevModel').selectOption(model);
+    await page.locator('input[name="controller-choice"][value="jev"]').check();
+    await page.locator(`input[name="jev-version"][value="${model}"]`).check();
     assert(await page.locator('#jevProxy, #jevInvite, input[type="password"]').count() === 0,
       'Public Jev must not ask for credentials or endpoint');
     await page.keyboard.press('Escape');

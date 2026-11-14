@@ -132,3 +132,22 @@ def test_codex_discovery_and_structured_decision(monkeypatch, effort):
 def test_codex_rejects_unknown_effort():
     with pytest.raises(ValueError, match="reasoning effort"):
         CodexController(reasoning_effort="invalid")
+
+
+@pytest.mark.parametrize(
+    "scenario,seed,minimum",
+    [("easy", 42, 99), ("medium", 17, 90), ("hard", 42, 55), ("hard", 97, 75)],
+)
+def test_baseline_wind_regressions(scenario, seed, minimum):
+    from flightbench.environment import FixedWingLandingEnv
+
+    env = FixedWingLandingEnv(scenario)
+    try:
+        observation, _ = env.reset(seed=seed)
+        controller = BaselineController()
+        while not env.done:
+            observation, _, _, _, info = env.step(controller.decide(observation))
+        assert info["result"]["success"]
+        assert info["result"]["quality"] >= minimum
+    finally:
+        env.close()
