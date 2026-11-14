@@ -76,6 +76,7 @@ button, select, input {
 
 .brand-section {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
@@ -92,8 +93,9 @@ button, select, input {
 }
 
 .brand-logo-icon {
-  color: var(--accent-mint);
-  font-size: 17px;
+  display: block;
+  flex: none;
+  object-fit: contain;
 }
 
 /* Controls Configuration */
@@ -1691,7 +1693,7 @@ html, body { height: 100%; overflow: hidden; }
   .controller-column { width: 100%; height: auto; overflow: visible; }
 }
 @media (max-width: 600px) {
-  .topbar { padding: 6px 10px; flex: 0 0 64px; align-content: center; row-gap: 3px; }
+  .topbar { padding: 6px 10px; min-height: 64px; flex: 0 0 auto; align-content: center; row-gap: 3px; }
   .brand-section { width: 100%; }
   .ctrl-chips-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .viewer-toolbar { top: 10px; left: 10px; right: 10px; gap: 4px; justify-content: flex-end; }

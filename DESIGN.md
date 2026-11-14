@@ -46,6 +46,8 @@ readout there to leave space for the wind instrument. Pointer capture releases h
 inputs on lift/cancel; distinct buttons support simultaneous fingers.
 Mobile flight instruments start closed and open with the gauge icon left of controller
 settings; desktop instruments remain visible.
+Use the existing FlightBench icon before the header title (22px) and in the controller
+identity badge (18px), not a lightning emoji. Allow header links to wrap on narrow screens.
 ## Interaction states
 Disconnected/ready/starting/running/completed/interrupted/error are distinct.
 Disable start offline or pending; lock experiment settings during a run; explicit stop.

@@ -22,6 +22,19 @@ async page => {
     for (const [width, height] of [[1440, 1000], [390, 844], [320, 667], [844, 390]]) {
       await page.setViewportSize({width, height}); await page.goto(base);
       await page.waitForFunction(() => !document.querySelector('#start').disabled);
+      for (const [selector, size] of [['.brand-title img', 22], ['.jev-brand-badge img', 18]]) {
+        const icon = page.locator(selector);
+        await icon.evaluate(img => img.decode());
+        assert((await icon.getAttribute('src')).endsWith('/FlightBench/flightbench-icon.png'), 'Brand icon ignores Pages base path');
+        const bounds = await icon.boundingBox();
+        assert(bounds.width === size && bounds.height === size, 'Brand icon is oversized');
+      }
+      assert(!(await page.locator('.jev-brand-badge').innerText()).includes('⚡'), 'Brand still uses lightning emoji');
+      const header = await page.locator('.topbar').boundingBox();
+      for (const item of await page.locator('.brand-title, .profile-link').all()) {
+        const bounds = await item.boundingBox();
+        assert(bounds.x >= 0 && bounds.x + bounds.width <= width && bounds.y + bounds.height <= header.y + header.height, 'Header brand or profile link is clipped');
+      }
       await page.locator('#configureToggle').click();
       assert(await page.locator('.opponent-model-group').count() === 1, 'Repeated Jev opponent cards');
       assert(await page.locator('.opponent-model-group input').count() === 2, 'Jev version badges missing');
