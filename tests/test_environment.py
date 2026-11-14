@@ -111,6 +111,8 @@ def test_control_commands_are_reported_from_jsbsim():
 
 
 def test_action_and_timeout():
+    with pytest.raises(TypeError, match="attitude_limits must be a boolean"):
+        FixedWingLandingEnv(attitude_limits="false")
     env = FixedWingLandingEnv(max_time_s=0.1)
     with pytest.raises(ValueError):
         env.step([0, 0, 0, 2])
@@ -345,5 +347,54 @@ def test_northbound_interactive_frame_and_wind():
                 0,
             ),
         )
+    finally:
+        env.close()
+
+
+@pytest.mark.parametrize("attitude_limits", [True, False])
+@pytest.mark.parametrize(
+    "roll,pitch,altitude", [(100, 0, 90), (-170, 0, 90), (0, 60, 90), (0, -60, 90), (0, 0, -1)]
+)
+def test_interactive_attitudes_do_not_replace_physical_crash_checks(
+    monkeypatch, attitude_limits, roll, pitch, altitude
+):
+    from copy import deepcopy
+
+    env = FixedWingLandingEnv(attitude_limits=attitude_limits)
+    try:
+        observation = deepcopy(env._last_obs)
+        observation["flight"].update(roll_deg=roll, pitch_deg=pitch)
+        observation["runway"]["altitude_agl_m"] = altitude
+        monkeypatch.setattr(env, "observe", lambda: observation)
+        env.advance([0, 0, 0, 0.5], ticks=1)
+        assert env.done == (attitude_limits or altitude < 0)
+        assert env.reason == ("crash" if env.done else "running")
+    finally:
+        env.close()
+
+
+@pytest.mark.parametrize("attitude_limits", [True, False])
+def test_full_roll_is_possible_only_without_benchmark_attitude_cutoff(attitude_limits):
+    from flightbench.geometry import angle_delta
+
+    env = FixedWingLandingEnv(runway_heading_deg=0, attitude_limits=attitude_limits)
+    try:
+        # Extra altitude isolates a complete roll from a real ground impact.
+        env.fdm["ic/h-agl-ft"] = 800 / 0.3048
+        assert env.fdm.run_ic()
+        env.fdm["propulsion/set-running"] = -1
+        env._last_obs = env.observe()
+        roll = env._last_obs["flight"]["roll_deg"]
+        rotation = 0
+        while not env.done and env.ticks < 1000 and abs(rotation) < 360:
+            obs, *_ = env.advance([1, 0, 0, 1], ticks=1)
+            current = obs["flight"]["roll_deg"]
+            rotation += angle_delta(current, roll)
+            roll = current
+        assert env.done == attitude_limits
+        if attitude_limits:
+            assert env.reason == "crash" and abs(rotation) < 360
+        else:
+            assert abs(rotation) >= 360
     finally:
         env.close()

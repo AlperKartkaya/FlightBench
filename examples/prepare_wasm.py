@@ -36,7 +36,7 @@ def main():
         )
     ]
     files = {str(p.relative_to(model_root)): p.read_text() for p in paths}
-    env = FixedWingLandingEnv(runway_heading_deg=0)
+    env = FixedWingLandingEnv(runway_heading_deg=0, attitude_limits=False)
     # Read resolved IC values from the existing environment rather than inventing a scenario.
     initial = {
         k: env.fdm[k]
@@ -76,6 +76,7 @@ def main():
         "wasm_jsbsim": "1.3.1",
         "physics_hz": PHYSICS_HZ,
         "runway_heading_deg": env.runway_heading_deg,
+        "attitude_limits": env.attitude_limits,
         "initial": initial,
         "trim": {
             "aileron": TRIM_AILERON,

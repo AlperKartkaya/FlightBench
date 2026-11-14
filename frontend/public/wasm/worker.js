@@ -100,6 +100,7 @@ onmessage = async ({data}) => {
       if (!response.ok) throw Error('Missing aircraft assets; run prepare_wasm.py');
       contract = await response.json(); runtime = await loadRuntime(contract);
       postMessage({type: 'ready', runway_heading_deg: contract.runway_heading_deg ?? 90,
+        attitude_limits: contract.attitude_limits ?? true,
         versions: {python: contract.python_jsbsim, wasm: contract.wasm_jsbsim}});
     } else if (data.type === 'start') {
       stop(); landing?.destroy(); runId = data.run_id;

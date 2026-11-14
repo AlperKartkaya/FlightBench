@@ -92,6 +92,7 @@ export function createWindsock() {
   update({headwind_mps: 0, crosswind_mps: 0}, 0, 0, true);
   return {object, update,
     get flowBearingDeg() { return ((-heading * 180 / Math.PI) % 360 + 360) % 360; },
+    get sourceBearingDeg() { return ((180 - heading * 180 / Math.PI) % 360 + 360) % 360; },
     get speedMps() { return speed; },
     get verticalMps() { return vertical; },
   };

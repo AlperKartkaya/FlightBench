@@ -171,6 +171,8 @@ export class Landing {
   constructor(module, contract, maxTime = 120, scenario = 'easy', seed = 42) {
     this.contract = contract;
     this.runwayHeading = contract.runway_heading_deg ?? 90;
+    this.attitudeLimits = contract.attitude_limits ?? true;
+    if (typeof this.attitudeLimits !== 'boolean') throw Error('Invalid attitude limits');
     if (![0, 90].includes(this.runwayHeading)) throw Error('Unsupported runway heading');
     this.hz = contract.physics_hz;
     this.c = contract.scoring;
@@ -318,7 +320,7 @@ export class Landing {
           heading_error_deg: r.heading_error_deg, roll_deg: f.roll_deg, pitch_deg: f.pitch_deg};
         if (!touchdownSafe(this.touchdown, this.c)) end('unsafe_touchdown');
       }
-      if (Math.abs(f.roll_deg) > 70 || Math.abs(f.pitch_deg) > 45 || r.altitude_agl_m < 0) end('crash');
+      if ((this.attitudeLimits && (Math.abs(f.roll_deg) > 70 || Math.abs(f.pitch_deg) > 45)) || r.altitude_agl_m < 0) end('crash');
       if (this.touchdown) {
         if (r.along_track_m < 0 || r.along_track_m > this.c.runway_length_m || Math.abs(lateral) > this.c.runway_width_m / 2) end('runway_excursion');
         else if (o.status.on_ground && f.groundspeed_mps < 3 && !this.done) {end('landed'); this.success = true;}

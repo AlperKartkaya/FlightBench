@@ -270,6 +270,7 @@ def test_interactive_flight_is_northbound_and_records_replay_orientation(monkeyp
         started = websocket.receive_json()
         assert started["type"] == "run_started"
         assert started["config"]["runway_heading_deg"] == 0
+        assert started["config"]["attitude_limits"] is False
         state = websocket.receive_json()
         assert state["type"] == "state"
         heading = state["observation"]["flight"]["heading_deg"]
@@ -280,6 +281,7 @@ def test_interactive_flight_is_northbound_and_records_replay_orientation(monkeyp
             pass
         record = message["record"]
         assert record["config"]["runway_heading_deg"] == 0
+        assert record["config"]["attitude_limits"] is False
         assert record["initial_observation"]["flight"]["heading_deg"] == pytest.approx(0)
 
 

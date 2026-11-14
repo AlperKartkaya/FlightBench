@@ -20,6 +20,7 @@ export class BrowserRuntime {
   private worker: Worker;
   private ready = false;
   private runwayHeading = 90;
+  private attitudeLimits = true;
   private opponents = new Map<string, BrowserRuntime>();
   private raceGeneration = 0;
   private startingRace = false;
@@ -64,6 +65,7 @@ export class BrowserRuntime {
     if (data.type === 'ready') {
       this.ready = true;
       this.runwayHeading = data.runway_heading_deg ?? 90;
+      this.attitudeLimits = data.attitude_limits ?? true;
       this.receive({ type: 'ready' });
       return;
     }
@@ -91,7 +93,7 @@ export class BrowserRuntime {
 
   private startRun(message: Message): void {
     const { type, proxy: _proxy, invite: _invite, ...config } = message;
-    this.config = {...config, runway_heading_deg: this.runwayHeading};
+    this.config = {...config, runway_heading_deg: this.runwayHeading, attitude_limits: this.attitudeLimits};
     this.runId = crypto.randomUUID();
     this.accepted = false;
     this.last = null;

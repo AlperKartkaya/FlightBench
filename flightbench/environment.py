@@ -202,6 +202,7 @@ class FixedWingLandingEnv(gym.Env):
         scoring=None,
         decision_hz=DECISION_HZ,
         runway_heading_deg=90,
+        attitude_limits=True,
     ):
         if scenario not in SCENARIOS:
             raise ValueError("scenario must be easy, medium, or hard")
@@ -210,6 +211,9 @@ class FixedWingLandingEnv(gym.Env):
         if runway_heading_deg not in (0, 90):
             raise ValueError("runway heading must be 0 (interactive) or 90 (legacy benchmark)")
         self.runway_heading_deg = runway_heading_deg
+        if not isinstance(attitude_limits, bool):
+            raise TypeError("attitude_limits must be a boolean")
+        self.attitude_limits = attitude_limits
         self.scenario, self.max_time_s = scenario, max_time_s
         self.decision_ticks, self.decision_interval_s = decision_timing(decision_hz)
         self.scoring = scoring or ScoringConfig()
@@ -480,10 +484,9 @@ class FixedWingLandingEnv(gym.Env):
                 if not self.info()["result"]["touchdown_safe"]:
                     self.done, self.reason = True, "unsafe_touchdown"
             if (
-                abs(flight["roll_deg"]) > 70
-                or abs(flight["pitch_deg"]) > 45
-                or r["altitude_agl_m"] < 0
-            ):
+                self.attitude_limits
+                and (abs(flight["roll_deg"]) > 70 or abs(flight["pitch_deg"]) > 45)
+            ) or r["altitude_agl_m"] < 0:
                 self.done, self.reason = True, "crash"
             if self.touchdown is not None:
                 if (

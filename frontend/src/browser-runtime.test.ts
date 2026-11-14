@@ -67,13 +67,14 @@ function runtime(t: any) {
 
 test('start is acknowledged by physics; stop never becomes a scored safe landing', t => {
   const {runtime: r, worker: w, received} = runtime(t);
-  w.emit({type: 'ready', runway_heading_deg: 0});
+  w.emit({type: 'ready', runway_heading_deg: 0, attitude_limits: false});
   r.send({type: 'start', controller: 'human', seed: 42});
   const id = w.sent.at(-1).run_id;
   assert.equal(received.at(-1).type, 'ready');
   w.emit(state(id));
   assert.equal(received.at(-2).type, 'run_started');
   assert.equal(received.at(-2).config.runway_heading_deg, 0);
+  assert.equal(received.at(-2).config.attitude_limits, false);
   r.send({type: 'action', action: {aileron: 0, elevator: .1, rudder: 0, throttle: .5, flaps_deg: 0}});
   assert.deepEqual(w.sent.at(-1).command, {aileron: 0, elevator: .1, rudder: 0, throttle: .5});
   r.send({type: 'stop'});

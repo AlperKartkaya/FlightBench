@@ -10,9 +10,11 @@ Python and keeps its controllers and saved-run archive. The local Codex integrat
 
 New interactive flights use **runway 36, true north (000°)** in both transports.
 The adjacent compass shows the watched aircraft's nose direction; the wind indicator
-shows downstream flow. The canonical Python benchmark still defaults to the legacy
+shows where wind comes **from**, while the 3D windsock tail streams downwind.
+Interactive flights allow high bank/pitch without attitude-only crashes; impacts,
+unsafe touchdown and landing scores still apply. The canonical Python benchmark still defaults to the legacy
 090° runway, and old saved episodes retain that orientation during offline replay.
-New local records store `runway_heading_deg` explicitly. Historical parity figures
+New local records store `runway_heading_deg` and `attitude_limits` explicitly. Historical parity figures
 below predate this rotation; rerun the comparison against the current exported contract.
 
 Requirements: the existing Python environment with **JSBSim 1.3.1**, CMake >= 3.20,

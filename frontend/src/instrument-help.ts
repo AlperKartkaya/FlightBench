@@ -19,7 +19,7 @@ const TERMS: Record<string, [string, string, string, string]> = {
   ROLL: ["Roll attitude", "Tilt of the wings relative to the horizon.", "°", "+ right bank · − left bank"],
   PITCH: ["Pitch attitude", "Angle of the aircraft's nose relative to the horizon.", "°", "+ nose up · − nose down"],
   WIND: ["Wind at the aircraft", "Observed wind: horizontal speed and the compass bearing it comes from.", "m/s · °", "HW headwind · XW crosswind · VW vertical wind. North is 0°."],
-  "WIND FLOW": ["Downstream wind flow", "The arrow points where the air is going, just like the tail of the 3D windsock.", "m/s · °", "North up. “To” bearing; opposite the source bearing in the strip. Both visuals share a damped response to wind at the aircraft."],
+  "WIND FROM": ["Wind source direction", "The arrow points toward where the wind comes from, following the standard weather convention.", "m/s · °", "North up. The windsock's wide mouth faces this source; its narrow tail streams the opposite way. Both share a damped response to wind at the aircraft."],
   "MEAN LATENCY": ["Mean decision latency", "Average wall-clock time from sending a model request to receiving its response.", "ms", "1,000 milliseconds = 1 second. This is not simulation time."],
   "EFFECTIVE RATE": ["Effective decision rate", "Applied model decisions per second of wall-clock flight time, averaged over this run.", "Hz", "Hertz = decisions per second. Refreshed every five seconds; not a requested rate."],
   SCORE: ["Landing score · V2", "Approach precision, stability and touchdown quality on a 0–100 scale.", "points", "An unfinished or unsafe rollout scores zero. A safe landing can also round to zero after a very inaccurate approach."],

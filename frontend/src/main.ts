@@ -244,20 +244,20 @@ app.innerHTML = `
 
         <div class="navigation-instruments">
         <div class="wind-instrument" id="windInstrument" hidden aria-label="Live wind">
-          <svg class="wind-compass" viewBox="0 0 80 80" role="img" aria-label="Downstream wind flow, north up">
+          <svg class="wind-compass" viewBox="0 0 80 80" role="img" aria-label="Direction wind comes from, north up">
             <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5"/>
             <text x="40" y="9">N</text><text x="74" y="43">E</text><text x="40" y="78">S</text><text x="6" y="43">W</text>
             <g id="windArrow"><path d="M40 19 32 32h6v27h4V32h6z"/></g>
           </svg>
-          <div class="wind-readings"><span class="wind-label">WIND FLOW</span><div class="wind-reading-row"><strong id="windSpeed">— m/s</strong><span id="windBearing">To —°</span></div><small id="windVertical">Awaiting flight</small></div>
+          <div class="wind-readings"><span class="wind-label">WIND FROM</span><div class="wind-reading-row"><strong id="windSpeed">— m/s</strong><span id="windBearing">From —°</span></div><small id="windVertical">Awaiting flight</small></div>
         </div>
         <div class="heading-instrument" id="headingInstrument" aria-label="Aircraft heading, north up">
           <svg class="wind-compass heading-compass" viewBox="0 0 80 80" role="img" aria-label="Aircraft nose direction, true north up">
             <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5M59 21l-3 3m3 35-3-3M21 59l3-3m-3-35 3 3"/>
             <text class="compass-north" x="40" y="9">N</text><text x="74" y="43">E</text><text x="40" y="78">S</text><text x="6" y="43">W</text>
-            <g id="headingNeedle"><path d="M40 20 43 35 54 44v3l-12-4v10l4 4v2l-6-2-6 2v-2l4-4V43l-12 4v-3l11-9z"/></g>
+            <g id="headingNeedle"><rect x="33" y="19" width="14" height="1.5" rx=".75"/><path d="M38 21Q40 17 42 21L43 31 61 33V39L43 38 42 51 50 53V56L40 55 30 56V53L38 51 37 38 19 39V33L37 31Z"/></g>
           </svg>
-          <div class="heading-readings"><span class="instrument-label">HEADING</span><strong id="compassHeading">000°</strong><small>TRUE NORTH</small></div>
+          <div class="heading-readings"><span class="instrument-label">HEADING</span><strong id="compassHeading">0°</strong><small>TRUE NORTH</small></div>
         </div>
         </div>
 
@@ -2395,7 +2395,7 @@ byId("reset").addEventListener("click", () => {
   hideError();
   clearDecisionView();
   lastObservation = null;
-  byId("windSpeed").textContent = "— m/s"; byId("windBearing").textContent = "To —°";
+  byId("windSpeed").textContent = "— m/s"; byId("windBearing").textContent = "From —°";
   byId("windVertical").textContent = "Awaiting flight";
   centerSurfaces(controls);
   showControls(controls);
@@ -2492,11 +2492,11 @@ function animate(now: number) {
   previous = now;
   updateEdgeLights(now);
   windsock.update(lastObservation?.environment ?? {headwind_mps: 0, crosswind_mps: 0}, now / 1000, dt, reducedMotion.matches);
-  byId("windArrow").setAttribute("transform", `rotate(${windsock.flowBearingDeg} 40 40)`);
+  byId("windArrow").setAttribute("transform", `rotate(${windsock.sourceBearingDeg} 40 40)`);
   byId("windArrow").style.visibility = lastObservation?.environment && windsock.speedMps > .05 ? "visible" : "hidden";
   if (lastObservation?.environment) {
     byId("windSpeed").textContent = `${windsock.speedMps.toFixed(1)} m/s`;
-    byId("windBearing").textContent = windsock.speedMps > .05 ? `To ${Math.round(windsock.flowBearingDeg) % 360}°` : "Calm";
+    byId("windBearing").textContent = windsock.speedMps > .05 ? `From ${Math.round(windsock.sourceBearingDeg) % 360}°` : "Calm";
     const vertical = windsock.verticalMps;
     byId("windVertical").textContent = Math.abs(vertical) >= .05 ? `${vertical > 0 ? "↑" : "↓"} ${Math.abs(vertical).toFixed(1)} m/s vertical` : "Horizontal wind";
   }
@@ -2538,7 +2538,7 @@ function animate(now: number) {
   const nose = compassForward.set(1, 0, 0).applyQuaternion(cameraSubject().quaternion);
   const heading = (Math.atan2(nose.z, nose.x) * 180 / Math.PI + 360) % 360;
   byId("headingNeedle").setAttribute("transform", `rotate(${heading} 40 40)`);
-  byId("compassHeading").textContent = `${String(Math.round(heading) % 360).padStart(3, "0")}°`;
+  byId("compassHeading").textContent = `${Math.round(heading) % 360}°`;
   sun.position.copy(cameraSubject().position).add(sunOffset);
 
   const propeller = aircraft.userData.propeller as THREE.Object3D | undefined;

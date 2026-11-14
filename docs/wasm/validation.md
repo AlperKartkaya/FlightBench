@@ -262,3 +262,27 @@ has not been updated in this step.
   mocked two-Jev-plus-baseline race. Existing touch-emulation controls checks also
   passed, including 932×430. Screenshots/logs: ignored `scratch/northbound/`.
 - No deployment, authenticated model request, physical-phone or Safari check.
+
+## Wind source convention and interactive rolls — 2026-11-14
+
+- Checked the [NWS wind-direction definition](https://forecast.weather.gov/glossary.php?word=WIND+DIRECTION)
+  and [NOAA windsock explanation](https://www.nesdis.noaa.gov/about/k-12-education/atmosphere/jpss-and-wind-make-windsock):
+  reported direction is the source; cloth streams downwind. Panel now says **WIND FROM**;
+  arrow and bearing oppose the 3D tail by 180°, sharing its damped physical response.
+- Compass aircraft is a straight-wing single-prop silhouette, mint like the wind arrow;
+  numeric headings are unpadded (14°, not 014°). The scene aircraft livery was untouched.
+- New native/Pages interactive flights disable attitude-only termination, consistently
+  across controllers. Native benchmark defaults and legacy records retain historical
+  cutoffs. New configs/manifest record `attitude_limits: false`, honored by replay.
+  Impact, unsafe touchdown, bounds, time and nonfinite checks remain in force.
+- Full native suite: **327 passed, 1 skipped**; fresh final affected tests: **48 passed**.
+  Frontend: **40 passed**; engine/Worker/proxy: **31 passed**. Scoped Ruff and both builds passed.
+  Nine native/WASM traces passed 1e-6 tolerance (maximum error 2.20e-7); historical
+  committed parity report was preserved. Artifacts: ignored `scratch/wind-aerobatics/`.
+- Actual native and WASM physics completed a 360° roll in an 800 m AGL test fixture;
+  the native benchmark setting stopped the same maneuver at 70° as before. This
+  verifies continued simulation, not aerobatic/structural model fidelity.
+- Chromium configuration/compass/help checks passed four responsive layouts, including
+  source/cloth opposition, matching icon fills, unpadded headings, spectator/reset and
+  a 14+ m/s reading fitting its card at 320 px. Mocked two-Jev race and existing mobile
+  touch controls checks passed. No paid provider calls, deployments or real-device/Safari checks.

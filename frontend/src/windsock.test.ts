@@ -57,6 +57,7 @@ test('north-up flow bearing follows the cloth downstream, opposite the source be
     const sock = settle({headwind_mps, crosswind_mps});
     const delta = ((sock.flowBearingDeg - expected + 540) % 360) - 180;
     assert.ok(Math.abs(delta) < .001);
+    assert.ok(Math.abs(((sock.sourceBearingDeg - expected - 180 + 540) % 360) - 180) < .001);
   }
   const sock = settle({headwind_mps: 8, crosswind_mps: 0});
   sock.update({headwind_mps: -8, crosswind_mps: 0}, 10, 1 / 60, true);

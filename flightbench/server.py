@@ -483,6 +483,7 @@ class Session:
                 max_time_s=120,
                 decision_hz=self.decision_hz,
                 runway_heading_deg=0,
+                attitude_limits=False,
             )
         except TypeError:
             self.env = FixedWingLandingEnv(scenario=self.scenario, max_time_s=120)
@@ -520,6 +521,7 @@ class Session:
         self.started_at = now()
         self.run_config = effective_config(settings, controller)
         self.run_config["runway_heading_deg"] = getattr(self.env, "runway_heading_deg", 90)
+        self.run_config["attitude_limits"] = getattr(self.env, "attitude_limits", True)
         self.identity = source_identity()
         self.decisions = []
         self.pending_record = None

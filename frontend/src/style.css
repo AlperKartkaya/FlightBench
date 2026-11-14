@@ -1835,7 +1835,7 @@ html, body { height: 100%; overflow: hidden; }
 .heading-readings { display: grid; gap: 6px; font-variant-numeric: tabular-nums; }
 .heading-readings .instrument-label, .heading-readings small { color: #a7bdb7; font: 10px var(--font-sans); white-space: nowrap; }
 .heading-readings strong { color: #d4e1f6; font: 600 20px var(--font-mono); }
-#headingNeedle { fill: #9ebce8; }
+#headingNeedle { fill: var(--accent-mint); }
 .heading-compass .compass-north { fill: #d4e1f6; font-weight: 700; }
 .wind-instrument { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 6px; min-height: 96px; pointer-events: none; font-variant-numeric: tabular-nums; }
 .wind-compass { width: 62px; height: 62px; overflow: visible; }
@@ -1877,7 +1877,7 @@ html, body { height: 100%; overflow: hidden; }
   .flight-instruments { width: 100%; }
   .flight-instruments .hud-overlay { flex: 1 0 100%; width: 100%; }
   .navigation-instruments { flex: 1 0 100%; }
-  .flight-instruments .wind-instrument { flex: 1; min-width: 0; gap: 6px; padding: 6px; }
+  .flight-instruments .wind-instrument { flex: 1; min-width: 0; gap: 4px; padding: 4px; }
   .navigation-instruments .wind-compass { width: 40px; height: 40px; flex-shrink: 0; }
   .wind-instrument strong { font-size: 12px; }
   #windBearing { font-size: 10px; }

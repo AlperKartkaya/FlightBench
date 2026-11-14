@@ -6,6 +6,7 @@
   "wasm_jsbsim": "1.3.1",
   "physics_hz": 120,
   "runway_heading_deg": 0,
+  "attitude_limits": false,
   "initial": {
     "ic/lat-geod-deg": 37.00000000000001,
     "ic/long-gc-deg": -122.0,

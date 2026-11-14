@@ -20,6 +20,7 @@ def test_wasm_export_matches_current_contract():
     assert contract["wasm_jsbsim"] == "1.3.1"
     assert contract["physics_hz"] == PHYSICS_HZ == 120
     assert contract["runway_heading_deg"] == contract["initial"]["ic/psi-true-deg"] == 0
+    assert contract["attitude_limits"] is False
     assert contract["trim"] == {
         "aileron": TRIM_AILERON,
         "elevator": TRIM_ELEVATOR,

@@ -61,6 +61,7 @@ def main():
             scenario=scenario,
             max_time_s=duration,
             runway_heading_deg=contract.get("runway_heading_deg", 90),
+            attitude_limits=contract.get("attitude_limits", True),
         )
         env.reset(seed=seed)
         baseline = BaselineController()

@@ -7,8 +7,9 @@ async page => {
   await page.route('**/src/main.ts', async route => {
     const response = await route.fetch();
     await route.fulfill({response, body: await response.text() + `
-      window.windFlowProbe = () => ({bearing: windsock.flowBearingDeg, speed: windsock.speedMps,
+      window.windFlowProbe = () => ({bearing: windsock.sourceBearingDeg, flow: windsock.flowBearingDeg, speed: windsock.speedMps,
         rotation: document.querySelector('#windArrow').getAttribute('transform')});
+      window.windReadingsPreview = () => {lastObservation = {environment: {headwind_mps: 12, crosswind_mps: 8, vertical_wind_mps: .5}};};
       window.windsockPreview = () => {
         lastObservation = {environment: {headwind_mps: 5, crosswind_mps: 4, vertical_wind_mps: 0}};
         aircraft.visible = false; desiredPosition.set(8, 5.5, -28); aircraft.position.copy(desiredPosition);
@@ -61,6 +62,12 @@ async page => {
       }
       const speed = await page.locator('#windSpeed').boundingBox(), bearing = await page.locator('#windBearing').boundingBox();
       assert(bearing.x >= speed.x + speed.width && Math.abs(speed.y - bearing.y) < 10, 'Wind readings are not a row');
+      if (width === 320) {
+        await page.evaluate(() => window.windReadingsPreview());
+        await page.waitForFunction(() => window.windFlowProbe().speed > 14);
+        const reading = await page.locator('#windBearing').boundingBox();
+        assert(reading.x + reading.width <= wind.x + wind.width - 4, 'From bearing overflows narrow wind card');
+      }
       assert(wind.x + wind.width <= width, 'Wind overflows mobile');
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Horizontal overflow');
       if (width <= 850) {
@@ -77,8 +84,9 @@ async page => {
     await page.setViewportSize({width: 1440, height: 1000});
     await page.evaluate(() => window.windsockPreview()); await page.waitForTimeout(1800);
     const flow = await page.evaluate(() => window.windFlowProbe());
-    assert(Math.abs(Number(flow.rotation.match(/rotate\(([^ ]+)/)[1]) - flow.bearing) < .001, 'Wind graphic differs from cloth direction');
-    assert(await page.locator('#windBearing').innerText() === `To ${Math.round(flow.bearing) % 360}°`, 'Numeric bearing differs from wind flow');
+    assert(Math.abs(Number(flow.rotation.match(/rotate\(([^ ]+)/)[1]) - flow.bearing) < .001, 'Wind graphic differs from source direction');
+    assert(await page.locator('#windBearing').innerText() === `From ${Math.round(flow.bearing) % 360}°`, 'Numeric bearing differs from wind source');
+    assert(Math.abs(((flow.bearing - flow.flow + 360) % 360) - 180) < .001, 'Source arrow must oppose downstream cloth');
     assert(await page.locator('#windSpeed').innerText() === `${flow.speed.toFixed(1)} m/s`, 'Panel speed differs from cloth');
     await page.screenshot({path: 'output/playwright/windsock-closeup.png'});
     assert(errors.length === 0, errors.join('\n'));
