@@ -893,7 +893,9 @@ let cameraMode: "chase" | "orbit" | "tower" = "chase";
 // Session-only storage avoids replaying trajectories across simulator upgrades.
 const ghostRuns: Ghost[] = [];
 let raceTime = 0;
+let replayTime = 0;
 let renderRaceTime = 0;
+let startCameraUntil = 0;
 let liveJevAvailable = false;
 type LiveOpponent = {runId: string | null; run: Ghost; label: string; state: StateMessage | null; renderTime: number};
 const liveOpponents = new Map<string, LiveOpponent>();
@@ -1017,7 +1019,7 @@ function createGhostVisual(color: number): THREE.Group {
 }
 function startGhosts(config: RunConfig) {
   clearGhosts();
-  ghostSamples = []; raceTime = 0; renderRaceTime = 0; liveOpponents.clear(); watchedGhost = null; spectatorRunning = false;
+  ghostSamples = []; raceTime = 0; replayTime = 0; renderRaceTime = 0; liveOpponents.clear(); watchedGhost = null; spectatorRunning = false;
   primaryResult = null; primaryResultButton.hidden = true; dismissingRace = false; resettingRace = false;
   recordingController = String(config.controller);
   ghostKey = ghostSetupKey(config);
@@ -2023,6 +2025,7 @@ function receiveMessage(message: any) {
   }
   if (message.type === "run_started") {
     activeRunId = message.run_id;
+    startCameraUntil = reducedMotion.matches ? 0 : performance.now() + 1500;
     transitionRun("accepted");
     return;
   }
@@ -2065,7 +2068,7 @@ function applyFlightBenchState(message: StateMessage) {
   if (Number.isFinite(time) && (!ghostSamples.length || time > ghostSamples.at(-1)!.time)) {
     ghostSamples.push({ time, position: [...message.position], quaternion: [...message.quaternion] });
   }
-  if (Number.isFinite(time)) raceTime = time;
+  if (Number.isFinite(time)) raceTime = replayTime = time;
   desiredPosition.fromArray(message.position);
   desiredQuaternion.fromArray(message.quaternion).normalize();
 
@@ -2389,6 +2392,7 @@ byId("reset").addEventListener("click", () => {
   if (!send({ type: "reset" })) { dismissingRace = wasDismissing; resettingRace = false; return; }
   liveOpponents.clear();
   clearGhosts(); watchedGhost = null; spectatorRunning = false;
+  raceTime = replayTime = renderRaceTime = 0;
   primaryResultButton.hidden = true;
   updateControllerUi();
   closeDialog("outcomeModal");
@@ -2419,7 +2423,9 @@ function updateSpectatorLabel() {
   byId("runStatus").textContent = Boolean(liveEntry(watchedGhost)) ? "Watching live opponent" : `Watching ${label}`;
 }
 function followRemainingOpponent(): boolean {
-  const next = [...liveOpponents.values()].find(entry => entry.runId)?.run ?? activeGhosts.find(({run}) => !liveEntry(run) && run.samples.at(-1)!.time > raceTime)?.run;
+  // Another pilot finishing must not restart the current spectator view.
+  if (watchedGhost && liveEntry(watchedGhost)?.runId) return true;
+  const next = [...liveOpponents.values()].find(entry => entry.runId)?.run ?? activeGhosts.find(({run}) => !liveEntry(run) && run.samples.at(-1)!.time > replayTime)?.run;
   if (!next) return false;
   watchedGhost = next; spectatorRunning = true;
   closeDialog("outcomeModal");
@@ -2429,9 +2435,11 @@ function followRemainingOpponent(): boolean {
   if (liveState) {
     raceTime = liveState.observation.time_s;
     updateHudAndTelemetry(liveState);
+  } else if (!liveEntry(next)) {
+    raceTime = replayTime;
+    renderRaceTime = replayTime;
   }
   // Snap to the new subject before smoothing subsequent motion.
-  renderRaceTime = raceTime;
   const visual = cameraSubject();
   if (next.samples.length) {
     const pose = poseAt(next.samples, raceTime);
@@ -2458,6 +2466,7 @@ function finishSpectating(run: Ghost) {
 
 // Camera controls
 function setCamera(mode: typeof cameraMode) {
+  startCameraUntil = 0;
   cameraMode = mode;
   orbit.enabled = mode === "orbit";
   if (mode === "chase") {
@@ -2501,11 +2510,13 @@ function animate(now: number) {
     byId("windVertical").textContent = Math.abs(vertical) >= .05 ? `${vertical > 0 ? "↑" : "↓"} ${Math.abs(vertical).toFixed(1)} m/s vertical` : "Horizontal wind";
   }
 
+  // Background recordings keep playing even when the watched live pilot waits or changes.
+  if (spectatorRunning) replayTime += dt;
   if (spectatorRunning && watchedGhost && !liveEntry(watchedGhost)) {
-    raceTime = Math.min(raceTime + dt, watchedGhost.samples.at(-1)!.time);
-    if (raceTime >= watchedGhost.samples.at(-1)!.time && !followRemainingOpponent()) finishSpectating(watchedGhost);
+    raceTime = Math.min(replayTime, watchedGhost.samples.at(-1)!.time);
+    if (replayTime >= watchedGhost.samples.at(-1)!.time && !followRemainingOpponent()) finishSpectating(watchedGhost);
   }
-  renderRaceTime = smoothReplayTime(renderRaceTime, raceTime, dt);
+  renderRaceTime = smoothReplayTime(renderRaceTime, replayTime, dt);
   for (const ghost of activeGhosts) {
     if (!ghost.visual.getObjectByName("aircraftGLB") && aircraft.getObjectByName("aircraftGLB")) {
       scene.remove(ghost.visual);
@@ -2529,7 +2540,10 @@ function animate(now: number) {
     }
     ghostLegend.children[0].textContent = `Race · ${raceTime.toFixed(1)} s`;
     activeGhosts.forEach(({run, label}, i) => {
-      ghostLegend.children[i + 1].textContent = `${label} · ${liveEntry(run)?.runId ? "Live" : raceTime >= run.samples.at(-1)!.time ? outcomeLabel(run.status, run.success) : "Replaying"} · ${run.score.toFixed(1)} pts`;
+      const live = liveEntry(run);
+      const playing = live ? Boolean(live.runId) : replayTime < run.samples.at(-1)!.time;
+      const status = playing ? live ? "Live" : "Replaying" : outcomeLabel(run.status, run.success);
+      ghostLegend.children[i + 1].textContent = `${label} · ${status} · ${run.score.toFixed(1)} pts`;
     });
   }
   aircraft.position.lerp(desiredPosition, 1 - Math.exp(-10 * dt));
@@ -2579,7 +2593,7 @@ function animate(now: number) {
   canvas.dataset.subject = watchedGhost ? "opponent" : "primary";
   canvas.dataset.camera = cameraMode;
   if (cameraMode === "chase") {
-    updateChasePosition(camera.position, subject.position, lastChaseTarget, subject.quaternion, chaseOffset, dt);
+    updateChasePosition(camera.position, subject.position, lastChaseTarget, subject.quaternion, chaseOffset, dt, now < startCameraUntil && !reducedMotion.matches);
     camera.up.set(0, 1, 0);
     const lookTarget = subject.position.clone().add(chaseLookAtOffset.clone().applyQuaternion(subject.quaternion));
     camera.lookAt(lookTarget);

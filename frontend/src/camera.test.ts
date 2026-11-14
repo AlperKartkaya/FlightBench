@@ -27,3 +27,18 @@ test('chase rotation remains damped instead of snapping after a control change',
   assert.ok(camera.distanceTo(target) > 0);
   assert.ok(camera.distanceTo(target) < distance);
 });
+
+test('flight-start fly-in eases the restart jump, then returns to stable chase', () => {
+  const previous = new Vector3(225, 1, 0), offset = new Vector3(-14, 3.8, 0);
+  const camera = previous.clone().add(offset), subject = new Vector3(-1500, 94, 0);
+  const rotation = new Quaternion();
+  const expected = camera.clone().lerp(subject.clone().add(offset), 1 - Math.exp(-6 / 60));
+  updateChasePosition(camera, subject, previous, rotation, offset, 1 / 60, true);
+  assert.ok(camera.distanceTo(expected) < 1e-9);
+  assert.ok(camera.distanceTo(subject) > 1000, 'Restart snapped directly behind the plane');
+  for (let frame = 1; frame < 240; frame++) {
+    subject.x += .5;
+    updateChasePosition(camera, subject, previous, rotation, offset, 1 / 60, frame < 90);
+  }
+  assert.ok(Math.abs(camera.distanceTo(subject) - offset.length()) < 1e-5);
+});

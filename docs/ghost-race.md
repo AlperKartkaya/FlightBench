@@ -84,11 +84,17 @@ After the primary finishes, the camera automatically follows a remaining opponen
 without a blocking primary-result dialog. Live Jev takes priority, then unfinished
 replays. The primary result stays accessible through **Your result**. When the
 last watched opponent finishes, its labeled result opens automatically. An opponent
-finishing before the primary does not interrupt primary flight. Live spectating follows Jev telemetry. The replay clock continues from Jev telemetry rather than the finished
-human clock. Stop/Reset remain available; starting another run first stops the old
+finishing before the primary does not interrupt primary flight. Live spectating follows each opponent's own telemetry. Recorded opponents follow the primary simulation clock during flight, then advance independently on playback time while spectating. Waiting for a live decision or switching to a pilot with a slower simulation clock must not freeze or rewind background recordings, including their ground rollout. Stop/Reset remain available; starting another run first stops the old
 opponent. The result button discloses that provider usage continues while watching.
 Ghost propellers animate on their own cloned scene nodes; they do not mutate the
 human model. Completed replay ghosts remain frozen at the terminal pose.
+
+`tests/browser_background_racers_smoke.js` uses synthetic multi-racer fixtures to
+cover unwatched live rollout, background replay continuation, preserved camera when
+an unwatched pilot finishes, slower-clock handoff,
+retained terminal poses, and startup-only camera fly-in. It does not prove live
+provider behavior or a physical landing. Camera unit tests preserve stable chase
+through decision pauses and frame stalls; the startup exception lasts only 1.5s.
 
 Validation includes a fixture-driven browser spectator test (not a real landing),
 a cloned-propeller regression, and backend lifecycle tests covering continuation,

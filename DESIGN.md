@@ -50,6 +50,13 @@ Use the existing FlightBench icon before the header title (22px) and in the cont
 identity badge (18px), not a lightning emoji. Allow header links to wrap on narrow screens.
 ## Interaction states
 Disconnected/ready/starting/running/completed/interrupted/error are distinct.
+Restore the reference video's brief world-space camera fly-in on flight acknowledgement
+(1.5s only). Normal chase follows translation immediately; never restart the fly-in on
+control decisions. Disable it for reduced motion and cancel it on camera switches/reset.
+After the primary ends, background recordings advance on their own playback clock,
+not the watched live pilot's clock. A spectator handoff must not freeze, rewind or
+skip their runway rollout; live opponents continue to follow their own telemetry.
+An unwatched live pilot finishing must not reset the current camera or spectator view.
 Disable start offline or pending; lock experiment settings during a run; explicit stop.
 Missing touchdown shows N/A. History loading/empty/failure states have explanatory text.
 ## Content voice
