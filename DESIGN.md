@@ -67,7 +67,7 @@ dialog. Pages connects it to a Web Worker; default local builds keep Python. Use
 concise product labels, no separate demonstration page or development notices.
 Completed browser sessions are not labeled Saved; persistence remains documented in
 setup instructions. Scenarios are easy (calm), medium (steady wind), and hard (dynamic wind). A compact compass
-shows wind FROM bearing and speed live outside the optional instruments; Jev offers 1.13
+shows wind flow TO bearing and speed live outside the optional instruments; Jev offers 1.13
 and 1.14. Codex remains local only. Public Jev uses the fixed rate-limited proxy
 without credential/endpoint fields; both secrets stay in the Worker. Preserve
 recording links under an archive, not the site root.
@@ -103,7 +103,7 @@ Stop ends viewing; Reset clears it and must not reopen delayed result dialogs.
 
 ## Live instruments and diagnostics — 2026-11-14
 Keep controller and scenario popovers separate and mutually exclusive, with labeled controls
-and 44px touch targets. Wind compass uses N/E/S/W, a downstream windsock glyph, explicit source bearing and m/s;
+and 44px touch targets. Wind compass uses N/E/S/W, a downstream arrow, explicit destination bearing and m/s;
 show changing horizontal and vertical wind without depending on color. Easy hides the compass.
 Propellers are stationary before Start and after Reset/terminal state.
 Diagnostics uses bounded per-axis choice cards: command value, action ID, full criterion,
@@ -130,13 +130,31 @@ not a cloth or local surface-wind solver.
 Anchor instruments at the viewport's top-left inset, not below a reserved toolbar row.
 The toolbar shares a wrapping top rail: when space is tight, controls move below the
 instruments instead of pushing instruments toward the middle or overlapping them.
-Scenario details use three labeled groups (wind, initial approach, reproducibility),
+Scenario details use two labeled groups (wind, initial approach) and a reproducibility note,
 plain language first and a compact definition list for numeric envelopes. No telemetry abbreviations
 or long range strings in prose. Preserve all scenario bounds and seed semantics.
 The north-up wind graphic shows downstream flow, like the physical windsock, with the
-same damped bearing. Keep the numeric wind-source bearing explicitly labeled "From".
+same damped bearing. Label its destination "To"; the telemetry strip retains source bearing.
 Use restrained rose, amethyst, navy, ocean and forest tones for racer identities, with
 extra muted replay tones. Only ghost racers receive an overall tint; never recolor the original aircraft livery.
 Colors persist through model loading, camera changes and spectator mode; match ghost tint,
 opponent selection accents, markers and legend. Text labels remain
 mandatory; colors never affect physics/scoring or replace race identity text.
+
+## Instrument readability correction — 2026-11-14
+Restore the pre-wind desktop telemetry footprint (440px, 22px values); never shrink it to
+make room for weather. Adjacent wind and telemetry cards stretch to equal height. Wrap
+cards on narrow screens; mobile telemetry remains optional, expanding the portrait scene
+while open so the toolbar stays reachable. Stacked mobile wind uses a compact 74px row. Wind uses a north-up flow
+arrow and horizontal speed/direction readings, explicitly marked "To". The 3D red/cream
+windsock remains physical, not a compass: its tail and the arrow share the same damped
+flow bearing, speed and vertical motion. Describe this distinction in the hover guide.
+Racer labels use uniform one-pixel neutral borders and a small identity-color dot, not
+colored frames or a thick left edge. Preserve the original aircraft livery.
+Use one restrained hover/focus guide across instrument abbreviations: mint term heading,
+plain-language definition, unit badge and short sign/direction cue. Keyboard focus and
+tap must also reveal it; Escape and outside tap dismiss. Scroll dismisses hover guides;
+keyboard-focused guides stay anchored. No image assets needed.
+Plan: lock wind-to-geometry agreement in tests, restore existing typography/layout,
+replace the ambiguous glyph, then verify responsive bounds and guide interactions.
+Scoring analysis is proposal-only: do not alter V2, old records or safety gates.

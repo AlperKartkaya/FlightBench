@@ -1743,7 +1743,8 @@ html, body { height: 100%; overflow: hidden; }
 .race-legend-row::before { content: ''; display: inline-block; width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: var(--racer-color); }
 #ghostLegend[hidden] { display: none; }
 @media (max-width: 600px) { #ghostLegend { bottom: 48px; left: 8px; font-size: 10px; padding: 6px 9px; } }
-.ghost-marker { position: absolute; z-index: 2; transform: translate(-50%, -100%); pointer-events: none; border: 1px solid var(--racer-color); border-left-width: 3px; border-radius: 5px; padding: 4px 8px; background: rgba(8,18,22,.9); color: #e2e9e7; font: 11px/1.4 var(--font-sans); white-space: nowrap; }
+.ghost-marker { position: absolute; z-index: 2; transform: translate(-50%, -100%); pointer-events: none; display: flex; align-items: center; gap: 6px; border: 1px solid #53625e; border-radius: 4px; padding: 4px 8px; background: rgba(8,18,22,.9); color: #e2e9e7; font: 11px/1.4 var(--font-sans); white-space: nowrap; }
+.ghost-marker::before { content: ''; width: 5px; height: 5px; flex: 0 0 5px; border-radius: 50%; background: var(--racer-color); }
 .ghost-marker[hidden] { display: none; }
 #ghostLegend { bottom: 140px; }
 .viewport-container:has(#configPanel:not([hidden])) .ghost-marker,
@@ -1822,25 +1823,21 @@ html, body { height: 100%; overflow: hidden; }
 .viewport-topbar { position: absolute; top: 14px; left: 14px; right: 14px; z-index: 8; display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; pointer-events: none; }
 .viewport-topbar .viewer-toolbar { position: relative; top: auto; left: auto; right: auto; margin-left: auto; max-width: 100%; min-width: 0; flex: 1 1 300px; flex-wrap: wrap; justify-content: flex-end; pointer-events: auto; }
 .viewport-topbar .viewer-config-panel { max-height: calc(100dvh - var(--config-top, 130px) - 16px); }
-.flight-instruments { order: -1; display: flex; align-items: flex-start; gap: 8px; max-width: 100%; pointer-events: none; }
-.flight-instruments .hud-overlay { position: static; min-width: 0; width: 300px; }
-.flight-instruments .hud-primary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.flight-instruments .hud-value { font-size: 16px; white-space: nowrap; }
-.flight-instruments .hud-value small { font-size: 10px; }
-.flight-instruments .hud-secondary-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-.flight-instruments .hud-sub-metric { display: flex; flex-direction: column; gap: 2px; }
-.flight-instruments .hud-sub-label { font: 9px var(--font-sans); }
-.flight-instruments .hud-sub-val { font-size: 10px; white-space: nowrap; }
+.flight-instruments { order: -1; display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; max-width: 100%; pointer-events: none; }
+.flight-instruments .hud-overlay { position: static; min-width: 0; width: 440px; max-width: 100%; }
+.flight-instruments .hud-panel { flex: 1; min-height: 96px; }
+.flight-instruments .hud-value { white-space: nowrap; }
 .flight-instruments .hud-panel, .wind-instrument { border: 1px solid #58736555; border-radius: 10px; background: #0d1a20db; box-shadow: 0 8px 24px #0003; backdrop-filter: blur(12px); }
-.wind-instrument { display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 6px; pointer-events: none; font-variant-numeric: tabular-nums; }
+.wind-instrument { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 6px; min-height: 96px; pointer-events: none; font-variant-numeric: tabular-nums; }
 .wind-compass { width: 62px; height: 62px; overflow: visible; }
 .wind-compass circle, .compass-ticks { fill: none; stroke: #45605d; stroke-width: 1; }
 .wind-compass text { fill: #bacbc8; font: 9px var(--font-mono); text-anchor: middle; }
-#windArrow { opacity: .95; }
-.wind-instrument > div { display: grid; gap: 3px; }
+#windArrow { fill: var(--accent-mint); }
+.wind-readings { display: grid; gap: 7px; }
+.wind-reading-row { display: flex; align-items: baseline; gap: 12px; }
 .wind-instrument strong { font: 600 18px var(--font-mono); color: #d9f4e4; }
 .wind-label, .wind-instrument small { font: 10px var(--font-sans); color: #a7bdb7; }
-.wind-instrument small { min-height: 24px; line-height: 12px; }
+.wind-instrument small { min-height: 12px; line-height: 12px; }
 #windBearing { font: 12px var(--font-mono); color: #d0dcd8; }
 .diagnostics { display: block; border: 1px solid var(--border-card); border-radius: 12px; background: #0d1a20; overflow: hidden; flex-shrink: 0; }
 .diagnostics > summary { padding: 14px; cursor: pointer; font-weight: 600; font-size: 12px; }
@@ -1861,7 +1858,7 @@ html, body { height: 100%; overflow: hidden; }
 @media (max-width: 850px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
   .viewport-topbar { top: 10px; left: 10px; right: 10px; }
   .flight-instruments:has(.hud-overlay[data-open="false"]):has(.wind-instrument[hidden]) { display: none; }
-  .wind-instrument { padding: 6px 8px 6px 3px; gap: 4px; flex-shrink: 0; }
+  .wind-instrument { padding: 6px 10px 6px 4px; gap: 8px; min-height: 74px; flex-shrink: 0; }
   .wind-compass { width: 54px; height: 54px; }
   .wind-instrument strong { font-size: 14px; }
   .viewer-toolbar > #configureToggle { max-width: calc(100% - 60px); overflow: hidden; text-overflow: ellipsis; }
@@ -1869,7 +1866,8 @@ html, body { height: 100%; overflow: hidden; }
 
 @media (max-width: 600px) {
   .flight-instruments { width: 100%; }
-  .flight-instruments .hud-overlay { flex: 1; width: auto; }
+  .flight-instruments .hud-overlay { flex: 1 0 100%; width: 100%; }
+  .flight-instruments .wind-instrument { flex: 1; }
   .flight-instruments .hud-panel { padding: 8px; }
   .flight-instruments .hud-primary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .flight-instruments .hud-secondary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -1877,10 +1875,12 @@ html, body { height: 100%; overflow: hidden; }
   .flight-instruments .hud-sub-label { font: 9px var(--font-sans); }
   .flight-instruments .hud-sub-val { font-size: 10px; }
   .flight-instruments .hud-label { font-size: 9px; }
-  .flight-instruments .hud-value { font-size: 14px; }
-  .flight-instruments .hud-value small { font-size: 9px; }
-  .wind-instrument { max-width: 148px; }
-  .wind-instrument small { max-width: 78px; line-height: 1.4; }
+  .flight-instruments .hud-value { font-size: 17px; }
+  .flight-instruments .hud-value small { font-size: 10px; }
+  .wind-instrument small { line-height: 1.4; }
+}
+@media (max-width: 600px) and (orientation: portrait) {
+  .workspace[data-controller="human"]:has(#hudOverlay[data-open="true"]) .sim-column { height: min(480px, 72dvh); }
 }
 @media (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
   /* The adjacent sidebar already shows actuators; leave room for wind and the plane. */
@@ -1896,3 +1896,14 @@ html, body { height: 100%; overflow: hidden; }
 .condition-grid dt { margin-bottom: 5px; color: #9eb3a9; font: 10px/1.3 var(--font-sans); }
 .condition-grid dd { color: #dfede6; font: 11px/1.4 var(--font-mono); }
 .conditions-note { border-top: 1px solid var(--border-card); padding-top: 10px; color: #9eb3a9; font: 11px/1.6 var(--font-sans); }
+
+/* One guide treatment for instrument terms, usable with a mouse, keyboard or tap. */
+.instrument-term { pointer-events: auto; cursor: help; text-decoration: underline dotted #71877b80; text-underline-offset: 3px; border-radius: 2px; }
+.instrument-term:focus-visible { outline: 2px solid var(--accent-mint); outline-offset: 3px; }
+.instrument-help { position: fixed; z-index: 100; width: 310px; max-width: calc(100vw - 16px); padding: 14px; border: 1px solid #476457; border-radius: 9px; background: #0e1c22; box-shadow: 0 8px 28px #0006; color: #dce9e2; font: 12px/1.6 var(--font-sans); }
+.instrument-help[hidden] { display: none; }
+.help-eyebrow { display: block; margin-bottom: 5px; color: #93bcaa; font-size: 9px; font-weight: 600; letter-spacing: .12em; }
+.instrument-help > strong { display: block; color: var(--accent-mint); font-size: 14px; }
+.instrument-help > p { margin: 6px 0 10px; }
+.help-footer { display: flex; align-items: flex-start; gap: 8px; padding-top: 10px; border-top: 1px solid #30423b; color: #a9c0b4; font-size: 11px; }
+.help-unit { flex-shrink: 0; padding: 1px 5px; border-radius: 4px; background: #22352d; color: #c1dfcc; font: 10px/1.8 var(--font-mono); }

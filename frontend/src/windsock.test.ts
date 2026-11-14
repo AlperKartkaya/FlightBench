@@ -62,3 +62,20 @@ test('north-up flow bearing follows the cloth downstream, opposite the source be
   sock.update({headwind_mps: -8, crosswind_mps: 0}, 10, 1 / 60, true);
   assert.notEqual(Math.round(sock.flowBearingDeg), 90, 'Graphic must not jump ahead of damped cloth');
 });
+
+test('instrument readings follow the same damped wind as the 3D fabric', () => {
+  for (const wind of [
+    {headwind_mps: 5, crosswind_mps: 4, vertical_wind_mps: -.6},
+    {headwind_mps: -3, crosswind_mps: -7, vertical_wind_mps: .4},
+  ]) {
+    const sock = settle(wind);
+    const point = tail(sock);
+    const actual = (Math.atan2(point.x, -point.z) * 180 / Math.PI + 360) % 360;
+    assert.ok(Math.abs(((actual - sock.flowBearingDeg + 540) % 360) - 180) < .001);
+    assert.ok(Math.abs(sock.speedMps - Math.hypot(wind.headwind_mps, wind.crosswind_mps)) < .001);
+    assert.ok(Math.abs(sock.verticalMps - wind.vertical_wind_mps) < .001);
+    const before = sock.speedMps;
+    sock.update({headwind_mps: 0, crosswind_mps: 0}, 10, 1 / 60, true);
+    assert.ok(sock.speedMps < before && sock.speedMps > 0, 'Readings must not jump ahead of cloth');
+  }
+});

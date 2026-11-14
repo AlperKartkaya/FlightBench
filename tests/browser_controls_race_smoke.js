@@ -53,6 +53,11 @@ async page => {
       assert(racer.marker === '#' + racer.color.toString(16).padStart(6, '0'), 'Marker differs from aircraft color');
     }
     assert(await page.locator('.race-legend-row').count() === 2, 'Legend omits racer identities');
+    for (const marker of await page.locator('.ghost-marker').all()) {
+      const border = await marker.evaluate(el => {const s = getComputedStyle(el); return [s.borderLeftWidth, s.borderRightWidth, s.borderTopColor, getComputedStyle(el, '::before').backgroundColor];});
+      assert(border[0] === '1px' && border[1] === '1px', 'Racer label has a thick edge');
+      assert(border[2] !== border[3], 'Racer label uses a colored frame instead of a dot');
+    }
     assert(calls['jev-1.13.0'] > 5 && calls['jev-1.14.0'] > 5, 'Jev versions did not race');
     const speed = await page.locator('#windSpeed').innerText(), bearing = await page.locator('#windBearing').innerText();
     assert(!speed.includes('—') && !bearing.includes('—'), 'No live wind values');

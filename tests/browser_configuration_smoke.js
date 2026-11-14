@@ -7,7 +7,7 @@ async page => {
   await page.route('**/src/main.ts', async route => {
     const response = await route.fetch();
     await route.fulfill({response, body: await response.text() + `
-      window.windFlowProbe = () => ({bearing: windsock.flowBearingDeg,
+      window.windFlowProbe = () => ({bearing: windsock.flowBearingDeg, speed: windsock.speedMps,
         rotation: document.querySelector('#windArrow').getAttribute('transform')});
       window.windsockPreview = () => {
         lastObservation = {environment: {headwind_mps: 5, crosswind_mps: 4, vertical_wind_mps: 0}};
@@ -46,18 +46,30 @@ async page => {
       await page.screenshot({path: `output/playwright/scenario-${width}.png`});
       await page.keyboard.press('Escape');
       if (width <= 850) await page.locator('#hudToggle').click();
+      await page.waitForFunction(() => {const c = document.querySelector('#viewport'); return Math.abs(c.getBoundingClientRect().height - c.parentElement.clientHeight) < 1;});
       const wind = await page.locator('#windInstrument').boundingBox();
       const hud = await page.locator('#hudOverlay').boundingBox();
       const toolbar = await page.locator('#viewerToolbar').boundingBox();
       const viewport = await page.locator('#viewport').boundingBox();
-      assert(wind.y - viewport.y >= 9 && wind.y - viewport.y <= 15, 'Instruments pushed down from top edge');
+      assert(hud.y - viewport.y >= 9 && hud.y - viewport.y <= 15, 'Instruments pushed down from top edge');
       assert(disjoint(wind, hud) && disjoint(wind, toolbar), 'Wind overlaps HUD or toolbar');
-      assert(wind.x >= hud.x + hud.width && Math.abs(wind.y - hud.y) <= 1, 'Wind is not alongside top-left HUD');
+      if (width > 850) {
+        assert(hud.width === 440, 'Original telemetry footprint was shrunk');
+        assert(await page.locator('#hudIas').evaluate(el => getComputedStyle(el).fontSize) === '22px', 'Telemetry values were shrunk');
+        assert(wind.x >= hud.x + hud.width && Math.abs(wind.y - hud.y) <= 1, 'Wind is not alongside top-left HUD');
+        assert(Math.abs(wind.height - hud.height) <= 1, 'Adjacent instruments have unequal heights');
+      }
+      const speed = await page.locator('#windSpeed').boundingBox(), bearing = await page.locator('#windBearing').boundingBox();
+      assert(bearing.x >= speed.x + speed.width && Math.abs(speed.y - bearing.y) < 10, 'Wind readings are not a row');
       assert(wind.x + wind.width <= width, 'Wind overflows mobile');
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Horizontal overflow');
       if (width <= 850) {
         await page.locator('#hudToggle').click();
+        await page.waitForFunction(() => {const c = document.querySelector('#viewport'); return Math.abs(c.getBoundingClientRect().height - c.parentElement.clientHeight) < 1;});
         assert(await page.locator('#windInstrument').isVisible(), 'Collapsed HUD hid wind');
+        const collapsed = await page.locator('#windInstrument').boundingBox();
+        const currentViewport = await page.locator('#viewport').boundingBox();
+        assert(collapsed.y - currentViewport.y >= 9 && collapsed.y - currentViewport.y <= 15, 'Collapsed wind lost top anchor');
       }
       layouts.push(`${width}x${height}`);
       await page.screenshot({path: `output/playwright/instruments-${width}.png`});
@@ -66,6 +78,8 @@ async page => {
     await page.evaluate(() => window.windsockPreview()); await page.waitForTimeout(1800);
     const flow = await page.evaluate(() => window.windFlowProbe());
     assert(Math.abs(Number(flow.rotation.match(/rotate\(([^ ]+)/)[1]) - flow.bearing) < .001, 'Wind graphic differs from cloth direction');
+    assert(await page.locator('#windBearing').innerText() === `To ${Math.round(flow.bearing) % 360}°`, 'Numeric bearing differs from wind flow');
+    assert(await page.locator('#windSpeed').innerText() === `${flow.speed.toFixed(1)} m/s`, 'Panel speed differs from cloth');
     await page.screenshot({path: 'output/playwright/windsock-closeup.png'});
     assert(errors.length === 0, errors.join('\n'));
     return {layouts, errors};

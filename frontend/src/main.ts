@@ -9,6 +9,7 @@ import { isRunwayLightOn } from "./runway-lights.ts";
 import { BrowserRuntime } from "./browser-runtime.ts";
 import { updateChasePosition } from "./camera.ts";
 import { createWindsock } from "./windsock.ts";
+import { setupInstrumentHelp } from "./instrument-help.ts";
 import "./style.css";
 import { selectGhost, poseAt, smoothReplayTime, ghostMaterial, racerColor, spinGhostPropeller, type Ghost, type Sample } from "./ghosts.ts";
 
@@ -244,9 +245,9 @@ app.innerHTML = `
           <svg class="wind-compass" viewBox="0 0 80 80" role="img" aria-label="Downstream wind flow, north up">
             <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5"/>
             <text x="40" y="9">N</text><text x="74" y="43">E</text><text x="40" y="78">S</text><text x="6" y="43">W</text>
-            <g id="windArrow"><path fill="#df817c" d="m38 18 4 0 1.6 8h-7.2zM34.8 34h10.4l1.6 8H33.2zM31.6 50h16.8L50 58H30z"/><path fill="#eee3ce" d="M36.4 26h7.2l1.6 8H34.8zM33.2 42h13.6l1.6 8H31.6z"/></g>
+            <g id="windArrow"><path d="M40 19 32 32h6v27h4V32h6z"/></g>
           </svg>
-          <div><span class="wind-label">WIND FLOW</span><strong id="windSpeed">— m/s</strong><span id="windBearing">From —°</span><small id="windVertical">Steady</small></div>
+          <div class="wind-readings"><span class="wind-label">WIND FLOW</span><div class="wind-reading-row"><strong id="windSpeed">— m/s</strong><span id="windBearing">To —°</span></div><small id="windVertical">Awaiting flight</small></div>
         </div>
 
         </div>
@@ -324,8 +325,8 @@ app.innerHTML = `
         </div>
         <div class="ctrl-chips-row">
           <div class="meta-chip" id="chipDecisionNum">Applied <strong>#—</strong></div>
-          <div class="meta-chip">Mean latency <strong id="cadenceValue">— ms</strong></div>
-          <div class="meta-chip">Effective Rate <strong id="effectiveRate">— Hz</strong></div>
+          <div class="meta-chip"><span class="instrument-label">Mean latency</span><strong id="cadenceValue">— ms</strong></div>
+          <div class="meta-chip"><span class="instrument-label">Effective Rate</span><strong id="effectiveRate">— Hz</strong></div>
           <div class="meta-chip" id="chipLatency">Latency <strong>— ms</strong></div>
           <div class="meta-chip" id="chipStateAge">Age <strong>— ms</strong></div>
           <div class="meta-chip">Actions <strong id="actionCount">—</strong></div>
@@ -687,6 +688,7 @@ app.innerHTML = `
 `;
 
 const byId = <T extends HTMLElement>(id: string) => document.querySelector<T>(`#${id}`)!;
+setupInstrumentHelp();
 const canvas = byId<HTMLCanvasElement>("viewport");
 
 // Initialize Three.js Scene
@@ -1830,16 +1832,6 @@ function updateHudAndTelemetry(message: StateMessage) {
   byId("stripRoll").textContent = `${f.roll_deg >= 0 ? "+" : ""}${f.roll_deg.toFixed(1)}°`;
   byId("stripPitch").textContent = `${f.pitch_deg >= 0 ? "+" : ""}${f.pitch_deg.toFixed(1)}°`;
   byId("stripWind").textContent = formatWindSummary(message.observation.environment);
-  const wind = message.observation.environment;
-  if (wind) {
-    const speed = wind.wind_speed_mps ?? Math.hypot(wind.headwind_mps, wind.crosswind_mps);
-    const bearing = wind.wind_dir_deg ?? ((Math.atan2(wind.headwind_mps, wind.crosswind_mps) * 180 / Math.PI + 360) % 360);
-    byId("windSpeed").textContent = `${speed.toFixed(1)} m/s`;
-    byId("windBearing").textContent = `From ${bearing.toFixed(0)}°`;
-    const vertical = wind.vertical_wind_mps ?? 0;
-    byId("windVertical").textContent = Math.abs(vertical) >= .05 ? `${vertical > 0 ? "↑" : "↓"} ${Math.abs(vertical).toFixed(1)} m/s vertical` : "Horizontal wind";
-    byId("windInstrument").title = formatWindSummary(wind);
-  }
   byId("stripScore").textContent = message.score.toFixed(1);
 
   if (runState === "running") {
@@ -2392,7 +2384,7 @@ byId("reset").addEventListener("click", () => {
   hideError();
   clearDecisionView();
   lastObservation = null;
-  byId("windSpeed").textContent = "— m/s"; byId("windBearing").textContent = "From —°";
+  byId("windSpeed").textContent = "— m/s"; byId("windBearing").textContent = "To —°";
   byId("windVertical").textContent = "Awaiting flight";
   centerSurfaces(controls);
   showControls(controls);
@@ -2489,7 +2481,13 @@ function animate(now: number) {
   updateEdgeLights(now);
   windsock.update(lastObservation?.environment ?? {headwind_mps: 0, crosswind_mps: 0}, now / 1000, dt, reducedMotion.matches);
   byId("windArrow").setAttribute("transform", `rotate(${windsock.flowBearingDeg} 40 40)`);
-  byId("windArrow").style.visibility = lastObservation?.environment && Math.hypot(lastObservation.environment.headwind_mps, lastObservation.environment.crosswind_mps) > .05 ? "visible" : "hidden";
+  byId("windArrow").style.visibility = lastObservation?.environment && windsock.speedMps > .05 ? "visible" : "hidden";
+  if (lastObservation?.environment) {
+    byId("windSpeed").textContent = `${windsock.speedMps.toFixed(1)} m/s`;
+    byId("windBearing").textContent = windsock.speedMps > .05 ? `To ${Math.round(windsock.flowBearingDeg) % 360}°` : "Calm";
+    const vertical = windsock.verticalMps;
+    byId("windVertical").textContent = Math.abs(vertical) >= .05 ? `${vertical > 0 ? "↑" : "↓"} ${Math.abs(vertical).toFixed(1)} m/s vertical` : "Horizontal wind";
+  }
 
   if (spectatorRunning && watchedGhost && !liveEntry(watchedGhost)) {
     raceTime = Math.min(raceTime + dt, watchedGhost.samples.at(-1)!.time);
