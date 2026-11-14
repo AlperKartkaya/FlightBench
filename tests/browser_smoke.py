@@ -198,7 +198,9 @@ def main():
                 frame,
             )
             expect(page.locator("#topProbBars p")).to_have_count(4)
-            expect(page.locator(".diagnostic-choice").filter(has_text="elevator")).to_contain_text("0.170")
+            expect(page.locator(".diagnostic-choice").filter(has_text="elevator")).to_contain_text(
+                "0.170"
+            )
             expect(page.locator("#jointDecisionCard .ctrl-card-title")).to_have_text(
                 "Jev actuator decisions" if controller == "jev" else "Codex actuator decisions"
             )
