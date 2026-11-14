@@ -255,7 +255,7 @@ app.innerHTML = `
           <svg class="wind-compass heading-compass" viewBox="0 0 80 80" role="img" aria-label="Aircraft nose direction, true north up">
             <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5M59 21l-3 3m3 35-3-3M21 59l3-3m-3-35 3 3"/>
             <text class="compass-north" x="40" y="9">N</text><text x="74" y="43">E</text><text x="40" y="78">S</text><text x="6" y="43">W</text>
-            <g id="headingNeedle"><rect x="33" y="19" width="14" height="1.5" rx=".75"/><path d="M38 21Q40 17 42 21L43 31 61 33V39L43 38 42 51 50 53V56L40 55 30 56V53L38 51 37 38 19 39V33L37 31Z"/></g>
+            <g id="headingNeedle"><path d="M40 20 43 35 54 44v3l-12-4v10l4 4v2l-6-2-6 2v-2l4-4V43l-12 4v-3l11-9z"/></g>
           </svg>
           <div class="heading-readings"><span class="instrument-label">HEADING</span><strong id="compassHeading">0°</strong><small>TRUE NORTH</small></div>
         </div>
@@ -2534,8 +2534,11 @@ function animate(now: number) {
   }
   aircraft.position.lerp(desiredPosition, 1 - Math.exp(-10 * dt));
   aircraft.quaternion.slerp(desiredQuaternion, 1 - Math.exp(-10 * dt));
-  // Read the watched aircraft's rendered pose so replays and spectator switches agree with the scene.
-  const nose = compassForward.set(1, 0, 0).applyQuaternion(cameraSubject().quaternion);
+  // Instruments follow flight attitude immediately, without the scene's visual smoothing.
+  const compassAttitude = watchedGhost?.samples.length
+    ? poseAt(watchedGhost.samples, liveEntry(watchedGhost)?.state?.observation.time_s ?? raceTime).quaternion
+    : desiredQuaternion;
+  const nose = compassForward.set(1, 0, 0).applyQuaternion(compassAttitude);
   const heading = (Math.atan2(nose.z, nose.x) * 180 / Math.PI + 360) % 360;
   byId("headingNeedle").setAttribute("transform", `rotate(${heading} 40 40)`);
   byId("compassHeading").textContent = `${Math.round(heading) % 360}°`;

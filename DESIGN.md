@@ -172,14 +172,14 @@ wrapped headings, wind cardinal directions, native/Pages rendering and baseline 
 
 ### Heading compass
 
-- Keep a separate north-up aircraft compass immediately beside wind, with a mint straight-wing prop-plane symbol and an unpadded true heading. Wind uses the same mint and explicitly shows its source direction.
-- Read the rendered watched aircraft pose, not the camera or stale primary telemetry, so banking, north crossings, replay, and switching live opponents stay visually consistent. No CSS rotation interpolation across 359°/0°.
+- Keep a separate north-up aircraft compass immediately beside wind, with the original aircraft silhouette, mint fill and an unpadded true heading. Wind uses the same mint and explicitly shows its source direction.
+- Read the latest watched flight attitude, bypassing scene smoothing: primary state, latest live-opponent sample, or current replay time. Never follow the camera or stale primary telemetry when spectating. No CSS rotation interpolation across 359°/0°.
 - Keep both navigation cards in one row on narrow screens and use the existing accessible instrument-definition style for heading help.
 
 ## Wind convention and attitude freedom — 2026-11-14
 
 - Wind-panel arrow and bearing show **FROM**, the standard meteorological source direction (NOAA/NWS glossary). The 3D sock's wide mouth faces that source; its narrow tail streams downstream, 180° opposite. Preserve shared damping, not identical arrow/tail direction. Update accessible descriptions and guides together.
-- Use the same mint for compass aircraft and wind arrow. Compass aircraft is a straight-wing single-prop top-view silhouette matching the C172-style scene, not a swept-wing jet. Display heading without zero padding (14°, not 014°).
+- Use the same mint for compass aircraft and wind arrow. Keep the original compass aircraft silhouette (restored on request). Display heading without zero padding (14°, not 014°).
 - New interactive native/Pages flights do not terminate solely at 70° bank or 45° pitch, for any controller. Keep actual impact/contact, unsafe touchdown, excursion, bounds, time and nonfinite-state checks. This permits attempted rolls; it does not certify aerobatic model fidelity or change landing scoring.
 - Preserve canonical benchmark and legacy replay attitude cutoffs. Store `attitude_limits: false` in new interactive configs and the WASM manifest; replay respects the recorded rule, defaulting to historical limits when absent. No extra UI mode or dependency.
 - Verify high-roll/high-pitch continuation, physical crash checks, legacy replay, source/cloth opposition, symbol color, unpadded headings and responsive layout.
