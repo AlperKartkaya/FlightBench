@@ -82,8 +82,8 @@ existing dark selects, 44px targets, and text labels in addition to tint. Sessio
 scope must be explicit. Do not imply that replay is live Jev.
 
 ## Live race and setup controls — 2026-11-01
-Controller choice uses single-select cards; opponents use independent checkbox
-cards, never combination presets. Hide unavailable opponents and controllers.
+Controller choice uses compact single-select tiles; opponents use matching independent
+checkbox tiles with grouped Jev version badges, never combination presets. Hide unavailable opponents and controllers.
 Offer live baseline and both Jev versions for every primary controller, not only human.
 Local Jev requires configured credentials; Pages uses the existing public proxy. Each live
 participant has independent physics, the same scenario/seed, and a shared ready/start barrier.
@@ -109,3 +109,19 @@ Propellers are stationary before Start and after Reset/terminal state.
 Diagnostics uses bounded per-axis choice cards: command value, action ID, full criterion,
 and applied/discarded state. Compact input measurements and optional raw JSON provide
 progressive disclosure; do not invent joint probabilities or confidence when unavailable.
+
+## Compact flight configuration — 2026-11-14
+Use a compact slate-glass panel with one shared icon-tile language for primary controllers
+and opponents. Primary selection stays single-choice; opponent selection stays multi-choice.
+Group Jev versions under one Jev identity with small selectable version badges, not repeated
+full cards. Keep descriptions to a short secondary line, with API/replay scope still explicit.
+Use system sans for headings, labels, buttons and explanations; monospace only for numeric
+telemetry, version badges and technical values. Preserve 44px touch targets and keyboard focus.
+Place the wind instrument alongside the top-left flight instruments with matching surfaces,
+borders and spacing; keep wind visible when the optional mobile telemetry is collapsed.
+A red/cream, open-ended 3D windsock stands just left of the near runway threshold. Observed
+wind drives its downstream direction, inflation, droop and damped response; traveling fabric
+flutter is visual-only, suppressed by reduced motion. No new physics/scoring or dependencies.
+Validation: wind direction/calm/damping/reduced-motion geometry tests, existing race/settings
+smokes, desktop/mobile screenshots and build/typecheck. This is a visual fabric approximation,
+not a cloth or local surface-wind solver.

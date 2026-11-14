@@ -81,7 +81,7 @@ button, select, input {
 }
 
 .brand-title {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -108,7 +108,7 @@ button, select, input {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
   color: var(--text-secondary);
 }
@@ -140,7 +140,7 @@ button, select, input {
   border: 1px solid #34d399;
   border-radius: 5px;
   padding: 9px 14px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -162,7 +162,7 @@ button, select, input {
   border: 1px solid var(--border-card);
   border-radius: 5px;
   padding: 9px 12px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -276,7 +276,7 @@ button, select, input {
 }
 
 .hud-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -399,7 +399,7 @@ button, select, input {
   color: var(--text-secondary);
   border-radius: 4px;
   padding: 4px 8px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -447,7 +447,7 @@ button, select, input {
 }
 
 .strip-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -526,7 +526,7 @@ button, select, input {
 }
 
 .ctrl-card-title {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -543,7 +543,7 @@ button, select, input {
   color: var(--accent-mint);
   border-radius: 4px;
   padding: 2px 7px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -572,7 +572,7 @@ button, select, input {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 700;
   color: #a7f3d0;
@@ -596,7 +596,7 @@ button, select, input {
 }
 
 .meta-chip {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-subtle);
@@ -609,6 +609,7 @@ button, select, input {
 }
 
 .meta-chip strong {
+  font-family: var(--font-mono);
   color: var(--text-primary);
   font-weight: 600;
 }
@@ -1575,7 +1576,7 @@ summary { cursor: pointer; color: var(--text-secondary); padding: 10px 0; font-s
 .decision-count-line { display: flex; justify-content: space-between; color: var(--text-secondary); font: 11px var(--font-mono); font-variant-numeric: tabular-nums; }
 .decision-count-line strong { color: var(--text-primary); }
 .decision-input { display: grid; gap: 3px; border-top: 1px solid var(--border-subtle); padding-top: 6px; }
-.decision-section-title { display: flex; justify-content: space-between; gap: 8px; color: var(--accent-mint); font: 700 13px var(--font-mono); letter-spacing: .04em; white-space: nowrap; }
+.decision-section-title { display: flex; justify-content: space-between; gap: 8px; color: var(--accent-mint); font: 600 13px var(--font-sans); letter-spacing: .02em; white-space: nowrap; }
 .decision-section-title span { color: var(--text-secondary); letter-spacing: 0; }
 .decision-input-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; font: 10.5px/14px var(--font-mono); }
 .decision-input-row span { color: var(--text-muted); font-weight: 600; }
@@ -1638,7 +1639,7 @@ html, body { height: 100%; overflow: hidden; }
 .workspace { flex: 1; height: auto; min-height: 0; aspect-ratio: auto; }
 .sim-column, .viewport-container { min-height: 0; }
 .viewer-toolbar { position: absolute; top: 14px; right: 14px; z-index: 8; display: flex; align-items: center; gap: 6px; }
-.viewer-toolbar > button { min-height: 34px; padding: 6px 10px; white-space: nowrap; font: 600 11px var(--font-mono); backdrop-filter: blur(10px); }
+.viewer-toolbar > button { min-height: 34px; padding: 6px 10px; white-space: nowrap; font: 600 12px var(--font-sans); letter-spacing: 0; text-transform: none; backdrop-filter: blur(10px); }
 #configureToggle { background: rgba(8, 18, 22, .88); border-color: var(--border-highlight); color: var(--accent-mint); }
 #hudToggle { display: none; }
 .viewer-config-panel { position: absolute; top: calc(100% + 8px); right: 0; width: min(330px, calc(100vw - 28px)); padding: 14px; background: rgba(8, 18, 22, .97); border: 1px solid var(--border-highlight); border-radius: 7px; box-shadow: 0 18px 48px rgba(0,0,0,.5); }
@@ -1750,24 +1751,45 @@ html, body { height: 100%; overflow: hidden; }
   .viewer-config-panel { position: fixed; top: 122px; left: 14px; right: 14px; width: auto; max-height: calc(100dvh - 146px); z-index: 20; }
 }
 
-/* Flight setup: single-choice controller cards, independent opponent toggles. */
-.viewer-config-panel { width: min(420px, calc(100vw - 28px)); padding: 20px; background: #0b181c; border-color: #30504e; border-radius: 14px; box-shadow: 0 22px 70px #0009; }
-.settings-heading { display: flex; align-items: center; justify-content: space-between; color: #d5e9e4; font: 600 12px var(--font-mono); letter-spacing: .03em; margin-bottom: 5px; }
-.controller-cards, .opponent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.controller-card, .opponent-card { display: flex; align-items: flex-start; gap: 9px; padding: 12px; min-height: 66px; border: 1px solid #29403f; border-radius: 9px; background: #101f24; cursor: pointer; transition: border-color .15s, background .15s; }
-.controller-card:hover, .opponent-card:hover { background: #172c30; border-color: #628d82; }
-.controller-card:has(:checked), .opponent-card:has(:checked) { background: #16372f; border-color: #71d7b3; box-shadow: inset 0 0 0 1px #71d7b322; }
-.controller-card:focus-within, .opponent-card:focus-within { outline: 2px solid #a4edcf; outline-offset: 2px; }
-.controller-card input, .opponent-card input { accent-color: #83e9bc; width: 16px; height: 16px; margin: 2px 0 0; flex-shrink: 0; }
-.controller-card span, .opponent-card span { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.controller-card strong, .opponent-card strong { color: #e0f3ed; font: 600 12px/1.4 var(--font-mono); }
-.controller-card small, .opponent-card small { color: #9fb8b0; font: 11px/1.5 var(--font-mono); }
-#ghostStatus { border-radius: 6px; padding: 8px 10px; background: #081317; }
-.viewer-config-panel #controller[hidden] { display: none; }
-.viewer-config-panel .select-input, .viewer-config-panel .number-input { min-height: 44px; border-radius: 8px; background-color: #101f24; }
+/* One compact selection language for pilots, opponents and version badges. */
+.viewer-config-panel { width: min(392px, calc(100vw - 28px)); padding: 18px; background: linear-gradient(145deg, #142128fa, #0b151afc); border-color: #344941; border-radius: 14px; box-shadow: 0 20px 64px #0008, inset 0 1px 0 #ffffff06; backdrop-filter: blur(20px); }
+.configuration-header { padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border-card); }
+.panel-eyebrow { color: var(--accent-mint); font: 600 9px var(--font-sans); letter-spacing: .16em; }
+.configuration-header h2 { margin: 6px 0 0; font: 600 18px/1.2 var(--font-sans); letter-spacing: -.03em; }
+.settings-heading { display: flex; align-items: center; justify-content: space-between; color: #d5e9e4; font: 600 12px var(--font-sans); margin-bottom: 5px; }
+.selection-hint { font-size: 10px; font-weight: 400; color: var(--text-muted); }
+.controller-cards, .opponent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.controller-card, .opponent-card { position: relative; display: flex; align-items: center; gap: 9px; padding: 9px 10px; min-height: 54px; border: 1px solid #2a393e; border-radius: 8px; background: #101b21; cursor: pointer; transition: border-color .15s, background .15s; }
+.controller-card:hover, .opponent-card:hover, .version-badge:hover { background: #192a2d; border-color: #617c72; }
+.controller-card:has(:checked), .opponent-card:has(:checked), .version-badge:has(:checked) { background: #19342e; border-color: #73bfa4; }
+.controller-card:has(:disabled), .opponent-card:has(:disabled), .version-badge:has(:disabled) { cursor: default; opacity: .65; }
+.controller-card:focus-within, .opponent-card:focus-within, .version-badge:focus-within { outline: 2px solid #a4edcf; outline-offset: 2px; }
+.controller-card input, .opponent-card input, .version-badge input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.controller-card::after, .opponent-card::after { content: ''; width: 6px; height: 6px; flex: 0 0 6px; border: 1px solid #52675e; border-radius: 50%; margin-left: auto; }
+.opponent-card::after { border-radius: 2px; }
+.controller-card:has(:checked)::after, .opponent-card:has(:checked)::after { background: #8fe2bf; border-color: #8fe2bf; box-shadow: 0 0 0 2px #8fe2bf15; }
+.choice-icon { width: 18px; height: 18px; flex: 0 0 18px; fill: none; stroke: #9cb8ac; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.choice-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.choice-copy strong { color: #e0eee8; font: 600 12px/1.3 var(--font-sans); }
+.choice-copy small { color: #a1b3aa; font: 10px/1.4 var(--font-sans); }
+.opponent-grid > .opponent-card:only-of-type { grid-column: 1 / -1; }
+.opponent-model-group { grid-column: 1 / -1; display: flex; align-items: center; gap: 9px; padding: 8px 10px; border: 1px solid #2a393e; border-radius: 8px; background: #101b21; }
+.opponent-model-group .version-choices { margin-left: auto; }
+.version-choices { display: flex; gap: 6px; }
+.viewer-config-panel #jevModelGroup { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; }
+.version-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 60px; padding: 6px 10px; border: 1px solid #344840; border-radius: 7px; background: #101b21; color: #b3c8bd; cursor: pointer; font: 500 11px var(--font-mono); }
+.version-badge:has(:checked) { color: #d2f9e6; }
+.version-badge:has(:checked)::before { content: '✓'; font: 12px var(--font-sans); }
+.viewer-config-panel #ghostSettings { gap: 8px; }
+#ghostStatus { padding: 2px 0; font: 11px/1.5 var(--font-sans); color: #afc8bb; }
+.viewer-config-panel #controller[hidden], .viewer-config-panel #jevModel[hidden] { display: none; }
+.viewer-config-panel .select-input, .viewer-config-panel .number-input { min-height: 44px; border-radius: 8px; background-color: #101b21; }
+.viewer-config-panel .select-input { font-family: var(--font-sans); font-size: 12px; }
+.viewer-config-panel .config-item > label, .settings-label { font: 500 11px var(--font-sans); color: #b4c6bd; }
 @media (max-width: 600px) {
   .viewer-config-panel { width: auto; padding: 16px; }
-  .controller-card, .opponent-card { padding: 10px; }
+  .viewer-config-panel .select-input { font-size: 16px; }
+  .controller-card, .opponent-card { padding: 9px; }
 }
 @media (prefers-reduced-motion: reduce) { .controller-card, .opponent-card { transition: none; } }
 
@@ -1794,15 +1816,18 @@ html, body { height: 100%; overflow: hidden; }
 /* Separate conditions control and a live, compass-referenced wind instrument. */
 #timingModeGroup { grid-column: 1 / -1; }
 #timingModeGroup small, #scenarioSummary { color: var(--text-muted); font-size: 11px; line-height: 1.5; }
-.wind-instrument { position: absolute; z-index: 5; right: 14px; bottom: 60px; display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 6px; border: 1px solid var(--border-highlight); border-radius: 12px; background: #0b181ce8; pointer-events: none; font-variant-numeric: tabular-nums; }
-.wind-compass { width: 76px; height: 76px; overflow: visible; }
+.flight-instruments { position: absolute; top: 68px; left: 14px; right: 14px; z-index: 5; display: flex; align-items: flex-start; gap: 8px; pointer-events: none; }
+.flight-instruments .hud-overlay { position: static; min-width: 0; }
+.flight-instruments .hud-panel, .wind-instrument { border: 1px solid #58736555; border-radius: 10px; background: #0d1a20db; box-shadow: 0 8px 24px #0003; backdrop-filter: blur(12px); }
+.wind-instrument { display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 6px; pointer-events: none; font-variant-numeric: tabular-nums; }
+.wind-compass { width: 62px; height: 62px; overflow: visible; }
 .wind-compass circle, .compass-ticks { fill: none; stroke: #45605d; stroke-width: 1; }
 .wind-compass text { fill: #bacbc8; font: 9px var(--font-mono); text-anchor: middle; }
 #windArrow { fill: var(--accent-primary, #95d6ad); }
 .wind-compass .compass-hub { fill: #95d6ad; stroke: #0b181c; stroke-width: 2; }
 .wind-instrument > div { display: grid; gap: 3px; }
 .wind-instrument strong { font: 600 18px var(--font-mono); color: #d9f4e4; }
-.wind-label, .wind-instrument small { font: 10px var(--font-mono); color: #a7bdb7; }
+.wind-label, .wind-instrument small { font: 10px var(--font-sans); color: #a7bdb7; }
 #windBearing { font: 12px var(--font-mono); color: #d0dcd8; }
 .diagnostics { display: block; border: 1px solid var(--border-card); border-radius: 12px; background: #0d1a20; overflow: hidden; flex-shrink: 0; }
 .diagnostics > summary { padding: 14px; cursor: pointer; font-weight: 600; font-size: 12px; }
@@ -1821,15 +1846,26 @@ html, body { height: 100%; overflow: hidden; }
 .diagnostic-measurement strong { font: 11px/1.5 var(--font-mono); text-align: right; overflow-wrap: anywhere; }
 #inputSummaryGrid { display: block; }
 @media (max-width: 850px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
-  .wind-instrument { right: 8px; bottom: 55px; padding: 5px 8px 5px 3px; gap: 4px; }
+  .flight-instruments { top: 110px; left: 10px; right: 10px; }
+  .wind-instrument { padding: 6px 8px 6px 3px; gap: 4px; flex-shrink: 0; }
   .wind-compass { width: 54px; height: 54px; }
   .wind-instrument strong { font-size: 14px; }
   .viewer-toolbar > #configureToggle { max-width: calc(100% - 60px); overflow: hidden; text-overflow: ellipsis; }
 }
 
-@media (max-width: 850px) and (orientation: portrait) {
-  .wind-instrument { bottom: 180px; }
-  .workspace[data-controller="human"] .wind-instrument { bottom: 55px; }
+@media (max-width: 600px) {
+  .flight-instruments .hud-overlay { flex: 1; }
+  .flight-instruments .hud-panel { padding: 8px; }
+  .flight-instruments .hud-primary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .flight-instruments .hud-secondary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .flight-instruments .hud-sub-metric { display: flex; flex-direction: column; gap: 2px; }
+  .flight-instruments .hud-sub-label { font: 9px var(--font-sans); }
+  .flight-instruments .hud-sub-val { font-size: 10px; }
+  .flight-instruments .hud-label { font-size: 9px; }
+  .flight-instruments .hud-value { font-size: 14px; }
+  .flight-instruments .hud-value small { font-size: 9px; }
+  .wind-instrument { max-width: 148px; }
+  .wind-instrument small { max-width: 78px; line-height: 1.4; }
 }
 @media (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
   /* The adjacent sidebar already shows actuators; leave room for wind and the plane. */

@@ -34,7 +34,7 @@ async page => {
     assert(!await page.locator('#timingMode').isVisible(), 'Baseline has model timing setting');
     assert(await page.locator('#ghostSettings').isVisible(), 'Nonhuman cannot select opponents');
     await page.locator('input[name="controller-choice"][value="jev"]').check();
-    await page.locator('#jevModel').selectOption('jev-1.13.0');
+    await page.locator(`input[name="jev-version"][value="jev-1.13.0"]`).check();
     await page.locator('#timingMode').selectOption('realtime');
     await page.locator('#ghostChoices input[value="live:baseline"]').check();
     await page.locator('#ghostChoices input[value="live:jev-1.14.0"]').check();

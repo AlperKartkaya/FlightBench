@@ -8,6 +8,7 @@ import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./result
 import { isRunwayLightOn } from "./runway-lights.ts";
 import { BrowserRuntime } from "./browser-runtime.ts";
 import { updateChasePosition } from "./camera.ts";
+import { createWindsock } from "./windsock.ts";
 import "./style.css";
 import { selectGhost, poseAt, smoothReplayTime, ghostMaterial, spinGhostPropeller, type Ghost, type Sample } from "./ghosts.ts";
 
@@ -173,16 +174,17 @@ app.innerHTML = `
           <button class="btn-secondary" id="scenarioToggle" type="button" aria-label="Scenario settings" aria-controls="scenarioPanel" aria-expanded="false">Easy ▾</button>
           <button class="btn-primary" id="start" disabled>Start flight</button><button class="btn-secondary" id="stop" aria-label="Stop and save" disabled>Stop</button><button class="btn-secondary" id="reset" disabled>Reset</button>
           <div class="viewer-config-panel" id="configPanel" hidden>
+            <div class="configuration-header"><span class="panel-eyebrow">FLIGHT SETUP</span><h2>Flight configuration</h2></div>
             <fieldset id="experimentSettings"><legend class="sr-only">Experiment settings</legend>
               <div class="config-group">
                 <div class="config-item"><div class="settings-heading">Your controller</div><div id="controllerCards" class="controller-cards" role="radiogroup" aria-label="Your controller"></div><select id="controller" aria-label="Controller" hidden>
                   <option value="human" selected>Human pilot</option><option value="baseline">Baseline · rule-based</option>
                   <option value="jev">Jev</option><option value="codex">Codex model</option></select></div>
                 <div class="config-item" id="modelGroup" hidden><label for="model">Model</label><select id="model" class="select-input"></select></div>
-                <div class="config-item" id="jevModelGroup" hidden><label for="jevModel">Jev version</label><select id="jevModel" class="select-input"><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
+                <div class="config-item" id="jevModelGroup" hidden><span class="settings-label">Jev version</span><div id="jevVersionChoices" class="version-choices" role="radiogroup" aria-label="Jev version"></div><select id="jevModel" hidden><option value="jev-1.13.0">1.13</option><option value="jev-1.14.0">1.14</option></select></div>
                 <div class="config-item" id="reasoningEffortGroup" hidden><label for="reasoningEffort">Reasoning effort</label><select id="reasoningEffort" class="select-input"><option value="low">low</option><option value="medium">medium</option><option value="high">high</option><option value="xhigh">xhigh</option><option value="max">max</option></select></div>
                 <div class="config-item" id="timingModeGroup"><label for="timingMode">Execution</label><select id="timingMode" class="select-input"><option value="realtime" selected>Realtime</option><option value="lockstep">Lockstep</option></select><small>Realtime keeps flying while the model thinks. Lockstep waits for each reply.</small></div>
-                <div class="config-item" id="ghostSettings"><div class="settings-heading">Race opponents <span class="ghost-tag">MULTI-SELECT</span></div><div id="ghostChoices" class="opponent-grid" role="group" aria-label="Race opponents"></div><div id="ghostStatus" role="status"></div><small id="ghostHelp">Race any controllers together. Same scenario and seed for live pilots. Each live Jev adds API usage; provider rate limits still apply. Replays stay in this tab.</small></div>
+                <div class="config-item" id="ghostSettings"><div class="settings-heading">Race opponents <span class="selection-hint">Select multiple</span></div><div id="ghostChoices" class="opponent-grid" role="group" aria-label="Race opponents"></div><div id="ghostStatus" role="status"></div><small id="ghostHelp">Live pilots share your scenario and seed. Each live Jev uses the API; rate limits apply. Replays stay in this tab.</small></div>
               </div>
             </fieldset>
           </div>
@@ -195,6 +197,7 @@ app.innerHTML = `
         </div>
 
         <!-- Primary HUD (Top-Left Canvas Overlay) -->
+        <div class="flight-instruments">
         <div class="hud-overlay" id="hudOverlay" data-open="false">
           <div class="hud-panel">
             <div class="hud-primary-grid">
@@ -236,6 +239,17 @@ app.innerHTML = `
           </div>
         </div>
 
+        <div class="wind-instrument" id="windInstrument" hidden aria-label="Live wind">
+          <svg class="wind-compass" viewBox="0 0 80 80" role="img" aria-label="Wind from bearing">
+            <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5"/>
+            <text x="40" y="9">N</text><text x="74" y="43">E</text><text x="40" y="78">S</text><text x="6" y="43">W</text>
+            <g id="windArrow"><path d="M40 18l-6 13h5v29h2V31h5z"/></g><circle class="compass-hub" cx="40" cy="40" r="3"/>
+          </svg>
+          <div><span class="wind-label">WIND FROM</span><strong id="windSpeed">— m/s</strong><span id="windBearing">—°</span><small id="windVertical">Steady</small></div>
+        </div>
+
+        </div>
+
         <div class="flight-readout" aria-label="Live controller and actuator output">
           <div class="flight-readout-head"><strong id="overlayController">Baseline Controller</strong><span id="overlayCadence">— Hz</span></div>
           <div class="flight-readout-grid">
@@ -245,15 +259,6 @@ app.innerHTML = `
             <div><span>THR</span><strong id="overlayThrottle">—</strong></div>
           </div>
           <div class="flight-decision" id="overlayDecision" hidden><span id="overlayDecisionStatus">JEV DECISION</span><strong id="overlayDecisionText">Awaiting first response</strong></div>
-        </div>
-
-        <div class="wind-instrument" id="windInstrument" hidden aria-label="Live wind">
-          <svg class="wind-compass" viewBox="0 0 80 80" role="img" aria-label="Wind from bearing">
-            <circle cx="40" cy="40" r="26"/><path class="compass-ticks" d="M40 12v5m28 23h-5M40 68v-5M12 40h5"/>
-            <text x="40" y="9">N</text><text x="74" y="43">E</text><text x="40" y="78">S</text><text x="6" y="43">W</text>
-            <g id="windArrow"><path d="M40 18l-6 13h5v29h2V31h5z"/></g><circle class="compass-hub" cx="40" cy="40" r="3"/>
-          </svg>
-          <div><span class="wind-label">WIND FROM</span><strong id="windSpeed">— m/s</strong><span id="windBearing">—°</span><small id="windVertical">Steady</small></div>
         </div>
 
         <!-- Camera Switcher Overlay (Bottom-Right Canvas Overlay) -->
@@ -787,6 +792,8 @@ for (const z of [-14, -10, -6, -2, 2, 6, 10, 14]) {
   markings.add(threshold);
 }
 scene.add(markings);
+const windsock = createWindsock();
+scene.add(windsock.object);
 
 const edgeLightPositions: number[] = [];
 // Twenty rows make the four-row cadence wrap without a double-lit pause.
@@ -918,6 +925,26 @@ function ghostTitle(choice: string): string {
   if (choice.startsWith("live:")) return choice === "live:baseline" ? "Live baseline" : `Live Jev ${choice.slice(9).replace(".0", "")}`;
   return choice === "human" ? "Personal best" : choice === "jev" ? "Jev replay" : "Previous flight";
 }
+function choiceContent(kind: string, title: string, detail: string): DocumentFragment {
+  const paths: Record<string, string> = {
+    human: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M5 21v-2a7 7 0 0 1 14 0v2",
+    baseline: "M4 8h16M4 16h16M8 4v8m8 0v8",
+    jev: "m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z",
+    codex: "m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18",
+    replay: "M4 10a8 8 0 1 1 1 8M4 4v6h6m2-3v5l3 2",
+  };
+  const content = document.createDocumentFragment();
+  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.setAttribute("viewBox", "0 0 24 24"); icon.setAttribute("aria-hidden", "true");
+  icon.classList.add("choice-icon");
+  const path = document.createElementNS(icon.namespaceURI, "path");
+  path.setAttribute("d", paths[kind] ?? paths.replay); icon.append(path);
+  const text = document.createElement("span"); text.className = "choice-copy";
+  const name = document.createElement("strong"); name.textContent = title;
+  const description = document.createElement("small"); description.textContent = detail;
+  text.append(name, description); content.append(icon, text);
+  return content;
+}
 function refreshGhostStatus() {
   const host = byId("ghostChoices");
   const primary = controllerSelect?.value === "jev" ? jevModelSelect.value : controllerSelect?.value;
@@ -926,6 +953,7 @@ function refreshGhostStatus() {
   const available = [...["previous", "human", "jev"].filter(choice => Boolean(selectGhost(ghostRuns, ghostSetupKey(), choice))), ...live];
   for (const choice of selectedGhosts) if (!available.includes(choice)) selectedGhosts.delete(choice);
   host.replaceChildren();
+  let jevVersions: HTMLDivElement | null = null;
   for (const choice of available) {
     const run = choice.startsWith("live:") ? null : selectGhost(ghostRuns, ghostSetupKey(), choice);
     const label = document.createElement("label"); label.className = "opponent-card";
@@ -933,15 +961,28 @@ function refreshGhostStatus() {
     input.checked = selectedGhosts.has(choice); input.setAttribute("aria-label", ghostTitle(choice));
     input.addEventListener("change", () => {
       if (input.checked) selectedGhosts.add(choice); else selectedGhosts.delete(choice);
-      byId("ghostStatus").textContent = selectedGhosts.size ? `${selectedGhosts.size} opponent(s) selected` : "Solo flight · recording stays on";
+      byId("ghostStatus").textContent = selectedGhosts.size ? `${selectedGhosts.size} opponent(s) selected` : "Solo flight · replay recording on";
     });
-    const text = document.createElement("span"); const title = document.createElement("strong"); title.textContent = ghostTitle(choice);
-    const detail = document.createElement("small"); detail.textContent = run
-      ? `${run.score.toFixed(1)} pts · ${run.samples.at(-1)!.time.toFixed(1)} s · ${outcomeLabel(run.status, run.success)}`
-      : choice === "live:baseline" ? "Independent rule-based pilot · no API usage" : "Independent model pilot · API usage";
-    text.append(title, detail); label.append(input, text); host.append(label);
+    if (choice.startsWith("live:jev")) {
+      if (!jevVersions) {
+        const group = document.createElement("div"); group.className = "opponent-model-group";
+        group.append(choiceContent("jev", "Jev", "Live · API usage"));
+        jevVersions = document.createElement("div"); jevVersions.className = "version-choices";
+        jevVersions.setAttribute("role", "group"); jevVersions.setAttribute("aria-label", "Live Jev opponents");
+        group.append(jevVersions); host.append(group);
+      }
+      label.className = "version-badge";
+      const version = document.createElement("span"); version.textContent = choice.slice(9).replace(".0", "");
+      label.append(input, version); jevVersions.append(label);
+    } else {
+      const detail = run ? `${run.score.toFixed(1)} pts · ${outcomeLabel(run.status, run.success)}` : "Live · no API usage";
+      label.title = run ? `${run.samples.at(-1)!.time.toFixed(1)} s · ${detail}` : "Independent rule-based pilot";
+      label.append(input, choiceContent(choice === "live:baseline" ? "baseline" : "replay",
+        choice === "live:baseline" ? "Baseline" : ghostTitle(choice), detail));
+      host.append(label);
+    }
   }
-  byId("ghostStatus").textContent = selectedGhosts.size ? `${selectedGhosts.size} opponent(s) selected` : "Solo flight · recording stays on";
+  byId("ghostStatus").textContent = selectedGhosts.size ? `${selectedGhosts.size} opponent(s) selected` : "Solo flight · replay recording on";
 }
 function createGhostVisual(controller: string): THREE.Group {
     const visual = aircraft.clone(true);
@@ -2088,10 +2129,22 @@ function updateControllerUi() {
     const radio = document.createElement("input"); radio.type = "radio"; radio.name = "controller-choice";
     radio.value = option.value; radio.checked = controllerSelect.value === option.value;
     radio.addEventListener("change", () => {controllerSelect.value = option.value; controllerSelect.dispatchEvent(new Event("change"));});
-    const text = document.createElement("span"); const title = document.createElement("strong"); title.textContent = option.text.split(" · ")[0];
-    const detail = document.createElement("small"); detail.textContent = descriptions[option.value];
-    text.append(title, detail); label.append(radio, text); cards.append(label);
+    label.append(radio, choiceContent(option.value, option.text.split(" · ")[0], descriptions[option.value]));
+    cards.append(label);
   }
+  const versions = byId("jevVersionChoices");
+  const focusedVersion = (document.activeElement as HTMLInputElement)?.name === "jev-version";
+  versions.replaceChildren();
+  for (const option of jevModelSelect.options) {
+    const badge = document.createElement("label"); badge.className = "version-badge";
+    const radio = document.createElement("input"); radio.type = "radio"; radio.name = "jev-version";
+    radio.value = option.value; radio.checked = jevModelSelect.value === option.value;
+    radio.setAttribute("aria-label", `Jev ${option.text}`);
+    radio.addEventListener("change", () => {jevModelSelect.value = option.value; jevModelSelect.dispatchEvent(new Event("change"));});
+    const text = document.createElement("span"); text.textContent = option.text;
+    badge.append(radio, text); versions.append(badge);
+  }
+  if (focusedVersion) versions.querySelector<HTMLInputElement>("input:checked")?.focus();
   if (restoreControllerFocus) cards.querySelector<HTMLInputElement>("input:checked")?.focus();
   const isCodex = controllerSelect.value === "codex";
   const isHuman = controllerSelect.value === "human";
@@ -2390,6 +2443,7 @@ function animate(now: number) {
   const dt = Math.min((now - previous) / 1000, 0.05);
   previous = now;
   updateEdgeLights(now);
+  windsock.update(lastObservation?.environment ?? {headwind_mps: 0, crosswind_mps: 0}, now / 1000, dt, reducedMotion.matches);
 
   if (spectatorRunning && watchedGhost && !liveEntry(watchedGhost)) {
     raceTime = Math.min(raceTime + dt, watchedGhost.samples.at(-1)!.time);

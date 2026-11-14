@@ -32,9 +32,9 @@ async page => {
       await page.locator(`input[name="controller-choice"][value="${controller}"]`).check();
       if (controller === 'jev') {
         assert(await page.locator('#jevProxy, #jevInvite').count() === 0, 'Public Jev must not ask for endpoint or token');
-        await page.locator('#jevModel').selectOption('jev-1.14.0');
+        await page.locator(`input[name="jev-version"][value="jev-1.14.0"]`).check();
         assert(await page.locator('#jevModel').inputValue() === 'jev-1.14.0', 'Jev 1.14 unavailable');
-        await page.locator('#jevModel').selectOption('jev-1.13.0');
+        await page.locator(`input[name="jev-version"][value="jev-1.13.0"]`).check();
       }
       await page.keyboard.press('Escape');
       assert(!await hud.isVisible(), `Switching to ${controller} opened instruments`);
