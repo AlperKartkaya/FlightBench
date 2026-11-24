@@ -1,34 +1,31 @@
+# Local configuration and workspace state.
+.env
+.env.*
+!.env.example
+.omx/
+scratch/
+runs/
+.DS_Store
+
+# Python environments and caches.
 .venv/
+.uv-cache/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
-.env
-.env.*
-!.env.example
-runs/
+
+# Frontend builds and local tooling.
 node_modules/
 dist/
-.DS_Store
-.omx/
-scratch/
-*.csv
-.uv-cache/
+/frontend/dist-*/
+.playwright-cli/
+.wrangler/
+
+# Generated simulator runtime and telemetry.
+/frontend/public/wasm/vendor/
+/JSBout*.csv
 
 # Run manifests bind the gzip artifacts; avoid publishing duplicate raw exports.
 /leaderboard/**/????????-????-????-????-????????????.json
 /docs/**/????????-????-????-????-????????????.json
-
-# Generated benchmark measurements linked from the README.
-!docs/evaluations/2026-10-22-scoring-v2/benchmark-data.csv
-
-# Local browser automation artifacts.
-.playwright-cli/
-.wrangler/
-
-# Generated JSBSim runtime and source distribution.
-/frontend/public/wasm/vendor/
-
-# Separate static build; never overwrite the local Python-backed frontend bundle.
-/frontend/dist-pages/
-/frontend/dist-personal/
