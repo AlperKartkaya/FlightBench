@@ -69,6 +69,38 @@ class RealtimeInputTests(unittest.TestCase):
 
 
 class AzureDecisionTests(unittest.TestCase):
+    def test_new_model_uses_separate_deployment_and_rejects_old_identity(self):
+        from io import BytesIO
+
+        from examples.controllers.azure_decision import AzureDecision11Controller
+
+        with tempfile.TemporaryDirectory() as directory:
+            with (
+                patch.dict(
+                    os.environ, FLIGHTBENCH_AZURE_LOG=str(Path(directory) / "provider.jsonl")
+                ),
+                patch(
+                    "examples.controllers.azure_decision.subprocess.check_output",
+                    return_value=b'{"key1":"test-secret"}',
+                ),
+            ):
+                controller = AzureDecision11Controller()
+            assert controller.model_id == "Microsoft-Decision-1.1"
+            assert controller.metadata["deployment"] == "decision-1-1"
+            assert controller.metadata["slug"] == "microsoft-decision-1.1"
+            for model in ("microsoft-decision-1.1", MODEL):
+                stream = BytesIO(json.dumps({"model": model}).encode())
+                stream.status = 200
+                with patch("examples.controllers.azure_decision.urlopen", return_value=stream):
+                    if model == MODEL:
+                        with self.assertRaisesRegex(ValueError, "Unexpected model identity"):
+                            controller._request("systemone", {"state": {}})
+                    else:
+                        controller._request("systemone", {"state": {}})
+            rows = [json.loads(line) for line in controller._log.read_text().splitlines()]
+            assert all(row["request"]["model"] == "decision-1-1" for row in rows)
+            assert "test-secret" not in controller._log.read_text()
+
     def test_network_failure_is_logged_and_retried_without_changing_input(self):
         from io import BytesIO
 

@@ -21,8 +21,11 @@ SOURCE_URL = (
 
 
 class AzureDecisionController:
+    model = MODEL
+    deployment = DEPLOYMENT
+
     def __init__(self):
-        self.model_id = MODEL
+        self.model_id = self.model
         self._log = Path(os.environ["FLIGHTBENCH_AZURE_LOG"])
         self._log.parent.mkdir(parents=True, exist_ok=True)
         self._key = json.loads(
@@ -44,16 +47,16 @@ class AzureDecisionController:
             )
         )["key1"]
         self.metadata = {
-            "name": MODEL,
-            "slug": "microsoft-decision-1",
-            "model": MODEL,
+            "name": self.model,
+            "slug": self.model.lower(),
+            "model": self.model,
             "provider": "Microsoft Azure Foundry",
             "controller_type": "ai",
             "local": False,
             "license": "proprietary hosted API",
             "source_url": SOURCE_URL,
             "endpoint": ENDPOINT,
-            "deployment": DEPLOYMENT,
+            "deployment": self.deployment,
             "model_version": "1",
             "deployment_type": "GlobalStandard",
             "transport": "systemone",
@@ -64,7 +67,7 @@ class AzureDecisionController:
         if method != "systemone":
             raise ValueError("Only the decision endpoint is supported")
         payload = {k: v for k, v in payload.items() if k != "keep_alive"}
-        payload["model"] = DEPLOYMENT
+        payload["model"] = self.deployment
         request = Request(
             ENDPOINT + "/providers/microsoft/v1/systemone",
             data=json.dumps(payload, allow_nan=False).encode(),
@@ -93,7 +96,7 @@ class AzureDecisionController:
                     log.flush()
                     os.fsync(log.fileno())
             if row["status"] == 200:
-                if row["response"].get("model", "").lower() != MODEL.lower():
+                if row["response"].get("model", "").lower() != self.model.lower():
                     raise ValueError("Unexpected model identity")
                 return row["response"]
             if row["status"] not in {0, 429, 500, 502, 503, 504} or attempt == 3:
@@ -112,7 +115,7 @@ class AzureDecisionController:
             for axis, spec in axes.items()
         }
         response = self._request(
-            "systemone", {"model": DEPLOYMENT, "state": observation, "questions": questions}
+            "systemone", {"model": self.deployment, "state": observation, "questions": questions}
         )
         usage = response.get("usage") or {}
         if (
@@ -129,3 +132,8 @@ class AzureDecisionController:
         return SharedActionDecision.model_validate(
             {axis: answer["choice"] for axis, answer in response["answers"].items()}
         ).model_dump()
+
+
+class AzureDecision11Controller(AzureDecisionController):
+    model = "Microsoft-Decision-1.1"
+    deployment = "decision-1-1"
