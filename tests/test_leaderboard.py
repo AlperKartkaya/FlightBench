@@ -530,6 +530,8 @@ def test_builtin_mock_provider_real_physics_eval_roundtrip(monkeypatch, tmp_path
             "42",
             "--modes",
             "lockstep,realtime",
+            "--decision-schedule",
+            "continuous",
             "--output-dir",
             str(output),
         ]
@@ -537,6 +539,13 @@ def test_builtin_mock_provider_real_physics_eval_roundtrip(monkeypatch, tmp_path
     submission = validate_submission(json.loads((output / "submission.json").read_text()), output)
     assert set(submission.results) == {"lockstep", "realtime"}
     assert all(result.total_runs == 1 for result in submission.results.values())
+    assert submission.evaluation.realtime_response_policy == "apply-on-arrival"
+    from flightbench.leaderboard import _read_artifact
+
+    assert all(
+        _read_artifact(output / artifact.path)["config"]["decision_schedule"] == "continuous"
+        for artifact in submission.artifacts
+    )
 
 
 def test_v2_score_recomputes_and_cannot_be_relabeled(tmp_path):

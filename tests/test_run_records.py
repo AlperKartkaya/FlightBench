@@ -125,6 +125,11 @@ def test_cli_log_is_exclusive_and_record_has_shared_identity(monkeypatch, tmp_pa
         benchmark.run_episode("mock", 7, log_path=path)
 
 
+def test_new_runs_default_to_apply_on_arrival():
+    assert runs.RunSettings(mode="realtime").realtime_response_policy == "apply-on-arrival"
+    assert server.Session(None).realtime_response_policy == "apply-on-arrival"
+
+
 def test_headless_report_selects_best_completed_run_and_prices_logged_usage(tmp_path):
     jev = _record("00000000-0000-4000-8000-000000000001")
     jev["config"].update(controller="jev", model="jev-1.13.0")
@@ -205,8 +210,8 @@ def test_headless_run_writes_markdown_beside_json_summary(monkeypatch, tmp_path)
             "mock",
             "--seeds",
             "7",
-            "--realtime-response-policy",
-            "apply-on-arrival",
+            "--decision-schedule",
+            "continuous",
             "--output-dir",
             str(tmp_path),
         ]
@@ -219,6 +224,7 @@ def test_headless_run_writes_markdown_beside_json_summary(monkeypatch, tmp_path)
         if "summary-" not in path.name
     )
     assert record["config"]["realtime_response_policy"] == "apply-on-arrival"
+    assert record["config"]["decision_schedule"] == "continuous"
     report = next(tmp_path.glob("report-*.md")).read_text()
     assert "| mock | 7 | 75.000 | landed |" in report
     assert "Selected run IDs: mock" in report
@@ -346,7 +352,7 @@ def test_invalid_second_start_does_not_cancel_active_run(monkeypatch, tmp_path):
 
 @pytest.mark.parametrize(
     ("policy", "expected_applied", "expected_stale"),
-    [("discard-stale", 0, 1), ("apply-on-arrival", 1, 0)],
+    [(None, 1, 0), ("discard-stale", 0, 1), ("apply-on-arrival", 1, 0)],
 )
 def test_realtime_response_policy_controls_delayed_decisions(
     monkeypatch, policy, expected_applied, expected_stale
@@ -385,10 +391,10 @@ def test_realtime_response_policy_controls_delayed_decisions(
         42,
         mode="realtime",
         decision_hz=10,
-        realtime_response_policy=policy,
+        **({"realtime_response_policy": policy} if policy is not None else {}),
     )
 
-    assert record["config"]["realtime_response_policy"] == policy
+    assert record["config"]["realtime_response_policy"] == (policy or "apply-on-arrival")
     assert record["diagnostics"]["stale_decisions"] >= expected_stale
     assert record["diagnostics"]["decision_count"] >= expected_applied
     assert record["diagnostics"]["calls"] >= 1
@@ -643,7 +649,7 @@ def test_websocket_realtime_marks_unrecorded_terminal_response_usage_unknown():
     assert session.requests_started - session.calls_count == 1
 
 
-def test_websocket_apply_on_arrival_applies_delayed_response():
+def test_websocket_default_applies_delayed_response():
     import asyncio
 
     class TimedEnv:
@@ -676,7 +682,6 @@ def test_websocket_apply_on_arrival_applies_delayed_response():
             controller=SlowController(),
             observation={"time_s": 0.0, "controls": {}},
             mode="realtime",
-            realtime_response_policy="apply-on-arrival",
         )
 
         async def ignore_state():
@@ -689,6 +694,7 @@ def test_websocket_apply_on_arrival_applies_delayed_response():
     session = asyncio.run(run())
 
     assert session.decision_count >= 1
+    assert session.realtime_response_policy == "apply-on-arrival"
     assert session.stale_decisions == 0
     assert session.action.throttle == 0.7
 

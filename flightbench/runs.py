@@ -45,7 +45,7 @@ class RunSettings(BaseModel):
     decision_hz: Literal[2, 5, 10] = 2
     decision_schedule: Literal["fixed", "continuous"] = "fixed"
     time_scale: Literal[1.0, 0.5, 0.25] = 1.0
-    realtime_response_policy: Literal["discard-stale", "apply-on-arrival"] = "discard-stale"
+    realtime_response_policy: Literal["discard-stale", "apply-on-arrival"] = "apply-on-arrival"
     human_assistance: HumanAssistance = Field(default_factory=HumanAssistance)
 
     @model_validator(mode="after")

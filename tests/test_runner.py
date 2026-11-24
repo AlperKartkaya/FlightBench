@@ -95,6 +95,32 @@ def test_realtime_holds_previous_action_during_inference():
     assert first_action["throttle"] == 0.5
 
 
+@pytest.mark.parametrize(
+    "schedule, expected_requests", [("fixed", 1), ("continuous", DECISION_TICKS)]
+)
+def test_continuous_realtime_requests_again_without_waiting_for_fixed_tick(
+    monkeypatch, schedule, expected_requests
+):
+    from concurrent.futures import Future
+
+    class ImmediateExecutor:
+        def submit(self, fn, *args):
+            future = Future()
+            future.set_result(fn(*args))
+            return future
+
+        def shutdown(self, **_kwargs):
+            pass
+
+    monkeypatch.setattr(benchmark, "ThreadPoolExecutor", lambda **kw: ImmediateExecutor())
+    monkeypatch.setattr(benchmark, "sleep", lambda _seconds: None)
+    record = benchmark.run_episode("mock", 1, mode="realtime", decision_schedule=schedule)
+    assert record["config"]["decision_schedule"] == schedule
+    assert record["diagnostics"]["requests_started"] == expected_requests
+    assert record["diagnostics"]["decision_count"] == expected_requests - (schedule == "continuous")
+    assert record["diagnostics"]["stale_decisions"] == 0
+
+
 def test_timeout_keeps_previous_controls_and_hides_provider_error(monkeypatch, tmp_path):
     monkeypatch.setattr(benchmark, "make_controller", lambda *a, **k: FixedController(delay=0.03))
     path = tmp_path / "timeout.jsonl"

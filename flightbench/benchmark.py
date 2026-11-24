@@ -109,11 +109,12 @@ def run_episode(
     reasoning_effort: str = "low",
     decision_hz: int = 2,
     time_scale: float = 1.0,
-    realtime_response_policy: str = "discard-stale",
+    realtime_response_policy: str = "apply-on-arrival",
     timeout_s: float = DEFAULT_TIMEOUT_S,
     log_path: Path | None = None,
     record_dir: Path | None = None,
     run_id: str | None = None,
+    decision_schedule: str = "fixed",
 ) -> dict:
     """Run one deterministic episode without making any provider assumptions."""
     settings = RunSettings(
@@ -126,6 +127,7 @@ def run_episode(
         decision_hz=decision_hz,
         time_scale=time_scale,
         realtime_response_policy=realtime_response_policy,
+        decision_schedule=decision_schedule,
     )
     decision_ticks, decision_interval_s = decision_timing(decision_hz)
     if controller_name == "human":
@@ -367,7 +369,9 @@ def run_episode(
                         }
                     )
                     break
-                if pending is None and ticks % decision_ticks == 0:
+                if pending is None and (
+                    decision_schedule == "continuous" or ticks % decision_ticks == 0
+                ):
                     pending_observation = deepcopy(observation)
                     enriched = _enrich(pending_observation)
                     pending_started = perf_counter()
@@ -425,7 +429,7 @@ def run_episode(
             0, requests_started - len(decisions) - requests_cancelled_before_start
         ),
         "late_decisions": sum(latency > 1000 / (decision_hz * time_scale) for latency in latencies)
-        if mode == "realtime"
+        if mode == "realtime" and decision_schedule == "fixed"
         else 0,
         "stale_decisions": sum(d.get("discard_reason") == "stale_observation" for d in decisions),
         "api_errors": sum(bool(d.get("error")) for d in decisions),
@@ -753,11 +757,12 @@ def main(argv: list[str] | None = None) -> None:
         "--reasoning-effort", choices=("low", "medium", "high", "xhigh", "max"), default="low"
     )
     parser.add_argument("--decision-hz", type=int, choices=(2, 5, 10), default=2)
+    parser.add_argument("--decision-schedule", choices=("fixed", "continuous"), default="fixed")
     parser.add_argument("--time-scale", type=float, choices=(1.0, 0.5, 0.25), default=1.0)
     parser.add_argument(
         "--realtime-response-policy",
         choices=("discard-stale", "apply-on-arrival"),
-        default="discard-stale",
+        default="apply-on-arrival",
     )
     parser.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_S)
     parser.add_argument("--output-dir", type=Path, default=Path("runs"))
@@ -790,6 +795,7 @@ def main(argv: list[str] | None = None) -> None:
                             model=args.model,
                             reasoning_effort=args.reasoning_effort,
                             decision_hz=args.decision_hz,
+                            decision_schedule=args.decision_schedule,
                             time_scale=args.time_scale,
                             realtime_response_policy=args.realtime_response_policy,
                             timeout_s=args.timeout,
@@ -850,11 +856,12 @@ def evaluate(argv: list[str]) -> None:
     parser.add_argument("--seeds", default="42,101,202,303,404")
     parser.add_argument("--scenario", choices=("easy", "medium", "hard"), default="easy")
     parser.add_argument("--decision-hz", type=int, choices=(2, 5, 10), default=2)
+    parser.add_argument("--decision-schedule", choices=("fixed", "continuous"), default="fixed")
     parser.add_argument("--time-scale", type=float, choices=(1.0, 0.5, 0.25), default=1.0)
     parser.add_argument(
         "--realtime-response-policy",
         choices=("discard-stale", "apply-on-arrival"),
-        default="discard-stale",
+        default="apply-on-arrival",
     )
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--jobs", type=int, default=1)
@@ -882,6 +889,7 @@ def evaluate(argv: list[str]) -> None:
             "mode": mode,
             "scenario": args.scenario,
             "decision_hz": args.decision_hz,
+            "decision_schedule": args.decision_schedule,
             "time_scale": args.time_scale,
             "realtime_response_policy": args.realtime_response_policy,
             "timeout_s": args.timeout,

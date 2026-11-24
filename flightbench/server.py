@@ -178,7 +178,7 @@ class Session:
     state_age_ms: float | None = None
     decision_hz: int = 2
     time_scale: float = 1.0
-    realtime_response_policy: str = "discard-stale"
+    realtime_response_policy: str = "apply-on-arrival"
     effective_decision_count: int = 0
     controller: Any = None
     run_id: str | None = None
