@@ -75,16 +75,18 @@ For Jev and Codex authentication, [see the setup guide](docs/controller-setup/RE
 
 ## Benchmark results — landing score and API cost
 
-![FlightBench benchmark results (dark theme)](docs/evaluations/2026-10-22-scoring-v2/benchmark-dark.png#gh-dark-mode-only)
+![FlightBench: landing outcomes, best and average successful scores, API cost and latency (dark theme)](docs/benchmark/ten-trial-dark.svg#gh-dark-mode-only)
 
-![FlightBench benchmark results (light theme)](docs/evaluations/2026-10-22-scoring-v2/benchmark-light.png#gh-light-mode-only)
+![FlightBench: landing outcomes, best and average successful scores, API cost and latency (light theme)](docs/benchmark/ten-trial-light.svg#gh-light-mode-only)
 
-**In our evaluation, all the Codex/LLM controllers failed to achieve a successful realtime landing;
-their results above are lockstep runs.**
+Successful models lead each group; both tiers are ordered by release date, newest first.
+Realtime shows only models with at least one successful landing.
 
 > While **Realtime** means simulation time equals wall clock time, **Lockstep** means the simulation is paused for each step to let the model respond. Hence, simulation and wall time can differ in lockstep.
 
 ## Landing Score vs. Estimated API Cost
+
+This historical cost comparison uses earlier best-run results, not the ten-flight cohorts above.
 
 [![Landing score versus API-equivalent cost](docs/evaluations/2026-10-22-scoring-v2/landing-score-vs-api-cost.png)](docs/evaluations/2026-10-22-scoring-v2/landing-score-vs-api-cost.png)
 
@@ -194,13 +196,15 @@ The following **mock response** shows the selected labels and the *per actuator*
 
 - **Jev's control loop.** FlightBench sends Jev a snapshot of the aircraft, runway, current controls, motion, and flight phase. Each request asks Jev to choose an aileron, elevator, rudder, and throttle correction. Jev returns a selected label and a separate probability distribution for each actuator. The controller maps those labels to fixed absolute commands. JSBSim computes the resulting flight based on these commands and the aircraft's state.
 
-- **Codex and realtime.** Codex models ran in **2 Hz lockstep**: physics waited for each answer, so slow responses did not directly cause those failed landings. Sol and Astra ended in runway excursions in all five runs; Luna had two nose-first contacts and three crashes. Their mean decision latencies of 2.53–4.50 seconds are far beyond the 0.5-second interval needed for 2 Hz realtime control. This reveals one of the most important advantages of decision models like Jev over general purpose LLMs.
+- **Codex and realtime.** Codex models performed successfully in lockstep, where physics waited for each answer, so slow responses did not directly cause failed landings. Their mean decision latencies, which vary between 2 to 5 seconds, were far beyond the decision latency of 0.22 seconds of Jev models. This reveals one of the most important advantages of decision models like Jev over general purpose LLMs.
 
 - **Runway excursions.** A runway excursion is still a failed landing, but it is useful in means of showing an improvement over crash scenerios: in a runway excursion, the aircraft reaches touchdown before leaving the runway bounds. In the further studies and revisions, the controller can be improved to be less prone to runway excursions; as it showed up to be the biggest challenge for the LLMs.
 
 - **Controller design.** During the development process, I found it useful to use acceptance thresholds on the probabilities of the selected choices to foster robustness. As the simulation was very prone to lose the stability, I also needed to tune the sensitivity of the choices Jev returned. It was difficult to initialize a balanced delta value, which was used to increase or decrease each of the four actuators, according to Jev's decisions. These were the challenges until I introduced fixed choices of values, which had a textual correspondence, hence making it easier for Jev to work with the controller.
 
 - **Decision rate.** In terms of the practical concerns, besides the obvious trade-off between the request rate and the API-cost, it is important to note that there is an upper limit on the effective request rate, which was 2.4 calls per second during my evaluation. To increase this effective request rate of 2.4 Hz, you can consider decreasing the simulation speed. I managed to increase it up to 10 Hz, halving the simulation speed twice. Note that this is currently not supported in the UI.
+
+- **Why repeat flights differ.** The local decision models we tested and Microsoft Decision 1.1 made the same choices whenever they received the same input, resulting identical results in lockstep, but varying ones in realtime. In fact, in realtime, the plane keeps moving, so a reply arriving sooner or later can change when a command takes effect, what the model sees next, and how the flight unfolds. Jev and Codex sometimes made different choices for the same input even in lockstep, so their flights could vary without response timing affecting the simulation.
 
 ## Contributing
 

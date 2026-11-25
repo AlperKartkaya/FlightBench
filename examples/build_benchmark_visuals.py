@@ -18,7 +18,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "docs/evaluations/2026-10-22-scoring-v2"
-FAMILIES = ["Jev", "GPT-6 Luna", "GPT-6.1 Terra", "GPT-6.1 Sol", "GPT-6 Astra", "Local"]
+FAMILIES = [
+    "Jev",
+    "GPT-6 Luna",
+    "GPT-6.1 Terra",
+    "GPT-6.2 Sol",
+    "GPT-6.1 Sol",
+    "GPT-6 Astra",
+    "Local",
+    "Decision API",
+]
 EFFORTS = ["low", "medium", "high", "xhigh"]
 MODELS = {
     "jev-1.13.0": ("Jev", "Jev 1.13"),
@@ -37,7 +46,23 @@ THEMES = {
         "line": "#d1d9e0",
         "subtle": "#f6f8fa",
         "best": "#1a7f37",
-        "families": ["#1a7f37", "#bc4c00", "#0550ae", "#0969da", "#8250df", "#59636e"],
+        "families": [
+            "#1a7f37",
+            "#bc4c00",
+            "#0550ae",
+            "#00666d",
+            "#0969da",
+            "#8250df",
+            "#59636e",
+            "#9a385d",
+        ],
+        "outcomes": ["#1a7f37", "#b5473d", "#6e7781"],
+        "groups": {
+            "Jev": "#1a7f37",
+            "Codex": "#0550ae",
+            "Local": "#8250df",
+            "Decision API": "#9a385d",
+        },
     },
     "dark": {
         "bg": "#0d1117",
@@ -46,7 +71,23 @@ THEMES = {
         "line": "#3d444d",
         "subtle": "#161b22",
         "best": "#3fb950",
-        "families": ["#3fb950", "#ffa657", "#79c0ff", "#58a6ff", "#bc8cff", "#9198a1"],
+        "families": [
+            "#3fb950",
+            "#ffa657",
+            "#79c0ff",
+            "#56d4dd",
+            "#58a6ff",
+            "#bc8cff",
+            "#9198a1",
+            "#f778ba",
+        ],
+        "outcomes": ["#3fb950", "#e07d72", "#484f58"],
+        "groups": {
+            "Jev": "#3fb950",
+            "Codex": "#79c0ff",
+            "Local": "#bc8cff",
+            "Decision API": "#f778ba",
+        },
     },
 }
 
@@ -129,23 +170,23 @@ def load_rows(source: Path) -> list[dict]:
     )
 
 
-def display_rows(rows: list[dict]) -> list[dict]:
+def display_rows(rows: list[dict], show_effort=True) -> list[dict]:
     """Score bests are exact; both Jev versions receive requested cost/latency emphasis."""
     displayed = []
     for mode in dict.fromkeys(r["mode"] for r in rows):
         cohort = [r for r in rows if r["mode"] == mode]
-        best_score = max(r["score"] for r in cohort)
+        best_score = max((r["score"] for r in cohort if r["score"] is not None), default=None)
         for row in cohort:
             cost = row["api_cost_usd"]
             plotted_cost = cost if cost is not None else row["cost_lower_bound_usd"]
-            precision = 4 if row["family"] == "Jev" else 3
-            label = row["model"] + (f" · {row['effort']}" if row["effort"] else "")
+            precision = 4 if row["family"] in ("Jev", "Decision API") else 3
+            label = row["model"] + (f" · {row['effort']}" if show_effort and row["effort"] else "")
             displayed.append(
                 dict(
                     row,
                     label=label,
                     cost=plotted_cost,
-                    score_text=f"{row['score']:.3f}",
+                    score_text="—" if row["score"] is None else f"{row['score']:.3f}",
                     cost_text="—"
                     if plotted_cost is None
                     else ("≥" if cost is None else "") + f"${plotted_cost:.{precision}f}",
@@ -160,8 +201,10 @@ def display_rows(rows: list[dict]) -> list[dict]:
                     latency_comparison="1×"
                     if row["family"] == "Jev"
                     else ("—" if row["latency_ratio"] is None else f"{row['latency_ratio']:.1f}×"),
-                    latency_text=f"{row['mean_latency_s']:.3f} s",
-                    best_score=row["score"] == best_score,
+                    latency_text="—"
+                    if row["mean_latency_s"] is None
+                    else f"{row['mean_latency_s']:.3f} s",
+                    best_score=row["score"] is not None and row["score"] == best_score,
                     best_latency=row["family"] == "Jev",
                     best_cost=row["family"] == "Jev",
                 )
@@ -178,16 +221,26 @@ def color_encoding(palette: dict) -> dict:
     }
 
 
-def leaderboard(rows: list[dict], mode: str, palette: dict) -> dict:
+def leaderboard(rows: list[dict], mode: str, palette: dict, trial_scores=False) -> dict:
     data = []
+    headings = []
     position = 15
-    previous_family = None
+    previous_group = None
     for row in (r for r in rows if r["mode"] == mode):
-        if previous_family is not None and row["family"] != previous_family:
-            position += 15
+        group = "Codex" if trial_scores and row["effort"] else row["family"]
+        if group != previous_group:
+            if trial_scores:
+                if headings:
+                    position += 8
+                headings.append(
+                    {"row_y": position, "heading": group, "heading_color": palette["groups"][group]}
+                )
+                position += 24
+            elif not trial_scores and previous_group is not None:
+                position += 15
         data.append(dict(row, row_y=position))
         position += 30
-        previous_family = row["family"]
+        previous_group = group
     y = {"field": "row_y", "type": "quantitative", "axis": None, "scale": None}
     base = {"data": {"values": data}, "height": position - 15, "encoding": {"y": y}}
 
@@ -196,8 +249,10 @@ def leaderboard(rows: list[dict], mode: str, palette: dict) -> dict:
             base,
             title={
                 "text": title,
-                "anchor": "start",
-                "offset": 18,
+                "anchor": "middle" if trial_scores else "start",
+                # A half-line offset keeps single- and two-line titles vertically centered.
+                "offset": 11 if isinstance(title, list) else 18,
+                **({"lineHeight": 14} if trial_scores else {}),
                 "fontSize": 13,
                 "color": palette["muted"],
             },
@@ -225,7 +280,17 @@ def leaderboard(rows: list[dict], mode: str, palette: dict) -> dict:
             "encoding": encoding,
         }
 
-    names = column("MODEL / REASONING EFFORT", 225, [text("label", 0, "left", family=True)])
+    names = column(
+        "MODEL" if trial_scores else "MODEL / REASONING EFFORT",
+        190 if trial_scores else 225,
+        [text("label", 0, "left", family=not trial_scores)],
+    )
+    if headings:
+        heading = text("heading", 0, "left")
+        heading["data"] = {"values": headings}
+        heading["mark"].update(fontSize=13, fontWeight=700)
+        heading["encoding"]["color"] = {"field": "heading_color", "type": "nominal", "scale": None}
+        names["layer"].append(heading)
     score = column(
         "LANDING SCORE / 100  ↑",
         225,
@@ -251,29 +316,96 @@ def leaderboard(rows: list[dict], mode: str, palette: dict) -> dict:
             text("score_text", 225, best="best_score"),
         ],
     )
-    cost = column("API COST / FLIGHT  ↓", 135, [text("cost_text", 130, best="best_cost")])
-    cost_comparison = column("COMPARISON", 100, [text("cost_comparison", 95, best="best_cost")])
-    latency_comparison = column(
-        "COMPARISON", 100, [text("latency_comparison", 95, best="best_latency")]
+    if trial_scores:
+        outcomes = column(
+            "OUTCOMES",
+            118,
+            [
+                {
+                    "transform": [
+                        {"flatten": ["segments"], "as": ["segment"]},
+                        {"calculate": "5 + datum.segment.i * 12", "as": "segment_x"},
+                    ],
+                    "mark": {"type": "rect", "width": 10, "height": 10, "cornerRadius": 1.5},
+                    "encoding": {
+                        "x": {
+                            "field": "segment_x",
+                            "type": "quantitative",
+                            "scale": None,
+                            "axis": None,
+                        },
+                        "color": {
+                            "condition": [
+                                {
+                                    "test": "datum.segment.kind === 'success'",
+                                    "value": palette["outcomes"][0],
+                                },
+                                {
+                                    "test": "datum.segment.kind === 'fail'",
+                                    "value": palette["outcomes"][1],
+                                },
+                            ],
+                            "value": palette["outcomes"][2],
+                        },
+                    },
+                },
+                text("score_source", 0, "left")
+                | {
+                    "mark": {
+                        "type": "text",
+                        "align": "left",
+                        "fontSize": 10,
+                        "color": palette["muted"],
+                    },
+                },
+            ],
+        )
+        score_columns = [
+            outcomes,
+            column(["BEST", "SCORE"], 82, [text("trial_best", 41, "center", best="trial_highest")]),
+            column(
+                ["AVERAGE", "SCORE"],
+                75,
+                [text("trial_average", 37.5, "center", best="trial_average_highest")],
+            ),
+        ]
+    else:
+        score_columns = [score]
+
+    def metric(field, x, width, best):
+        return text(field, width / 2, "center", best) if trial_scores else text(field, x, best=best)
+
+    cost = column(
+        ["API COST", "PER FLIGHT"] if trial_scores else "API COST / FLIGHT  ↓",
+        135,
+        [metric("cost_text", 130, 135, "best_cost")],
     )
-    latency = column("MEAN LATENCY  ↓", 140, [text("latency_text", 135, best="best_latency")])
+    cost_comparison = column("COMPARISON", 100, [metric("cost_comparison", 95, 100, "best_cost")])
+    latency_comparison = column(
+        "COMPARISON", 100, [metric("latency_comparison", 95, 100, "best_latency")]
+    )
+    latency = column(
+        ["MEAN", "LATENCY"] if trial_scores else "MEAN LATENCY  ↓",
+        140,
+        [metric("latency_text", 135, 140, "best_latency")],
+    )
     return {
         "title": {
             "text": mode.upper(),
-            "anchor": "start",
-            "fontSize": 16,
+            "anchor": "middle" if trial_scores else "start",
+            "fontSize": 17 if trial_scores else 16,
             "offset": 22,
             "color": palette["fg"],
         },
-        "hconcat": [names, score, cost, cost_comparison, latency, latency_comparison],
+        "hconcat": [names, *score_columns, cost, cost_comparison, latency, latency_comparison],
         "spacing": 10,
         "resolve": {"scale": {"y": "shared"}},
     }
 
 
-def figure_spec(rows: list[dict], theme: str) -> dict:
+def figure_spec(rows: list[dict], theme: str, trial_scores=False) -> dict:
     p = THEMES[theme]
-    displayed = display_rows(rows)
+    displayed = display_rows(rows, show_effort=not trial_scores)
     family_color = color_encoding(p)
     shapes = {
         "field": "family",
@@ -281,7 +413,16 @@ def figure_spec(rows: list[dict], theme: str) -> dict:
         "legend": None,
         "scale": {
             "domain": FAMILIES,
-            "range": ["circle", "triangle-up", "circle", "square", "diamond", "cross"],
+            "range": [
+                "circle",
+                "triangle-up",
+                "circle",
+                "triangle-down",
+                "square",
+                "diamond",
+                "cross",
+                "triangle-right",
+            ],
         },
     }
     present_families = [family for family in FAMILIES if any(r["family"] == family for r in rows)]
@@ -314,13 +455,80 @@ def figure_spec(rows: list[dict], theme: str) -> dict:
             },
         ],
     }
+
+    def note(lines):
+        return {
+            "width": 1010,
+            "height": 16 * len(lines),
+            "data": {"values": [{"line": line, "y": 8 + 16 * i} for i, line in enumerate(lines)]},
+            "mark": {"type": "text", "fontSize": 13, "color": p["muted"]},
+            "encoding": {
+                "x": {"value": 505},
+                "y": {"field": "y", "type": "quantitative", "scale": None, "axis": None},
+                "text": {"field": "line"},
+            },
+        }
+
+    panels = [legend, leaderboard(displayed, "lockstep", p), leaderboard(displayed, "realtime", p)]
+    if trial_scores:
+        panels = [leaderboard(displayed, "realtime", p, trial_scores=True)]
+        if not any(
+            r["mode"] == "realtime" and r["family"] != "Jev" and r["score"] is not None
+            for r in rows
+        ):
+            panels.append(
+                note(["No other evaluated model achieved a successful realtime landing."])
+            )
+        panels += [
+            leaderboard(displayed, "lockstep", p, trial_scores=True),
+            note(["All Codex runs shown used low reasoning effort."]),
+            {
+                "width": 1010,
+                "height": 16,
+                "data": {
+                    "values": [
+                        {"x": x, "description": label, "color": color}
+                        for x, label, color in zip(
+                            (238, 398, 533),
+                            (
+                                "Successful landing",
+                                "Failed landing",
+                                "Identical output, not a separate landing",
+                            ),
+                            p["outcomes"],
+                            strict=True,
+                        )
+                    ]
+                },
+                "encoding": {
+                    "x": {"field": "x", "type": "quantitative", "scale": None, "axis": None},
+                    "y": {"value": 8},
+                },
+                "layer": [
+                    {
+                        "mark": {"type": "rect", "width": 10, "height": 10, "cornerRadius": 1.5},
+                        "encoding": {"color": {"field": "color", "type": "nominal", "scale": None}},
+                    },
+                    {
+                        "mark": {
+                            "type": "text",
+                            "align": "left",
+                            "dx": 12,
+                            "fontSize": 13,
+                            "color": p["muted"],
+                        },
+                        "encoding": {"text": {"field": "description"}},
+                    },
+                ],
+            },
+        ]
     return {
         "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
         "description": "FlightBench selected flights, separated by execution mode and scoring version. "
         "Score bests use unrounded measurements; both Jev versions receive cost/latency emphasis. "
         "Complete measurements and provenance are linked in the README.",
         "background": p["bg"],
-        "padding": 10,
+        "padding": 24 if trial_scores else 10,
         "title": {
             "text": "Landing Performance, Cost And Latency",
             "anchor": "middle",
@@ -330,11 +538,7 @@ def figure_spec(rows: list[dict], theme: str) -> dict:
             "color": p["fg"],
             "subtitleColor": p["muted"],
         },
-        "vconcat": [
-            legend,
-            leaderboard(displayed, "lockstep", p),
-            leaderboard(displayed, "realtime", p),
-        ],
+        "vconcat": panels,
         "spacing": 30,
         "config": {
             "font": "Arial",
