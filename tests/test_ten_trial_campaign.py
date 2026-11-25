@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from examples.controllers.decision_apis import GeminiDecisionController, OpenAIDecisionController
-from examples.run_ten_trial_campaign import GROUPS, SEEDS, summarize
+from examples.run_ten_trial_campaign import GROUPS, SEEDS, summarize, verify_decision_responses
 from flightbench.loading import ExternalController
 from flightbench.protocol import action_space, canonical_observation
 
@@ -23,7 +23,49 @@ def test_exact_requested_cohort_and_success_count():
     assert summarize({"pending": []})[0]["highest_score"] is None
 
 
-def test_microsoft_11_campaign_is_isolated_and_reuses_ten_seeds(monkeypatch, tmp_path):
+@pytest.mark.parametrize(
+    ("flags", "directory", "controller", "model", "mode"),
+    [
+        (
+            ["--microsoft-decision-1-1"],
+            "2026-11-19-microsoft-decision-1.1-easy",
+            "examples.controllers.azure_decision:AzureDecision11Controller",
+            "Microsoft-Decision-1.1",
+            "lockstep",
+        ),
+        (
+            ["--sol-6-2"],
+            "2026-11-24-gpt-6.2-sol-easy",
+            "codex",
+            "openai-codex/gpt-6.2-sol",
+            "lockstep",
+        ),
+        (
+            ["--decision-realtime", "microsoft"],
+            "2026-11-26-decision-realtime-microsoft",
+            "examples.controllers.azure_decision:AzureDecisionController",
+            "Microsoft-Decision-1",
+            "realtime",
+        ),
+        (
+            ["--decision-realtime", "luna"],
+            "2026-11-26-decision-realtime-luna",
+            "examples.controllers.decision_apis:OpenAIDecisionController",
+            "gpt-6-luna",
+            "realtime",
+        ),
+        (
+            ["--decision-realtime", "gemini"],
+            "2026-11-26-decision-realtime-gemini",
+            "examples.controllers.decision_apis:GeminiDecisionController",
+            "gemini-decision-1",
+            "realtime",
+        ),
+    ],
+)
+def test_single_model_campaign_is_isolated_and_reuses_ten_seeds(
+    monkeypatch, tmp_path, flags, directory, controller, model, mode
+):
     import examples.run_ten_trial_campaign as campaign
 
     for name in ("DATA", "EVIDENCE", "GROUPS"):
@@ -33,7 +75,7 @@ def test_microsoft_11_campaign_is_isolated_and_reuses_ten_seeds(monkeypatch, tmp
             "sys.argv",
             [
                 "campaign",
-                "--microsoft-decision-1-1",
+                *flags,
                 "--trial",
                 "0",
                 "--seed",
@@ -45,15 +87,11 @@ def test_microsoft_11_campaign_is_isolated_and_reuses_ten_seeds(monkeypatch, tmp
         patch.object(campaign, "trial") as trial,
     ):
         campaign.main()
-    assert campaign.DATA.name == "2026-11-19-microsoft-decision-1.1-easy"
+    assert campaign.DATA.name == directory
     assert campaign.EVIDENCE.name == campaign.DATA.name
     assert len(campaign.GROUPS) * len(campaign.SEEDS) == 10
     group = campaign.GROUPS[0]
-    assert group[1:] == (
-        "examples.controllers.azure_decision:AzureDecision11Controller",
-        "Microsoft-Decision-1.1",
-        "lockstep",
-    )
+    assert group[1:] == (controller, model, mode)
     trial.assert_called_once_with(group, 42, tmp_path)
 
 
@@ -89,6 +127,7 @@ def test_native_transports_preserve_protocol_and_log_without_keys(tmp_path, cls)
         controller.decide(observation)
     row = json.loads(log.read_text())
     state = canonical_observation(observation)
+    verify_decision_responses([row], [state], [], cls.model)
     assert row["state"] == state
     assert "test-secret" not in log.read_text()
     payload = row["request"]
@@ -108,6 +147,9 @@ def test_native_transports_preserve_protocol_and_log_without_keys(tmp_path, cls)
     for axis, spec in action_space()["phases"][state["phase"]].items():
         assert questions[axis]["instructions"] == spec["instructions"]
         assert questions[axis]["criteria"] == {a["id"]: a["criterion"] for a in spec["actions"]}
+    payload["questions"].clear()
+    with pytest.raises(AssertionError):
+        verify_decision_responses([row], [state], [], cls.model)
 
 
 @pytest.mark.parametrize(

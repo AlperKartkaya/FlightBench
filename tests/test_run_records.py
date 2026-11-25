@@ -963,6 +963,9 @@ def test_api_equivalent_cost_prices_cache_ttl_and_counts_reasoning_once():
     assert benchmark.api_equivalent_cost("gpt-6.1-sol", usage) == pytest.approx(
         (60 * 2 + 10 * 0.1 + 20 * 2.5 + 10 * 5 + 20 * 10) / 1e6
     )
+    assert benchmark.api_equivalent_cost(
+        "openai-codex/gpt-6.2-sol", usage
+    ) == benchmark.api_equivalent_cost("gpt-6.1-sol", usage)
     del usage["input_tokens_details"]["cache_write_tokens_details"]
     assert benchmark.api_equivalent_cost("gpt-6.1-sol", usage) is None
 

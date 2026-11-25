@@ -19,13 +19,14 @@ from examples.rescore_episode import _assert_same, replay_and_rescore
 from examples.run_azure_decision_campaign import realtime_inputs, write
 from flightbench.benchmark import INCOMPLETE_STATUSES
 from flightbench.leaderboard import validate_submission
-from flightbench.protocol import canonical_observation, command_from_action_ids
+from flightbench.protocol import action_space, canonical_observation, command_from_action_ids
 from flightbench.runs import SOURCE_FILES, now, source_identity
 from flightbench.temporal import TelemetryHistory
 
 DATA = ROOT / "leaderboard/campaigns/2026-11-15-ten-trial-easy"
 EVIDENCE = ROOT / "docs/evaluations/2026-11-15-ten-trial-easy"
 SEEDS = (42, 101, 202, 303, 404, 505, 606, 707, 808, 909)
+SOL_62 = ("6.2-sol-low-lockstep", "codex", "openai-codex/gpt-6.2-sol", "lockstep")
 GROUPS = (
     [
         (f"jev-{version}-{mode}", "jev", f"jev-{version}.0", mode)
@@ -57,6 +58,12 @@ GROUPS = (
         ),
     ]
 )
+DECISION_REALTIME = {
+    name: (group.removesuffix("-lockstep") + "-realtime", controller, model, "realtime")
+    for name, (group, controller, model, _) in zip(
+        ("microsoft", "luna", "gemini"), GROUPS[-3:], strict=True
+    )
+}
 EXTRA_SOURCE = (
     Path(__file__),
     ROOT / "examples/controllers/decision_apis.py",
@@ -227,6 +234,7 @@ def trial(group, seed, folder):
             "easy",
             "--decision-hz",
             "2",
+            *(["--realtime-response-policy", "discard-stale"] if group in GROUPS else []),
             "--time-scale",
             "1.0",
             "--timeout",
@@ -281,6 +289,46 @@ def verify(folder, group, seed, identity):
     return verify_episode(record, folder, group, seed, identity)
 
 
+def verify_decision_responses(rows, states, decisions, model):
+    assert len(rows) >= len(decisions)
+    for index, (row, state) in enumerate(zip(rows, states, strict=True)):
+        request, response = row["request"], row["response"]
+        expected = {
+            axis: {
+                "type": "choice",
+                "instructions": spec["instructions"],
+                "criteria": {a["id"]: a["criterion"] for a in spec["actions"]},
+            }
+            for axis, spec in action_space()["phases"][state["phase"]].items()
+        }
+        questions = request["questions"]
+        if isinstance(questions, list):
+            assert len(questions) == len(expected)
+            questions = {
+                q["name"]: {
+                    "type": q["type"],
+                    "instructions": q["instructions"],
+                    "criteria": {c["value"]: c["description"] for c in q["choices"]},
+                }
+                for q in questions
+            }
+            assert request["input"][0]["content"][0]["data"] == state
+        elif "input" in request:
+            assert json.loads(request["input"]) == state
+        assert questions == expected
+        assert not response.get("truncated") and not response.get("truncation")
+        assert response.get("model", model).lower() == model.lower()
+        answers = response["answers"]
+        if isinstance(answers, list):
+            assert len(answers) == len(expected)
+            answers = {a["name"]: a for a in answers}
+        ids = {axis: answer["choice"] for axis, answer in answers.items()}
+        assert set(ids) == set(expected)
+        assert all(choice in expected[axis]["criteria"] for axis, choice in ids.items())
+        if index < len(decisions):
+            assert ids == decisions[index]["decision_info"]["action_ids"]
+
+
 def verify_episode(record, folder, group, seed, identity):
     """Audit raw evidence independently of the stricter leaderboard manifest format."""
     cfg = record["config"]
@@ -296,6 +344,14 @@ def verify_episode(record, folder, group, seed, identity):
         states = [json.loads(r["input"][-1]["content"]) for r in requests]
         assert all(r["reasoning"] == {"effort": "low"} for r in requests)
         assert sum(r.get("event") == "response.completed" for r in raw) == len(requests)
+        if group == SOL_62:
+            model = group[2].removeprefix("openai-codex/")
+            assert requests and all(r["model"] == model for r in requests)
+            assert all(
+                r["response"]["response"]["model"] == model
+                for r in raw
+                if r.get("event") == "response.completed"
+            )
     else:
         raw = successful_responses(raw)
         requests = [r["request"] for r in raw if "request" in r]
@@ -305,6 +361,8 @@ def verify_episode(record, folder, group, seed, identity):
     assert len(states) == record["diagnostics"]["requests_started"]
     if cfg["mode"] == "realtime":
         realtime_inputs(record, [{"state": state} for state in states])
+        if group in DECISION_REALTIME.values():
+            verify_decision_responses(raw, states, decisions, cfg["model"])
     else:
         assert len(states) == len(decisions)
         history = TelemetryHistory()
@@ -391,10 +449,15 @@ def main():
     parser.add_argument("--seed", type=int)
     parser.add_argument("--folder", type=Path)
     parser.add_argument("--resume", action="store_true")
-    parser.add_argument("--microsoft-decision-1-1", action="store_true")
+    cohort = parser.add_mutually_exclusive_group()
+    cohort.add_argument("--microsoft-decision-1-1", action="store_true")
+    cohort.add_argument("--sol-6-2", action="store_true")
+    cohort.add_argument("--decision-realtime", choices=DECISION_REALTIME)
     args = parser.parse_args()
+    cohort_flag = []
     if args.microsoft_decision_1_1:
         campaign = "2026-11-19-microsoft-decision-1.1-easy"
+        cohort_flag = ["--microsoft-decision-1-1"]
         DATA = ROOT / "leaderboard/campaigns" / campaign
         EVIDENCE = ROOT / "docs/evaluations" / campaign
         GROUPS = [
@@ -405,6 +468,18 @@ def main():
                 "lockstep",
             )
         ]
+    elif args.sol_6_2:
+        campaign = "2026-11-24-gpt-6.2-sol-easy"
+        cohort_flag = ["--sol-6-2"]
+        DATA = ROOT / "leaderboard/campaigns" / campaign
+        EVIDENCE = ROOT / "docs/evaluations" / campaign
+        GROUPS = [SOL_62]
+    elif args.decision_realtime:
+        campaign = f"2026-11-26-decision-realtime-{args.decision_realtime}"
+        cohort_flag = ["--decision-realtime", args.decision_realtime]
+        DATA = ROOT / "leaderboard/campaigns" / campaign
+        EVIDENCE = ROOT / "docs/evaluations" / campaign
+        GROUPS = [DECISION_REALTIME[args.decision_realtime]]
     if args.trial is not None:
         trial(GROUPS[args.trial], args.seed, args.folder)
         return
@@ -495,11 +570,7 @@ def main():
                                     sys.executable,
                                     "-u",
                                     str(Path(__file__)),
-                                    *(
-                                        ["--microsoft-decision-1-1"]
-                                        if args.microsoft_decision_1_1
-                                        else []
-                                    ),
+                                    *cohort_flag,
                                     "--trial",
                                     str(index),
                                     "--seed",
