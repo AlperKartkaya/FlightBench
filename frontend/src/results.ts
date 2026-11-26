@@ -17,9 +17,11 @@ export type Touchdown = {
 };
 export type Outcome = { success?: boolean; quality?: number; status?: string; reason?: string; touchdown?: Touchdown | null };
 export type RunConfig = Record<string, string | number | boolean | null | undefined | { auto_center: boolean; wing_leveler: boolean }>;
+export type JevCost = { nanos: number; pending: boolean; incomplete: boolean };
 export type RunRecord = {
   run_id: string; source: string; started_at: string; finished_at: string;
   config: RunConfig; outcome: Outcome; diagnostics: Record<string, number | string | null | Record<string, number>>;
+  jev_cost?: JevCost;
   source_identity?: { source_hash?: string; versions?: Record<string, string> };
   final_state?: unknown; decisions?: unknown[];
 };
@@ -67,4 +69,11 @@ export function policyLabel(config: RunConfig): string {
     return `Jev · ${variant}${variant === 'guided' ? ' / baseline-assisted' : ''}${config.stability_maintainer ? ' / stability filter' : ''}`;
   }
   return String(config.controller ?? 'Unknown');
+}
+
+export function jevCostLabel(cost: JevCost): string {
+  const { nanos, pending, incomplete } = cost;
+  if (!nanos && incomplete && !pending) return 'Unavailable';
+  const amount = nanos > 0 && nanos < 100_000 ? '<$0.0001' : `$${(nanos / 1e9).toFixed(4)}`;
+  return pending ? (nanos ? `${amount} so far` : 'Finalizing…') : incomplete ? `${amount} tracked · partial` : amount;
 }

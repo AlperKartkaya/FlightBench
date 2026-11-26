@@ -1923,3 +1923,17 @@ html, body { height: 100%; overflow: hidden; }
 .instrument-help > p { margin: 6px 0 10px; }
 .help-footer { display: flex; align-items: flex-start; gap: 8px; padding-top: 10px; border-top: 1px solid #30423b; color: #a9c0b4; font-size: 11px; }
 .help-unit { flex-shrink: 0; padding: 1px 5px; border-radius: 4px; background: #22352d; color: #c1dfcc; font: 10px/1.8 var(--font-mono); }
+
+/* Keep the amount in the status row; the tooltip explains what it represents. */
+.status-group:has(.jev-credit:not([hidden])) { margin-inline-start: auto; }
+.jev-credit { position: relative; }
+#jevCreditBalance { display: block; padding: 5px 3px; color: var(--accent-mint); white-space: nowrap; cursor: help; }
+#jevCreditTooltip { position: absolute; top: 100%; right: 0; z-index: 1; width: max-content; max-width: calc(100vw - 32px); padding: 8px 10px; border: 1px solid var(--border-highlight); border-radius: 6px; background: var(--bg-card); color: var(--text-muted); font: 11px/1.45 var(--font-sans); box-shadow: 0 6px 18px #0006; visibility: hidden; }
+#jevCreditTooltip strong { display: block; color: var(--text-primary); }
+#jevCreditDetail:not(:empty) { display: block; margin-top: 2px; }
+.jev-credit:hover #jevCreditTooltip, .jev-credit:focus-within #jevCreditTooltip { visibility: visible; }
+
+.flight-cost { width: 100%; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-card); }
+.flight-cost strong { font-size: 12px; }
+.flight-cost small { display: block; color: var(--text-muted); font-size: 11px; }
+#outcomeCostValue, .race-standing .race-flight-cost { color: var(--accent-mint); font: 600 11px var(--font-mono); }

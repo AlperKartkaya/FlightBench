@@ -64,7 +64,7 @@ test('auth is required even with a spoofed allowed Origin; fail closed config/ro
 test('explicit public access needs no browser token, but keeps global rates and secrets server-side', async t => {
   t.mock.method(Date, 'now', () => 60000);
   const {env, ctx} = setup(); env.PUBLIC_ACCESS = 'true';
-  await ctx.storage.put('budget', {minute: 1, count: 178, clients: {}});
+  await ctx.storage.put('budget', {minute: 1, count: 998, clients: {}});
   const calls = [];
   t.mock.method(globalThis, 'fetch', async (url, options) => {
     assert.equal(url, 'https://api.typesafe.ai/v1/systemone');
@@ -79,7 +79,8 @@ test('explicit public access needs no browser token, but keeps global rates and 
     assert.equal(response.status, 200);
     const body = await response.json();
     assert.equal(body.model, model);
-    assert.deepEqual(Object.keys(body).sort(), ['action_ids', 'command', 'model']);
+    assert.equal(body.cost_nanos, null);
+    assert.deepEqual(Object.keys(body).sort(), ['action_ids', 'command', 'cost_nanos', 'model']);
     assert(!JSON.stringify(body).includes(env.TYPESAFE_API_KEY));
     assert(!JSON.stringify(body).includes(token));
   }
@@ -114,19 +115,17 @@ test('bounded streaming JSON rejects oversized, invalid and unknown fields befor
 test('atomic minute rate survives object restart and concurrent requests', async t => {
   t.mock.method(Date, 'now', () => 60000);
   const {budget, ctx, env} = setup();
-  const granted = await Promise.all(Array.from({length: 200}, () => budget.reserve('a')));
-  assert.equal(granted.filter(Boolean).length, 120);
-  assert.equal((await ctx.storage.get('budget')).count, 120);
+  const granted = await Promise.all(Array.from({length: 1001}, () => budget.reserve('a')));
+  assert.equal(granted.filter(Boolean).length, 1000);
+  assert.equal((await ctx.storage.get('budget')).count, 1000);
   assert.equal(await new Budget(ctx, env).reserve('a'), false);
-  assert.equal(await new Budget(ctx, env).reserve('b'), true);
 });
 
-test('per-client and global fixed-minute rates apply', async t => {
+test('clients share the global fixed-minute rate', async t => {
   t.mock.method(Date, 'now', () => 60000);
   const {budget} = setup();
-  for (let i = 0; i < 120; i++) assert(await budget.reserve('a'));
-  assert.equal(await budget.reserve('a'), false);
-  for (let i = 0; i < 60; i++) assert(await budget.reserve('b'));
+  for (let i = 0; i < 500; i++) assert(await budget.reserve('a'));
+  for (let i = 0; i < 500; i++) assert(await budget.reserve('b'));
   assert.equal(await budget.reserve('c'), false);
 });
 
@@ -138,21 +137,21 @@ test('no lifetime quota, including previously exhausted storage and minute rollo
   let granted = 0;
   for (let minute = 0; minute < 3; minute++) {
     const current = minute ? new Budget(ctx, env) : budget;
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < 1000; i++) {
       assert.equal(await current.reserve('a'), true);
       granted++;
     }
     assert.equal(await current.reserve('a'), false);
     now += 60000;
   }
-  assert.equal(granted, 360);
+  assert.equal(granted, 3000);
   assert.equal((await ctx.storage.get('budget')).used, undefined);
 });
 
 test('one bounded pinned upstream request; filtered output; failed rate slots never refunded', async t => {
   t.mock.method(Date, 'now', () => 60000);
   const {env, ctx} = setup(); const original = globalThis.fetch; let calls = 0;
-  await ctx.storage.put('budget', {minute: 1, count: 178, clients: {}});
+  await ctx.storage.put('budget', {minute: 1, count: 998, clients: {}});
   try {
     globalThis.fetch = async (url, options) => {
       calls++; assert.equal(url, 'https://api.typesafe.ai/v1/systemone');
@@ -165,13 +164,13 @@ test('one bounded pinned upstream request; filtered output; failed rate slots ne
     };
     const response = await proxy.fetch(request(), env);
     assert.equal(response.status, 200);
-    const body = await response.json(); assert.deepEqual(Object.keys(body).sort(), ['action_ids','command','model']);
+    const body = await response.json(); assert.deepEqual(Object.keys(body).sort(), ['action_ids','command','cost_nanos','model']);
     assert.deepEqual(body.command, {aileron: -.15, elevator: -.05, rudder: .09, throttle: .5});
     globalThis.fetch = async () => {calls++; throw Error(env.TYPESAFE_API_KEY);};
     const failed = await proxy.fetch(request(), env);
     assert.equal(failed.status, 502); assert(!(await failed.text()).includes(env.TYPESAFE_API_KEY));
     assert.equal((await proxy.fetch(request(), env)).status, 429);
-    assert.equal(calls, 2); assert.equal((await ctx.storage.get('budget')).count, 180);
+    assert.equal(calls, 2); assert.equal((await ctx.storage.get('budget')).count, 1000);
   } finally {globalThis.fetch = original;}
 });
 
@@ -189,4 +188,50 @@ test('reject model drift, truncation, invalid action IDs and upstream redirects 
     const r = await setup().budget.fetch(internal()); assert.equal(r.status, 502);
     assert(!(await r.text()).includes('sensitive'));
   } finally {globalThis.fetch = original;}
+});
+
+test('shared UTC cycle charges both versions from provider tokens, not results or request counts', async t => {
+  let now = Date.UTC(2026, 11, 16, 23, 59, 59);
+  t.mock.method(Date, 'now', () => now);
+  const {env, ctx} = setup(); env.PUBLIC_ACCESS = 'true';
+  const creditRequest = (origin = env.ALLOWED_ORIGIN) =>
+    new Request('https://proxy.workers.dev/credits', {headers: {Origin: origin}});
+  const credits = async () => (await proxy.fetch(creditRequest(), env)).json();
+  assert.equal((await proxy.fetch(creditRequest('https://other.example'), env)).status, 403);
+  assert.equal((await proxy.fetch(creditRequest(), {...env, PUBLIC_ACCESS: 'false'})).status, 401);
+  assert.equal((await proxy.fetch(creditRequest(), env)).headers.get('Cache-Control'), 'no-store');
+
+  const replies = [1000, 2500, undefined, '7000', 125, 450, 75];
+  let release, signalArrival;
+  const arrived = new Promise(resolve => { signalArrival = resolve; });
+  t.mock.method(globalThis, 'fetch', async (_url, options) => {
+    const {model} = JSON.parse(options.body);
+    const tokens = replies.shift();
+    if (tokens === 450) return new Response(null, {status: 402});
+    if (tokens === 75) {
+      signalArrival();
+      await new Promise(resolve => { release = resolve; });
+    }
+    return Response.json({...good(), model, usage: {input_tokens: tokens, output_tokens: 6000},
+      ...(tokens === 125 ? {truncated: true} : {})});
+  });
+  const responses = await Promise.all(MODELS.map(model => proxy.fetch(request({...state, model}), env)));
+  const nanos = await Promise.all(responses.map(async r => (await r.json()).cost_nanos));
+  assert.deepEqual(nanos.sort((a, b) => a - b), [42000, 105000]);
+  for (let i = 0; i < 2; i++) assert.equal((await (await proxy.fetch(request(), env)).json()).cost_nanos, null);
+  const truncated = await proxy.fetch(request(), env);
+  assert.equal(truncated.status, 502); assert.equal((await truncated.json()).cost_nanos, 5250);
+  assert.equal((await (await proxy.fetch(request(), env)).json()).cost_nanos, 0);
+  assert.deepEqual(await credits(), {
+    monthly_nanos: 5_000_000_000, spent_nanos: 152250, unpriced_requests: 2, renews_at: '2026-12-17T00:00:00.000Z',
+  });
+  const late = proxy.fetch(request(), env);
+  await arrived;
+  now = Date.UTC(2026, 11, 17);
+  release();
+  await late;
+  assert.equal((await ctx.storage.get('jev-spend:2026-11-17')).spent_nanos, 155400);
+  assert.deepEqual(await credits(), {
+    monthly_nanos: 5_000_000_000, spent_nanos: 0, unpriced_requests: 0, renews_at: '2027-01-17T00:00:00.000Z',
+  });
 });
