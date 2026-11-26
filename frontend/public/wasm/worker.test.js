@@ -15,7 +15,7 @@ function fixture(replies = []) {
   class Landing {
     ticks = 0; done = false; observation = {time_s: 0};
     result() { return {reason: 'running', quality: 0}; }
-    advance(command, ticks) { assert.deepEqual({...command}, trim); this.ticks += ticks; }
+    advance(command, ticks) { assert.deepEqual({...command}, trim); this.ticks += ticks; this.observation = {time_s: this.ticks / 120}; }
     decisionState() { return {time_s: this.ticks / 120, phase: 'APPROACH'}; }
     remember() {} destroy() {}
   }
@@ -27,7 +27,7 @@ function fixture(replies = []) {
       if (url === './flightbench.json') return {ok: true, json: async () => contract};
       requests.push({url, options});
       calls++;
-      return replies.shift() ?? {ok: false, status: 429};
+      return replies.shift() ?? {ok: false, status: 429, json: async () => ({cost_nanos: 0})};
     },
   });
   vm.runInContext(source, context);
@@ -142,4 +142,22 @@ test('lockstep does not advance physics while waiting for a model', async () => 
   assert.equal(f.calls(), 1);
   assert.equal(f.messages.filter(m => m.type === 'state').length, 1);
   await f.send({type: 'stop'});
+});
+
+test('a late Jev bill settles its stopped flight but never affects the next flight', async () => {
+  let resolve;
+  const f = fixture([new Promise(r => {resolve = r;})]);
+  await f.send({type: 'init'});
+  await f.send({type: 'start', mode: 'jev', run_id: 'paid'});
+  await f.send({type: 'stop'});
+  assert.equal(f.messages.at(-1).jev_cost.pending, true);
+  await f.send({type: 'start', mode: 'human', run_id: 'unpaid'});
+  resolve({ok: true, json: async () => ({cost_nanos: 84000})});
+  await settle();
+  const cost = f.messages.at(-1);
+  assert.equal(cost.type, 'run_cost_updated');
+  assert.equal(cost.run_id, 'paid');
+  assert.equal(cost.jev_cost.nanos, 84000);
+  assert.equal(cost.jev_cost.pending, false);
+  assert.equal(f.messages.filter(m => m.type === 'state' && m.run_id === 'unpaid').at(-1).jev_cost, undefined);
 });

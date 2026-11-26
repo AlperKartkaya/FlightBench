@@ -1,5 +1,5 @@
 import { Euler, Quaternion, MathUtils } from 'three';
-import type { RunConfig } from './results.ts';
+import type { JevCost, RunConfig, RunRecord } from './results.ts';
 
 type Message = { type: string; [key: string]: any };
 
@@ -28,6 +28,7 @@ export class BrowserRuntime {
   private runId: string | null = null;
   private accepted = false;
   private last: Message | null = null;
+  private settlingCost: RunRecord | null = null;
   private config: RunConfig = {};
   private startedAt = '';
   private receive: (message: Message) => void;
@@ -47,18 +48,23 @@ export class BrowserRuntime {
     this.worker.postMessage({ type: 'init' });
   }
 
-  private finish(reason?: string) {
+  private finish(reason?: string, cost?: JevCost) {
     if (!this.runId || !this.accepted || !this.last) return;
     const runId = this.runId;
     this.runId = null;
     this.accepted = false;
     const outcome = { ...this.last.result, status: reason ?? this.last.result.reason };
     if (reason) Object.assign(outcome, { reason, success: false, quality: 0 });
-    this.receive({ type: 'run_finished', run_id: runId, record: {
+    const record: RunRecord = {
       run_id: runId, source: 'browser-wasm', started_at: this.startedAt,
       finished_at: new Date().toISOString(), config: this.config, outcome,
       diagnostics: { persistence: 'none', physics_hz: 120 },
-    } });
+    };
+    if (this.config.controller === 'jev') {
+      record.jev_cost = cost ?? {nanos: this.last.jev_cost?.nanos ?? 0, pending: false, incomplete: true};
+      if (cost?.pending) this.settlingCost = record;
+    }
+    this.receive({ type: 'run_finished', run_id: runId, record });
   }
 
   private handle(data: Message) {
@@ -73,13 +79,19 @@ export class BrowserRuntime {
       this.receive({ type: 'offline', message: data.message });
       return;
     }
+    if (data.type === 'run_cost_updated' && this.settlingCost && this.settlingCost.run_id === data.run_id) {
+      this.settlingCost.jev_cost = data.jev_cost;
+      this.settlingCost = null;
+      this.receive(data);
+      return;
+    }
     // Ignore queued telemetry/stop acknowledgements belonging to a reset or old run.
     if (!this.runId || data.run_id !== this.runId) return;
     if (data.type === 'error') {
-      if (this.accepted) this.finish('controller_error');
+      if (this.accepted) this.finish('controller_error', data.jev_cost);
       else {this.runId = null; this.clearOpponents();}
       this.receive({ type: 'error', message: data.message });
-    } else if (data.type === 'stopped') this.finish('stopped');
+    } else if (data.type === 'stopped') this.finish('stopped', data.jev_cost);
     else if (data.type === 'state') {
       if (!this.accepted) {
         this.accepted = true;
@@ -87,7 +99,7 @@ export class BrowserRuntime {
       }
       this.last = data;
       this.receive(browserSnapshot(data, this.runId));
-      if (data.done) this.finish();
+      if (data.done) this.finish(undefined, data.jev_cost);
     }
   }
 

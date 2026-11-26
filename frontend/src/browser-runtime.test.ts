@@ -200,3 +200,20 @@ test('primary startup failure stops every opponent before returning control', t 
   opponent.emit(state(opponent.sent.find(m => m.type === 'start').run_id));
   assert.equal(received.length, count);
 });
+
+test('parallel Jev flights report their own spend; late usage patches only its original result', t => {
+  const {runtime: r, worker: primary, received} = runtime(t);
+  r.send({type: 'start_race', controller: 'jev', model: 'jev-1.14.0', opponents: ['jev-1.13.0']});
+  const opponent = FakeWorker.instance;
+  opponent.emit({type: 'ready'});
+  const id = primary.sent.at(-1).run_id, other = opponent.sent.at(-1).run_id;
+  primary.emit({...state(id, true), jev_cost: {nanos: 100000, pending: true, incomplete: false}});
+  const primaryResult = received.at(-1).record;
+  opponent.emit({...state(other, true), jev_cost: {nanos: 70000, pending: false, incomplete: false}});
+  const opponentResult = received.at(-1).message.record;
+  primary.emit({type: 'run_cost_updated', run_id: id, jev_cost: {nanos: 200000, pending: false, incomplete: false}});
+  assert.equal(received.at(-1).run_id, id);
+  assert.equal(primaryResult.jev_cost.nanos, 200000);
+  assert.equal(opponentResult.jev_cost.nanos, 70000);
+  assert.equal(primaryResult.jev_cost.pending, false);
+});

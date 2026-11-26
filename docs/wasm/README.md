@@ -110,12 +110,20 @@ score 0 match the existing environment. No score is submitted to the leaderboard
 
 ## Cloudflare connection
 
-The Worker exposes only `POST /decide` (and CORS preflight). It constructs the four
+Besides CORS preflight, the Worker exposes `POST /decide` and `GET /credits`. It constructs the four
 frozen `Choice` questions server-side, allows only `jev-1.13.0` or `jev-1.14.0`, calls only
 `https://api.typesafe.ai/v1/systemone`, rejects redirects, and never retries. HTTP API
-`answers` are validated and mapped to canonical IDs and absolute commands. Only model,
-action IDs and controls leave the proxy; upstream errors and headers do not.
+`answers` are validated and mapped to canonical IDs and absolute commands. The proxy returns
+only model, action IDs, controls, and estimated cost; upstream bodies and headers are not relayed.
 [TypeSafe API reference](https://docs.typesafe.ai/api/system-one).
+
+`GET /credits` exposes a shared FlightBench-only estimate, not a TypeSafe balance or a spend cap.
+Each Jev request is priced from billable input tokens
+([TypeSafe pricing](https://help.typesafe.ai/articles/5187202169-how-much-does-jev-cost)).
+The estimate starts at the maintainer's $5 monthly allowance and renews on the 17th at 00:00 UTC.
+It excludes usage before tracking and outside this proxy; requests with unconfirmed usage make it
+a partial estimate. The Pages results show Jev spend separately per flight, including parallel
+Jev versions in a race.
 
 The Worker name is `flightbench-jev`; its allowed origin is
 `https://alperkartkaya.github.io`. The deployed endpoint is
@@ -189,7 +197,7 @@ build variables, URLs or browser storage. Do not log headers or use credential d
   refund that minute's slot; there are no automatic retries. Storage failure fails
   closed. The deployed class/binding and object name `lifetime-v1` are retained for
   compatibility, but there is **no lifetime or total request quota**, by owner choice.
-- Fixed-minute abuse limits remain: **120/client IP**, **180/global**. Trusted Cloudflare
+- Fixed-minute abuse limits remain: **1,000/client IP**, **1,000/global**. Trusted Cloudflare
   IP is hashed with the access token before storage. Raw IPs and credentials are not stored
   by application code. Public callers can spend the provider balance; IP rotation cannot
   bypass the global minute rate. NAT users share a rate. Private-mode authentication failures never reach storage

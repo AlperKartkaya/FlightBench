@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Control } from "./controls.ts";
 import { copyControls, updateHumanControls, defaultControls, adjustControl, centerSurfaces, humanKey } from "./controls.ts";
-import { nextRunState, outcomeLabel, touchdownValues } from "./results.ts";
+import { jevCostLabel, nextRunState, outcomeLabel, touchdownValues } from "./results.ts";
 import type { RunState, RunEvent, RunRecord, RunConfig, Outcome } from "./results.ts";
 import { isRunwayLightOn } from "./runway-lights.ts";
 import { BrowserRuntime } from "./browser-runtime.ts";
@@ -160,7 +160,19 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = `
   <header class="topbar">
     <div class="brand-section"><strong class="brand-title"><img class="brand-logo-icon" src="${import.meta.env.BASE_URL}flightbench-icon.png" width="22" height="22" alt=""/>FlightBench</strong><a class="profile-link profile-github" href="https://github.com/alperkartkaya" target="_blank" rel="noopener noreferrer" aria-label="AlperKartkaya on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.02c-3.22.7-3.9-1.37-3.9-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.57-.29-5.27-1.29-5.27-5.73 0-1.27.45-2.3 1.19-3.12-.12-.29-.52-1.48.11-3.08 0 0 .97-.31 3.16 1.19a11 11 0 0 1 5.75 0c2.19-1.5 3.15-1.19 3.15-1.19.63 1.6.24 2.79.12 3.08.74.82 1.18 1.85 1.18 3.12 0 4.45-2.7 5.43-5.28 5.72.41.36.78 1.07.78 2.16v3.19c0 .31.21.67.79.56A11.5 11.5 0 0 0 12 .5Z"/></svg><span>AlperKartkaya</span></a><a class="profile-link profile-linkedin" href="https://www.linkedin.com/in/alper-kartkaya-boun-cmpe" target="_blank" rel="noopener noreferrer" aria-label="Alper Kartkaya on LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.45 2H3.55C2.7 2 2 2.67 2 3.5v17C2 21.33 2.7 22 3.55 22h16.9c.85 0 1.55-.67 1.55-1.5v-17c0-.83-.7-1.5-1.55-1.5ZM8 18.75H4.9V9H8v9.75ZM6.45 7.66a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6Zm12.3 11.09h-3.1V14c0-1.13-.02-2.58-1.57-2.58-1.57 0-1.81 1.23-1.81 2.5v4.83h-3.1V9h2.98v1.33h.04c.42-.78 1.43-1.6 2.94-1.6 3.15 0 3.62 2.07 3.62 4.76v5.26Z"/></svg><span>Alper Kartkaya</span></a></div>
-    <div class="status-group"><span class="sr-only" id="runStatus" role="status">Connecting…</span><span class="flight-state-pill" id="flightStatePill" data-state="IDLE">IDLE</span><i class="status-dot" id="connectionDot" aria-hidden="true"></i><span id="connectionText" role="status">OFFLINE</span></div>
+    <div class="status-group">
+      <span class="sr-only" id="runStatus" role="status">Connecting…</span>
+      <span class="jev-credit" id="jevCredit" hidden>
+        <span id="jevCreditBalance" tabindex="0" aria-describedby="jevCreditTooltip">—</span>
+        <span id="jevCreditTooltip" role="tooltip">
+          <strong>Maintainer’s Jev credit balance</strong>
+          <span id="jevCreditDetail">Checking balance…</span>
+        </span>
+      </span>
+      <span class="flight-state-pill" id="flightStatePill" data-state="IDLE">IDLE</span>
+      <i class="status-dot" id="connectionDot" aria-hidden="true"></i>
+      <span id="connectionText" class="${pagesRuntime ? "sr-only" : ""}" role="status">OFFLINE</span>
+    </div>
   </header>
   <main class="workspace">
     <!-- Simulation Center Column (~74%) -->
@@ -688,6 +700,10 @@ app.innerHTML = `
           <span class="outcome-stat-label">TOUCHDOWN ROLL</span>
           <span class="outcome-stat-val" id="outcomeRollVal">—</span>
         </div>
+      </div>
+      <div class="flight-cost" id="outcomeCost" hidden>
+        <div><strong>Jev API cost</strong><small>API usage for this flight</small></div>
+        <span id="outcomeCostValue"></span>
       </div>
       <div style="display: flex; gap: 10px; width: 100%; justify-content: center; margin-top: 6px;">
         <button class="btn-secondary" data-close="outcomeModal">Close result</button>
@@ -1853,9 +1869,49 @@ function updateHudAndTelemetry(message: StateMessage) {
   updateDecisionCards(message.decision_info, message.decision_count, message.latency_ms);
 }
 
+let creditRefreshPending = false;
+const creditDollars = new Intl.NumberFormat("en-US", {
+  style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2,
+});
+async function refreshJevCredit() {
+  if (!pagesRuntime || document.hidden || creditRefreshPending) return;
+  creditRefreshPending = true;
+  const balance = byId("jevCreditBalance"), detail = byId("jevCreditDetail");
+  try {
+    const response = await fetch("https://flightbench-jev.alperkartkaya.workers.dev/credits", {
+      cache: "no-store", signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) throw Error("Credits unavailable");
+    const {monthly_nanos, spent_nanos, unpriced_requests} = await response.json();
+    if (![monthly_nanos, spent_nanos, unpriced_requests].every(n => Number.isSafeInteger(n) && n >= 0) ||
+        !monthly_nanos) throw Error("Invalid credits");
+    const remaining = Math.max(0, monthly_nanos - spent_nanos);
+    balance.textContent = creditDollars.format(remaining / 1e9);
+    detail.textContent = unpriced_requests ? "Some requests could not be priced." : "";
+  } catch {
+    balance.textContent = "—";
+    detail.textContent = "Balance unavailable.";
+  } finally { creditRefreshPending = false; }
+}
+
+function showFlightCost(element: HTMLElement, record: RunRecord) {
+  if (!record.jev_cost) return;
+  element.dataset.costRunId = record.run_id;
+  element.textContent = jevCostLabel(record.jev_cost);
+}
+
+function updateFlightCost(runId: string, cost: NonNullable<RunRecord["jev_cost"]>) {
+  for (const element of document.querySelectorAll<HTMLElement>("[data-cost-run-id]")) {
+    if (element.dataset.costRunId === runId) element.textContent = jevCostLabel(cost);
+  }
+  void refreshJevCredit();
+}
+
 function showOutcomeModal(record: RunRecord, owner = "Your flight") {
   byId("raceStandings").hidden = true;
   byId("outcomeStats").hidden = false;
+  byId("outcomeCost").hidden = !record.jev_cost;
+  showFlightCost(byId("outcomeCostValue"), record);
   const result = record.outcome;
   const success = Boolean(result.success);
   byId("outcomeCard").className = `modal-card outcome-modal-card ${success ? "landed" : ""}`;
@@ -1892,6 +1948,7 @@ function showRaceResults() {
   byId("outcomeIcon").textContent = "≡";
   byId("outcomeDesc").textContent = "Highest score first · Ties share a rank. Replay scores belong to their recorded flights; seeds may differ.";
   byId("outcomeStats").hidden = true;
+  byId("outcomeCost").hidden = true;
   const standings = byId("raceStandings");
   standings.replaceChildren(); standings.hidden = false;
   let rank = 1;
@@ -1906,6 +1963,14 @@ function showRaceResults() {
     detail.textContent = [entry.record?.config?.model, entry.record?.config?.seed != null ? `Seed ${entry.record.config.seed}` : null,
       outcomeLabel(entry.outcome.status, entry.outcome.success)].filter(Boolean).join(" · ");
     identity.append(name, detail);
+    if (entry.record?.jev_cost && (entry.record === primaryResult ||
+        [...liveOpponents.values()].some(({run}) => ghostRecords.get(run) === entry.record))) {
+      const cost = document.createElement("small"); cost.className = "race-flight-cost";
+      const amount = document.createElement("span");
+      showFlightCost(amount, entry.record);
+      cost.replaceChildren("Jev API cost · ", amount);
+      identity.append(cost);
+    }
     const points = document.createElement("strong"); points.textContent = `${score.toFixed(1)} pts`;
     row.append(place, identity, points); standings.append(row);
   });
@@ -1926,8 +1991,8 @@ let browserRuntime: BrowserRuntime;
 let reconnectTimer = 0;
 function connect() {
   if (pagesRuntime) {
-    byId("connectionText").textContent = "LOADING WASM";
-    browserRuntime = new BrowserRuntime(new URL(`${import.meta.env.BASE_URL}wasm/worker.js?v=interactive-races-3`, location.origin), receiveMessage);
+    byId("connectionText").textContent = "LOADING";
+    browserRuntime = new BrowserRuntime(new URL(`${import.meta.env.BASE_URL}wasm/worker.js?v=jev-credit-1`, location.origin), receiveMessage);
     return;
   }
   const protocol = location.protocol === "https:" ? "wss" : "ws";
@@ -1966,8 +2031,13 @@ function connect() {
 }
 
 function receiveMessage(message: any) {
+  const event = message.type === "ghost" ? message.message : message;
+  if (event.type === "run_cost_updated") {
+    updateFlightCost(event.run_id, event.jev_cost);
+    return;
+  }
+  if (event.type === "run_finished" && event.record.jev_cost) void refreshJevCredit();
   if (message.type === "ghost") {
-    const event = message.message;
     const id = message.opponent_id ?? "live";
     let entry = liveOpponents.get(id);
     if (event.type === "run_started") {
@@ -2006,7 +2076,7 @@ function receiveMessage(message: any) {
   }
   if (message.type === "ready") {
     byId("connectionDot").classList.add("online");
-    byId("connectionText").textContent = "WASM · LOCAL PHYSICS";
+    byId("connectionText").textContent = "ONLINE";
     hideError(); transitionRun("connect"); return;
   }
   if (message.type === "offline") {
@@ -2280,6 +2350,14 @@ for (const select of [byId("timingMode"), modelSelect, jevModelSelect, reasoning
 if (pagesRuntime) {
   controllerSelect.querySelector('option[value="codex"]')?.remove();
   byId("stop").setAttribute("aria-label", "Stop flight");
+  byId("jevCredit").hidden = false;
+  void refreshJevCredit();
+  window.setInterval(refreshJevCredit, 15000);
+  window.setInterval(() => {
+    if ((activeRunId && recordingController === "jev") ||
+        [...liveOpponents.values()].some(({run, runId}) => runId && run.controller === "jev")) void refreshJevCredit();
+  }, 5000);
+  document.addEventListener("visibilitychange", refreshJevCredit);
   document.querySelector(".model-credit")?.insertAdjacentHTML("beforeend", `<br><a href="/FlightBench/recordings/">Flight recordings</a>`);
 }
 updateControllerUi();
