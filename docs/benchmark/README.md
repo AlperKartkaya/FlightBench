@@ -8,19 +8,21 @@ landing means both scores are unavailable.
 
 The ten seed labels (42, 101, …, 909) identify ten repeats of the same calm-air Easy
 scenario; they are not ten different weather conditions. Lockstep waits for each
-response at fixed 2 Hz. Hosted realtime runs use fixed 2 Hz, 1× speed and discard stale
-responses. Local realtime runs use 1× continuous dispatch and apply responses on arrival
-rather than fixed 2 Hz request timing. A gray block adds neither a success nor a failure:
+response at fixed 2 Hz. Jev and local realtime runs use 1× continuous dispatch
+and apply responses on arrival. Decision API realtime runs use fixed 2 Hz, 1× speed
+and discard stale responses. A gray block adds neither a success nor a failure:
 for local lockstep only the reference flight (seed 42) is counted; for Microsoft Decision 1.1
 lockstep the green block stands for all ten identical results. Codex ten-flight rows use
-low reasoning. No score-based retries are part of the data. Realtime cohorts without
-a successful landing are retained in the CSV but omitted from the chart.
+low reasoning. No score-based retries are part of the data. Realtime cohorts in the
+CSV are shown only if at least one flight landed.
 
-Within each group, models with at least one successful landing come first.
-Within each outcome tier, models are sorted by provider release date, newest first.
-We use the dated general-availability launch where documented; otherwise we use
-the provider's public release announcement. Decision APIs are dated by the endpoint
-release, not the underlying model's release.
+Within each group and mode, models rank by best score, highest first. Models without
+a score follow, fastest mean latency first. The highest best and average scores are
+highlighted separately.
+
+For the dates below, we use the general-availability launch where documented; otherwise we use
+the provider's public release announcement or the first published model weights if
+there is no dated announcement. Decision APIs are dated by endpoint release.
 
 | Group | Release dates (2026) |
 | --- | --- |
@@ -40,14 +42,20 @@ release, not the underlying model's release.
 | `2026-11-26-decision-realtime-microsoft` | Microsoft Decision 1: 0/10 realtime (9 nose-first contacts, 1 runway excursion) | 0 |
 | `2026-11-26-decision-realtime-luna` | Luna: 0/10 realtime (6 nose-first contacts, 2 runway excursions, 2 out of bounds) | 0 |
 | `2026-11-26-decision-realtime-gemini` | Gemini Decision 1: 0/10 realtime (10 out of bounds) | 0 |
+| `2026-11-27-jev-realtime` | 20 audited realtime flights: Jev 1.13 7/10; Jev 1.14 8/10 | 0 |
 
-The A100 campaign (`2026-11-25-a100-lockstep`) completed all 33 scored flights.
+The first A100 campaign (`2026-11-25-a100-lockstep`) completed all 33 scored flights.
 Decider's first audited lockstep flight is retained; extra lockstep repeats and
-the interrupted tenth lockstep attempt are not counted.
+the interrupted tenth lockstep attempt are not counted. The follow-up
+(`2026-11-27-a100-lockstep`) adds one replay-verified lockstep flight per model.
+Its exploratory realtime flights are kept out of the chart and CSV.
 
 | Colab model and release date | Lockstep landings | Realtime landings |
 | --- | ---: | ---: |
+| Strands Decider v2 31B ([Nov 23](https://strandsagents.com/blog/introducing-strands-decider-v2/)) | 1/1 (74.50) | 0/10 (exploratory) |
 | Groundhog 1 ([Nov 20](https://www.baseten.co/resources/changelog/bison-1-and-groundhog-1-available-on-baseten/)) | 1/1 (64.61) | 0/10 |
+| Kudhab ([Nov 17](https://huggingface.co/plantwaterer/kudhab/commits/main)) | 1/1 (67.14) | 0/10 |
+| Karpo Decision 31B ([Nov 13](https://karpo.ai/blog/karpo-decision-31b)) | 0/1 | Not run |
 | KnowLine‑31B Gen2 ([Nov 13](https://huggingface.co/PelaAI/KnowLine-31B-Gen2#releases)) | 0/1 | 0/10 |
 | Decider v1.3 27B ([Nov 12](https://www.perplexity.ai/hub/blog/perplexity-decider)) | 0/1 | 0/10 |
 

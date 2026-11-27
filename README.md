@@ -79,7 +79,8 @@ For Jev and Codex authentication, [see the setup guide](docs/controller-setup/RE
 
 ![FlightBench: landing outcomes, best and average successful scores, API cost and latency (light theme)](docs/benchmark/ten-trial-light.svg#gh-light-mode-only)
 
-Successful models lead each group; both tiers are ordered by release date, newest first.
+Each group is ordered by best score, highest first. Models without a score follow, fastest mean latency first.
+The highest best and average scores in each group are highlighted.
 Realtime shows only models with at least one successful landing.
 
 > While **Realtime** means simulation time equals wall clock time, **Lockstep** means the simulation is paused for each step to let the model respond. Hence, simulation and wall time can differ in lockstep.

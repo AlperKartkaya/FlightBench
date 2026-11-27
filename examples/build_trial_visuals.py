@@ -10,7 +10,8 @@ import gzip
 import hashlib
 import json
 from collections import defaultdict
-from math import isfinite
+from itertools import groupby
+from math import inf, isfinite
 from statistics import mean
 from uuid import UUID
 
@@ -65,27 +66,11 @@ MODELS = {
     "pplx-decider-v1.3": ("Local", "Decider v1.3 27B", ""),
     "knowline-31b-gen2": ("Local", "KnowLine-31B Gen2", ""),
     "groundhog-1": ("Local", "Groundhog 1", ""),
+    "strands-decider-31B-gemma4-v2-2611": ("Local", "Strands Decider v2 31B", ""),
+    "kudhab": ("Local", "Kudhab", ""),
+    "karpo-decision-31B": ("Local", "Karpo Decision 31B", ""),
 }
 TRIAL_GROUPS = ("Jev", "Codex", "Local", "Decision API")
-# Provider release dates (YYYYMMDD); see docs/benchmark/README.md.
-RELEASE_DATES = {
-    "Jev 1.14": 2026_10_14,
-    "Jev 1.13": 2026_09_15,
-    "GPT-6.2 Sol": 2026_11_17,
-    "GPT-6.1 Terra": 2026_10_26,
-    "GPT-6.1 Sol": 2026_09_29,
-    "GPT-6 Luna": 2026_09_22,
-    "GPT-6 Astra": 2026_09_03,
-    "Bison 1": 2026_11_20,
-    "Groundhog 1": 2026_11_20,
-    "KnowLine-31B Gen2": 2026_11_13,
-    "Decider v1.3 27B": 2026_11_12,
-    "GLiDE v1.2": 2026_10_22,
-    "Microsoft Decision 1.1": 2026_11_17,
-    "Gemini Decision 1": 2026_11_11,
-    "Luna Decision API": 2026_10_22,
-    "Microsoft Decision 1": 2026_10_09,
-}
 GLIDE = "2026-11-20-glide-v1.2-easy-20-continuous"
 BISON = "2026-11-21-bison-31b-easy-20"
 SOL = "2026-11-24-gpt-6.2-sol-easy"
@@ -97,8 +82,11 @@ DECISION_REALTIME_MODELS = {
     "2026-11-26-decision-realtime-gemini": "gemini-decision-1",
 }
 A100 = "2026-11-25-a100-lockstep"
+A100_FOLLOWUP = "2026-11-27-a100-lockstep"
+JEV_REALTIME = "2026-11-27-jev-realtime"
 CAMPAIGNS = (
     "2026-11-15-ten-trial-easy",
+    JEV_REALTIME,
     MS_11,
     MS_11_REALTIME,
     *DECISION_REALTIME_MODELS,
@@ -250,8 +238,11 @@ def refresh_local():
         status = read_json(path)
         if status["state"] != "complete":
             raise ValueError(f"Incomplete campaign: {campaign}")
+        jev_realtime = campaign == JEV_REALTIME
         realtime_model = DECISION_REALTIME_MODELS.get(campaign)
-        if realtime_model:
+        if jev_realtime:
+            source_hash = status["source"]["source_hash"]
+        elif realtime_model:
             source_hash = read_json(evidence / "source.json")["identity"]["source_hash"]
         elif campaign == MS_11_REALTIME:
             realtime_model = "Microsoft-Decision-1.1"
@@ -274,6 +265,13 @@ def refresh_local():
             else {}
         )
         for group, runs in status["groups"].items():
+            if (
+                campaign == "2026-11-15-ten-trial-easy"
+                and JEV_REALTIME in CAMPAIGNS
+                and group.startswith("jev-")
+                and group.endswith("-realtime")
+            ):
+                continue
             for row in runs:
                 folder = ROOT / row["folder"]
                 run_id = row["run_id"]
@@ -285,6 +283,8 @@ def refresh_local():
                     expected = "sha256:" + glide_hashes[str(episode_path.relative_to(ROOT))]
                 elif campaign == BISON:
                     expected = digest if sha(raw) == bison_hashes[run_id] else None
+                elif jev_realtime:
+                    expected = "sha256:" + row["episode_sha256"]
                 else:
                     (artifact,) = read_json(folder / "submission.json")["artifacts"]
                     expected = artifact["sha256"] if artifact["path"] == episode_path.name else None
@@ -293,7 +293,9 @@ def refresh_local():
                 config, outcome = run["config"], run["outcome"]
                 rescored = replay["rescored_result"]
                 local = campaign in (GLIDE, BISON)
-                schedule = "continuous" if local and group == "realtime" else "fixed"
+                schedule = (
+                    "continuous" if jev_realtime or (local and group == "realtime") else "fixed"
+                )
                 if not (
                     expected == digest
                     and replay["source_run_id"] == run["run_id"] == run_id
@@ -312,8 +314,18 @@ def refresh_local():
                     and config["decision_schedule"] == schedule
                     and (not local or group == config["mode"])
                     and config["realtime_response_policy"]
-                    == ("apply-on-arrival" if local else "discard-stale")
+                    == ("apply-on-arrival" if local or jev_realtime else "discard-stale")
                     and config["reasoning_effort"] == "low"
+                    and (
+                        not jev_realtime
+                        or (
+                            config["mode"] == "realtime"
+                            and config["controller"] == "jev"
+                            and config["model"] == group
+                            and row["input_question_answer_audit"]
+                            and run["source_identity"]["source_hash"] == source_hash
+                        )
+                    )
                     and (
                         not realtime_model
                         or (
@@ -362,7 +374,8 @@ def refresh_local():
                         "episode_sha256": digest,
                     }
                 )
-    trials.extend(a100_trials())
+    for campaign in (A100, A100_FOLLOWUP):
+        trials.extend(a100_trials(campaign))
     summarize(trials)
     with SOURCE.open("w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS, lineterminator="\n")
@@ -370,19 +383,21 @@ def refresh_local():
         writer.writerows(trials)
 
 
-def a100_trials():
-    evidence = ROOT / "docs/evaluations" / A100
+def a100_trials(campaign=A100):
+    evidence = ROOT / "docs/evaluations" / campaign
+    lockstep_only = campaign == A100_FOLLOWUP
+    protocol = "one-lockstep" if lockstep_only else "one-lockstep-ten-realtime"
     for path in sorted(evidence.glob("*-status.json")):
         status = read_json(path)
-        if status.get("protocol") != "one-lockstep-ten-realtime":
+        if status.get("protocol") != protocol:
             continue
         ((model, runs),) = status["groups"].items()
         realtime_complete = {r["seed"] for r in runs if r["mode"] == "realtime"} == set(SEEDS)
         for row in runs:
             mode = row["mode"]
-            if mode == "realtime" and not realtime_complete:
+            if mode == "realtime" and (lockstep_only or not realtime_complete):
                 continue
-            folder = ROOT / "leaderboard/campaigns" / A100 / model
+            folder = ROOT / "leaderboard/campaigns" / campaign / model
             if mode == "realtime":
                 folder /= mode
             folder /= str(row["seed"])
@@ -418,7 +433,7 @@ def a100_trials():
             ):
                 raise ValueError(f"A100 trial did not match its verified evidence: {folder}")
             yield {
-                "campaign": A100,
+                "campaign": campaign,
                 "group": model,
                 "mode": mode,
                 "model": model,
@@ -461,29 +476,43 @@ def merge_rows(historical, results):
             else None,
         }
         rows.append(with_scores(row, stats))
-    for mode in MODES:
-        eligible = [
-            r for r in rows if r["mode"] == mode and r["segments"] and r["score"] is not None
-        ]
-        best = max((r["score"] for r in eligible), default=None)
-        average = max((r["trial_average_score"] for r in eligible), default=None)
-        for row in eligible:
-            row["trial_highest"] = row["score"] == best
-            row["trial_average_highest"] = row["trial_average_score"] == average
-    return sorted(
+
+    def group_key(row):
+        return (
+            MODES.index(row["mode"]),
+            TRIAL_GROUPS.index("Codex" if row["effort"] else row["family"]),
+        )
+
+    def sort_key(row):
+        score, latency = row["score"], row["mean_latency_s"]
+        return (
+            *group_key(row),
+            score is None,
+            -score if score is not None else (inf if latency is None else latency),
+            row["model"],
+        )
+
+    ordered = sorted(
         (
             row
             for row in rows
             if row["mode"] != "realtime" or (row["segments"] and row["score"] is not None)
         ),
-        key=lambda row: (
-            MODES.index(row["mode"]),
-            TRIAL_GROUPS.index("Codex" if row["effort"] else row["family"]),
-            row["score"] is None,
-            -RELEASE_DATES[row["model"]],
-            row["model"],
-        ),
+        key=sort_key,
     )
+    for _, group_rows in groupby(ordered, key=group_key):
+        group = list(group_rows)
+        best = group[0]["score"]
+        average = max(
+            (r["trial_average_score"] for r in group if r["trial_average_score"] is not None),
+            default=None,
+        )
+        for row in group:
+            row["trial_highest"] = best is not None and row["score"] == best
+            row["trial_average_highest"] = (
+                average is not None and row["trial_average_score"] == average
+            )
+    return ordered
 
 
 def with_scores(row, stats):
@@ -491,11 +520,10 @@ def with_scores(row, stats):
         return dict(
             row,
             segments=[],
-            trial_best=f"{row['score']:.2f}",
+            trial_best=f"{row['score']:.2f}" if row["score"] is not None else "—",
             trial_average="—",
+            trial_average_score=None,
             score_source="Historical",
-            trial_highest=False,
-            trial_average_highest=False,
         )
     count = stats["successful"]
     if row["mode"] == "lockstep" and row["model"] == "Microsoft Decision 1.1":
@@ -516,8 +544,6 @@ def with_scores(row, stats):
         trial_average=f"{stats['average']:.2f}" if count else "—",
         trial_average_score=stats["average"],
         score_source="",
-        trial_highest=False,
-        trial_average_highest=False,
     )
 
 

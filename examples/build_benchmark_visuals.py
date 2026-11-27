@@ -481,7 +481,12 @@ def figure_spec(rows: list[dict], theme: str, trial_scores=False) -> dict:
             )
         panels += [
             leaderboard(displayed, "lockstep", p, trial_scores=True),
-            note(["All Codex runs shown used low reasoning effort."]),
+            note(
+                [
+                    "Within each group: highest best score first; unscored models by fastest mean latency.",
+                    "All Codex runs shown used low reasoning effort.",
+                ]
+            ),
             {
                 "width": 1010,
                 "height": 16,
@@ -534,12 +539,12 @@ def figure_spec(rows: list[dict], theme: str, trial_scores=False) -> dict:
             "anchor": "middle",
             "fontSize": 25,
             "subtitleFontSize": 15,
-            "offset": 26,
+            "offset": 32 if trial_scores else 26,
             "color": p["fg"],
             "subtitleColor": p["muted"],
         },
         "vconcat": panels,
-        "spacing": 30,
+        "spacing": 36 if trial_scores else 30,
         "config": {
             "font": "Arial",
             "view": {"stroke": None},

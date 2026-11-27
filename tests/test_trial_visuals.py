@@ -9,6 +9,7 @@ from examples import build_trial_visuals
 from examples.build_benchmark_visuals import display_rows, figure_spec, load_rows
 from examples.build_trial_visuals import (
     A100,
+    A100_FOLLOWUP,
     DECISION_REALTIME_MODELS,
     HISTORICAL_OUTPUT,
     MS_11_REALTIME,
@@ -32,7 +33,9 @@ def trials():
 
 def test_cohorts_keep_modes_separate_and_average_only_successful_flights(trials):
     results = summarize(trials)
-    a100_cohorts = {(t["mode"], t["model"]) for t in trials if t["campaign"] == A100}
+    a100_cohorts = {
+        (t["mode"], t["model"]) for t in trials if t["campaign"] in (A100, A100_FOLLOWUP)
+    }
     decision_cohorts = {
         (t["mode"], t["model"])
         for t in trials
@@ -53,10 +56,17 @@ def test_cohorts_keep_modes_separate_and_average_only_successful_flights(trials)
     )
     assert results["realtime", "jev-1.13.0"] | {"mean_latency_s": None} == {
         "mean_latency_s": None,
-        "successful": 2,
-        "failed": 8,
-        "best": 35.737,
-        "average": pytest.approx(34.917),
+        "successful": 7,
+        "failed": 3,
+        "best": 77.586,
+        "average": pytest.approx(44.3002857143),
+    }
+    assert results["realtime", "jev-1.14.0"] | {"mean_latency_s": None} == {
+        "mean_latency_s": None,
+        "successful": 8,
+        "failed": 2,
+        "best": 79.302,
+        "average": pytest.approx(53.4795),
     }
     assert results["lockstep", "jev-1.14.0"] | {"mean_latency_s": None} == {
         "mean_latency_s": None,
@@ -84,6 +94,21 @@ def test_unfinished_a100_cohort_is_not_exported(tmp_path, monkeypatch):
         '"groups":{"groundhog-1":[{"mode":"realtime","seed":42}]}}'
     )
     assert list(build_trial_visuals.a100_trials()) == []
+
+
+def test_a100_followup_adds_only_verified_lockstep_rows(trials):
+    followup = [t for t in trials if t["campaign"] == A100_FOLLOWUP]
+    assert {(t["model"], t["mode"], t["status"], float(t["score"])) for t in followup} == {
+        ("strands-decider-31B-gemma4-v2-2611", "lockstep", "landed", 74.504),
+        ("kudhab", "lockstep", "landed", 67.141),
+        ("karpo-decision-31B", "lockstep", "runway_excursion", 0.0),
+    }
+    rows = merge_rows(load_rows(HISTORICAL_OUTPUT / "results.json"), summarize(trials))
+    assert all(row["family"] != "Local" for row in rows if row["mode"] == "realtime")
+    by_name = {row["model"]: row for row in rows if row["mode"] == "lockstep"}
+    assert by_name["Strands Decider v2 31B"]["trial_best"] == "74.50"
+    assert by_name["Kudhab"]["trial_average"] == "67.14"
+    assert by_name["Karpo Decision 31B"]["segments"][-1]["kind"] == "fail"
 
 
 def test_unfinished_decision_realtime_cohort_is_not_exported(tmp_path, monkeypatch):
@@ -160,6 +185,13 @@ def test_readme_assets_reproduce_with_realtime_first(trials):
         assert labels.count("MODEL") == 2
         assert "MODEL / REASONING EFFORT" not in labels
         assert not any((label or "").startswith("LANDING SCORE / 100") for label in labels)
+        ordering_note = (
+            "Within each group: highest best score first; unscored models by fastest mean latency."
+        )
+        assert labels.index("LOCKSTEP") < labels.index(ordering_note)
+        assert labels.index(ordering_note) < labels.index(
+            "All Codex runs shown used low reasoning effort."
+        )
         assert labels[-5:-1] == [
             "All Codex runs shown used low reasoning effort.",
             "Successful landing",
@@ -176,17 +208,20 @@ def test_readme_assets_reproduce_with_realtime_first(trials):
         assert {node.get("fill") for node in model_nodes} == {THEMES[theme]["fg"]}
         assert {node.get("text-anchor") for node in model_nodes} == {"start"}
         local = (
+            ("strands-decider-31B-gemma4-v2-2611", "Strands Decider v2 31B"),
+            ("kudhab", "Kudhab"),
             ("groundhog-1", "Groundhog 1"),
+            ("karpo-decision-31B", "Karpo Decision 31B"),
             ("bison-1", "Bison 1"),
-            ("knowline-31b-gen2", "KnowLine-31B Gen2"),
-            ("pplx-decider-v1.3", "Decider v1.3 27B"),
             ("glide-v1.2", "GLiDE v1.2"),
+            ("pplx-decider-v1.3", "Decider v1.3 27B"),
+            ("knowline-31b-gen2", "KnowLine-31B Gen2"),
         )
         decisions = (
             ("Microsoft-Decision-1.1", "Microsoft Decision 1.1"),
-            ("gemini-decision-1", "Gemini Decision 1"),
             ("gpt-6-luna", "Luna Decision API"),
             ("Microsoft-Decision-1", "Microsoft Decision 1"),
+            ("gemini-decision-1", "Gemini Decision 1"),
         )
         assert model_labels == [
             "Jev 1.14",
@@ -198,10 +233,10 @@ def test_readme_assets_reproduce_with_realtime_first(trials):
             ],
             "Jev 1.14",
             "Jev 1.13",
-            "GPT-6.2 Sol",
-            "GPT-6.1 Terra",
-            "GPT-6.1 Sol",
             "GPT-6 Luna",
+            "GPT-6.2 Sol",
+            "GPT-6.1 Sol",
+            "GPT-6.1 Terra",
             "GPT-6 Astra",
             *[label for model, label in local if ("lockstep", model) in results],
             *[label for _, label in decisions],
@@ -227,14 +262,18 @@ def test_readme_assets_reproduce_with_realtime_first(trials):
             and node.get("aria-roledescription") == "rect mark"
         ]
         assert [node.get("fill") for node in swatches] == list(colors.values())
-        averages = [
-            node.text
-            for node in svg.findall(".//s:text", ns)
-            if "trial_average:" in node.get("aria-label", "")
-            and node.get("fill") == THEMES[theme]["best"]
-        ]
-        assert averages == [r["trial_average"] for r in rows if r["trial_average_highest"]]
-        assert averages
+        for value, highlight in (
+            ("trial_best", "trial_highest"),
+            ("trial_average", "trial_average_highest"),
+        ):
+            highlighted = [
+                node.text
+                for node in svg.findall(".//s:text", ns)
+                if f"{value}:" in node.get("aria-label", "")
+                and node.get("fill") == THEMES[theme]["best"]
+            ]
+            assert highlighted
+            assert highlighted == [row[value] for row in rows if row[highlight]]
     repeated = next(
         r for r in rows if r["model"] == "Microsoft Decision 1.1" and r["mode"] == "lockstep"
     )
@@ -244,6 +283,24 @@ def test_readme_assets_reproduce_with_realtime_first(trials):
             assert [s["kind"] for s in row["segments"]] == ["repeat"] * 9 + [
                 "fail" if row["score"] is None else "success"
             ]
+
+
+def test_highlights_are_independent_per_group_and_mode(trials):
+    results = summarize(trials)
+    results["lockstep", SOL_MODEL]["average"] = 78
+    historical = load_rows(HISTORICAL_OUTPUT / "results.json")
+    rows = merge_rows(historical, results)
+    for column, codex in (
+        ("trial_highest", "GPT-6 Luna"),
+        ("trial_average_highest", "GPT-6.2 Sol"),
+    ):
+        assert [(r["mode"], r["model"]) for r in rows if r[column]] == [
+            ("realtime", "Jev 1.14"),
+            ("lockstep", "Jev 1.14"),
+            ("lockstep", codex),
+            ("lockstep", "Strands Decider v2 31B"),
+            ("lockstep", "Microsoft Decision 1.1"),
+        ]
 
 
 def test_realtime_hides_failures_and_shows_successful_microsoft_without_repeat_style(trials):
@@ -338,16 +395,21 @@ def test_decision_rows_use_mean_logged_cost(trials):
     decisions = [
         r for r in display_rows(rows) if r["family"] == "Decision API" and r["mode"] == "lockstep"
     ]
-    assert [
-        (r["model"], r["latency_text"], r["cost_text"], r["cost_comparison"]) for r in decisions
-    ] == [
-        ("Microsoft Decision 1.1", "0.778 s", "$0.0149", "1.0×"),
-        ("Gemini Decision 1", "3.988 s", "$0.0313", "2.1×"),
-        ("Luna Decision API", "0.275 s", "$0.0137", "0.9×"),
-        ("Microsoft Decision 1", "0.895 s", "$0.0116", "0.8×"),
-    ]
-    assert [r["api_cost_usd"] for r in decisions] == pytest.approx(
-        [0.01493877, 0.0313087, 0.0137289, 0.0116339706]
+    assert {
+        r["model"]: (r["latency_text"], r["cost_text"], r["cost_comparison"]) for r in decisions
+    } == {
+        "Microsoft Decision 1.1": ("0.778 s", "$0.0149", "1.0×"),
+        "Gemini Decision 1": ("3.988 s", "$0.0313", "2.1×"),
+        "Luna Decision API": ("0.275 s", "$0.0137", "0.9×"),
+        "Microsoft Decision 1": ("0.895 s", "$0.0116", "0.8×"),
+    }
+    assert {r["model"]: r["api_cost_usd"] for r in decisions} == pytest.approx(
+        {
+            "Microsoft Decision 1.1": 0.01493877,
+            "Gemini Decision 1": 0.0313087,
+            "Luna Decision API": 0.0137289,
+            "Microsoft Decision 1": 0.0116339706,
+        }
     )
 
 
