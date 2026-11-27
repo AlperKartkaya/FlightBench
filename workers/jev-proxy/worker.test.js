@@ -235,3 +235,24 @@ test('shared UTC cycle charges both versions from provider tokens, not results o
     monthly_nanos: 5_000_000_000, spent_nanos: 0, unpriced_requests: 0, renews_at: '2027-01-17T00:00:00.000Z',
   });
 });
+
+test('the reported balance starts at the snapshot and only subtracts subsequent proxy spend', async t => {
+  let now = Date.UTC(2026, 10, 27);
+  t.mock.method(Date, 'now', () => now);
+  const {env, ctx} = setup();
+  env.PUBLIC_ACCESS = 'true';
+  const snapshot = {cycle: 'jev-spend:2026-11-17', balance_nanos: 4_300_000_000, spent_nanos: 195_730_584};
+  env.JEV_CREDIT_BASELINE = snapshot;
+  await ctx.storage.put(snapshot.cycle, {spent_nanos: snapshot.spent_nanos, unpriced_requests: 0});
+  const remaining = async () => {
+    const req = new Request('https://proxy.workers.dev/credits', {headers: {Origin: env.ALLOWED_ORIGIN}});
+    const {monthly_nanos, spent_nanos} = await (await proxy.fetch(req, env)).json();
+    return monthly_nanos - spent_nanos;
+  };
+  assert.equal(await remaining(), 4_300_000_000);
+  t.mock.method(globalThis, 'fetch', async () => Response.json({...good(), usage: {input_tokens: 2500}}));
+  assert.equal((await proxy.fetch(request(), env)).status, 200);
+  assert.equal(await remaining(), 4_299_895_000);
+  now = Date.UTC(2026, 11, 17);
+  assert.equal(await remaining(), 5_000_000_000);
+});

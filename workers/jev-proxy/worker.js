@@ -157,7 +157,11 @@ export class Budget {
     const cycle = creditCycle();
     if (request.method === 'GET' && new URL(request.url).pathname === '/credits') {
       const spend = await this.ctx.storage.get(cycle.key) ?? {spent_nanos: 0, unpriced_requests: 0};
-      return json({monthly_nanos: MONTHLY_CREDIT_NANOS, ...spend, renews_at: cycle.renews_at});
+      const baseline = this.env.JEV_CREDIT_BASELINE;
+      // Add back spend already reflected in the TypeSafe balance so the UI won't deduct it twice.
+      const monthly_nanos = baseline?.cycle === cycle.key
+        ? baseline.balance_nanos + baseline.spent_nanos : MONTHLY_CREDIT_NANOS;
+      return json({monthly_nanos, ...spend, renews_at: cycle.renews_at});
     }
     let state, model;
     try {({model = MODEL, ...state} = await boundedJSON(request));} catch {return json({error: 'Invalid telemetry'}, 400);}

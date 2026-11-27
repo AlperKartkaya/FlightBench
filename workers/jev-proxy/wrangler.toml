@@ -12,6 +12,11 @@ ENABLED = "true"
 PUBLIC_ACCESS = "true"
 ALLOWED_ORIGIN = "https://alperkartkaya.github.io"
 
+[vars.JEV_CREDIT_BASELINE]
+cycle = "jev-spend:2026-11-17"
+balance_nanos = 4080000000
+spent_nanos = 276556056
+
 [[durable_objects.bindings]]
 name = "BUDGET"
 class_name = "Budget"

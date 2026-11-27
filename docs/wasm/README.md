@@ -120,10 +120,11 @@ only model, action IDs, controls, and estimated cost; upstream bodies and header
 `GET /credits` exposes a shared FlightBench-only estimate, not a TypeSafe balance or a spend cap.
 Each Jev request is priced from billable input tokens
 ([TypeSafe pricing](https://help.typesafe.ai/articles/5187202169-how-much-does-jev-cost)).
-The estimate starts at the maintainer's $5 monthly allowance and renews on the 17th at 00:00 UTC.
-It excludes usage before tracking and outside this proxy; requests with unconfirmed usage make it
-a partial estimate. The Pages results show Jev spend separately per flight, including parallel
-Jev versions in a race.
+The meter assumes a $5 allowance on the 17th at 00:00 UTC unless the cycle is anchored to a
+maintainer-provided TypeSafe balance in `JEV_CREDIT_BASELINE`. The anchor includes the proxy's
+spend at the time of the snapshot so earlier calls are not deducted twice. Only later proxy usage
+is tracked; direct benchmark calls and other TypeSafe usage are not synced. The Pages results show
+Jev spend separately per flight, including parallel Jev versions in a race.
 
 The Worker name is `flightbench-jev`; its allowed origin is
 `https://alperkartkaya.github.io`. The deployed endpoint is
